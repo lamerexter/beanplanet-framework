@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.beanplanet</groupId>
-            <artifactId>beanplanet-messages-all</artifactId>
+            <artifactId>beanplanet-messages</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
