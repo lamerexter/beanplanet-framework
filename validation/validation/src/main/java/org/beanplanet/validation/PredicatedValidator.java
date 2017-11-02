@@ -23,7 +23,7 @@ import static org.beanplanet.messages.domain.MessageImpl.fieldMessage;
  *
  * @param <T> The type of the context object to validate.
  */
-public abstract class PredicatedValidator<T> extends AbstractValidator<T> {
+public class PredicatedValidator<T> extends AbstractValidator<T> {
     private Predicate<?> validation;
 
     public PredicatedValidator(Message message) {
