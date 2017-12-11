@@ -8,14 +8,22 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.events.monitoring;
+package org.beanplanet.core.io.resource;
 
-import org.beanplanet.events.core.domain.BaseEvent;
 
-import static java.time.Instant.now;
+import java.net.URI;
 
-public class BeaconSignalEvent extends BaseEvent {
-    public BeaconSignalEvent() {
-        super(now(), now());
-    }
+/**
+ * A tagging interface for resources that are URI-based or capable of being referenced by a URI.
+ *
+ * @author Gary Watson
+ */
+public interface UriBasedResource extends PathBasedResource {
+    /**
+     * Attempts to return a Uniform Resource Locator (URI) for the resource, if the resource type supports URI
+     * references.
+     *
+     * @return the URL of the resource.
+     */
+    URI getURI();
 }

@@ -10,19 +10,19 @@
 
 package org.beanplanet.events.core.domain;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * The superclass of all events.
  */
 public class BaseEvent implements Event {
     private String name;
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
+    private Instant startDateTime;
+    private Instant endDateTime;
 
     public BaseEvent() {}
 
-    public BaseEvent(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    public BaseEvent(Instant startDateTime, Instant endDateTime) {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
     }
@@ -33,34 +33,34 @@ public class BaseEvent implements Event {
     }
 
     @Override
-    public LocalDateTime getEventStartDateTime() {
+    public Instant getEventStartInstant() {
         return startDateTime;
     }
 
     @Override
-    public void setEventStartDateTime(LocalDateTime startDateTime) {
+    public void setEventStartInstant(Instant startDateTime) {
         this.startDateTime = startDateTime;
     }
 
     @Override
-    public Event withEventStartDateTime(LocalDateTime startDateTime) {
-        setEventStartDateTime(startDateTime);
+    public Event withEventStartInstant(Instant startDateTime) {
+        setEventStartInstant(startDateTime);
         return this;
     }
 
     @Override
-    public LocalDateTime getEventEndDateTime() {
+    public Instant getEventEndInstant() {
         return endDateTime;
     }
 
     @Override
-    public void setEventEndDateTime(LocalDateTime endDateTime) {
+    public void setEventEndInstant(Instant endDateTime) {
         this.endDateTime = endDateTime;
     }
 
     @Override
-    public Event withEventEndDateTime(LocalDateTime endDateTime) {
-        setEventEndDateTime(endDateTime);
+    public Event withEventEndInstant(Instant endDateTime) {
+        setEventEndInstant(endDateTime);
         return this;
     }
 }

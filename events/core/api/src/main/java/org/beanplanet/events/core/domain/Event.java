@@ -10,7 +10,7 @@
 
 package org.beanplanet.events.core.domain;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * The superclass of all events.
@@ -30,36 +30,36 @@ public interface Event {
      *
      * @return the date and time the event started.
      */
-    LocalDateTime getEventStartDateTime();
+    Instant getEventStartInstant();
 
     /**
      * Sets the date and time the event started.
      *
      * @param eventStartDateTime the date and time the event started.
      */
-    void setEventStartDateTime(LocalDateTime eventStartDateTime);
+    void setEventStartInstant(Instant eventStartDateTime);
 
     /**
-     * Builder-style setter of the date and time the event started.
+     * models-style setter of the date and time the event started.
      *
      * @param eventStartDateTime the date and time the event started.
      * @return this instance for invocation chaining.
      */
-    Event withEventStartDateTime(LocalDateTime eventStartDateTime);
+    Event withEventStartInstant(Instant eventStartDateTime);
 
     /**
      * Gets the date and time the event ended.
      *
      * @return the date and time the event ended.
      */
-    LocalDateTime getEventEndDateTime();
+    Instant getEventEndInstant();
 
     /**
      * Sets the date and time the event occurred.
      *
      * @param eventEndDateTime the date and time the event occurred.
      */
-    void setEventEndDateTime(LocalDateTime eventEndDateTime);
+    void setEventEndInstant(Instant eventEndDateTime);
 
     /**
      * Sets the date and time the event occurred.
@@ -67,5 +67,5 @@ public interface Event {
      * @param eventEndDateTime the date and time the event occurred.
      * @return this instance for invocation chaining.
      */
-    Event withEventEndDateTime(LocalDateTime eventEndDateTime);
+    Event withEventEndInstant(Instant eventEndDateTime);
 }

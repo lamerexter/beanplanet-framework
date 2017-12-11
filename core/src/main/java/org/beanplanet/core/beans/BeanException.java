@@ -8,14 +8,41 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.events.monitoring;
+package org.beanplanet.core.beans;
 
-import org.beanplanet.events.core.domain.BaseEvent;
+/**
+ * Superclass <code>Exception</code> of all exceptions thrown by the JavaBean-based subsystem API.
+ *
+ * @author Gary Watson
+ */
+public class BeanException extends RuntimeException {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-import static java.time.Instant.now;
+    /**
+     * Creates a new <code>BeanException</code> with no initial detail message or root cause.
+     */
+    public BeanException() {
+    }
 
-public class BeaconSignalEvent extends BaseEvent {
-    public BeaconSignalEvent() {
-        super(now(), now());
+    /**
+     * Creates a new <code>BeanException</code> with the specified detail message.
+     *
+     * @param message the detail message.
+     */
+    public BeanException(String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a <code>BeanException</code> with the specified detail message and root cause.
+     *
+     * @param message the detail message
+     * @param cause the nested root cause of the exception.
+     */
+    public BeanException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

@@ -8,14 +8,15 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.events.monitoring;
+package org.beanplanet.core.models;
 
-import org.beanplanet.events.core.domain.BaseEvent;
-
-import static java.time.Instant.now;
-
-public class BeaconSignalEvent extends BaseEvent {
-    public BeaconSignalEvent() {
-        super(now(), now());
-    }
+/**
+ * Definition of a builder, following the <a href="http://en.wikipedia.org/wiki/Builder_pattern">Builder Design Pattern</a>.
+ *
+ * @author Gary Watson
+ *
+ * @param <T>
+ */
+public interface Builder<T> {
+    T build();
 }

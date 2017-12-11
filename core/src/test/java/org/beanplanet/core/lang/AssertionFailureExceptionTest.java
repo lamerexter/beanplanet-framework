@@ -8,17 +8,38 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.events.monitoring;
+package org.beanplanet.core.lang;
 
 import org.junit.Test;
 
-import static java.time.LocalDateTime.now;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertThat;
 
-public class BeaconSignalEventTest {
+
+/**
+ * Unit tests for {@link AssertionFailureException}.
+ */
+public class AssertionFailureExceptionTest {
     @Test
-    public void noArgsCtor() {
-//        assertThat(new BeaconSignalEvent().getEventStartInstant(), is(now()));
+    public void ctorNoArgs() {
+        assertThat(new AssertionFailureException().getMessage(), nullValue());
+        assertThat(new AssertionFailureException().getCause(), nullValue());
+    }
+
+    @Test
+    public void ctorMessage() {
+        AssertionFailureException exception = new AssertionFailureException("theMessage");
+        assertThat(exception.getMessage(), equalTo("theMessage"));
+        assertThat(exception.getCause(), nullValue());
+    }
+
+    @Test
+    public void ctorMessageAndCause() {
+        Throwable cause = new Exception();
+        AssertionFailureException exception = new AssertionFailureException("theMessage", cause);
+        assertThat(exception.getMessage(), equalTo("theMessage"));
+        assertThat(exception.getCause(), sameInstance(cause));
     }
 }

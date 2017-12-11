@@ -30,6 +30,29 @@
     </properties>
     <version>2.0.0</version>
     <url>http://www.beanplanet.com</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Gary Watson</name>
+            <email>support@beanplanet.com</email>
+            <organization>Beanplanet Ltd</organization>
+            <organizationUrl>http://www.beanplanet.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git@github.com:lamerexter/beanplanet-framework.git</connection>
+        <developerConnection>scm:git:ssh://github.com:simpligility/ossrh-demo.git</developerConnection>
+        <url>http://github.com/simpligility/ossrh-demo/tree/master</url>
+    </scm>
+
     <build>
         <plugins>
             <plugin>

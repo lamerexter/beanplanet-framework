@@ -8,14 +8,24 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.events.monitoring;
+package org.beanplanet.core.io;
 
-import org.beanplanet.events.core.domain.BaseEvent;
+import org.beanplanet.core.io.resource.FileResource;
 
-import static java.time.Instant.now;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class BeaconSignalEvent extends BaseEvent {
-    public BeaconSignalEvent() {
-        super(now(), now());
+public class FileUtil {
+    public static Stream<File> listFiles(File from) {
+        try {
+            return Files.walk(from.toPath()).map(p -> p.toFile());
+        } catch (IOException e) {
+            throw new IoException(String.format("Unable to walk file tree [%s]: ", from), e);
+        }
     }
 }

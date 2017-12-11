@@ -7,15 +7,42 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+package org.beanplanet.core.beans;
 
-package org.beanplanet.events.monitoring;
+/**
+ * An exception thrown when a requested property could not be found on a bean.
+ *
+ * @author Gary Watson
+ * @since 19th July, 2003
+ */
+public class PropertyNotFoundException extends BeanException {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-import org.beanplanet.events.core.domain.BaseEvent;
+    /**
+     * Creates a new <code>PropertyNotFoundException</code> with no initial detail message or root cause.
+     */
+    public PropertyNotFoundException() {
+    }
 
-import static java.time.Instant.now;
+    /**
+     * Creates a new <code>PropertyNotFoundException</code> with the specified detail message.
+     *
+     * @param message the detail message.
+     */
+    public PropertyNotFoundException(String message) {
+        super(message);
+    }
 
-public class BeaconSignalEvent extends BaseEvent {
-    public BeaconSignalEvent() {
-        super(now(), now());
+    /**
+     * Creates a <code>BeanException</code> with the specified detail message and root coause.
+     *
+     * @param message the detail message
+     * @param cause the nested root cause of the exception.
+     */
+    public PropertyNotFoundException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

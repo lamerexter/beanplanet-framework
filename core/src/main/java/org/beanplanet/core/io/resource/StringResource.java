@@ -8,14 +8,27 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.events.monitoring;
+package org.beanplanet.core.io.resource;
 
-import org.beanplanet.events.core.domain.BaseEvent;
+/**
+ * Convenience implementation of a string resource.
+ *
+ * @author Gary Watson
+ */
+public class StringResource extends CharSequenceResource {
+    /**
+     * Constructs a new string resource with no initial backing string.
+     *
+     */
+    public StringResource() {
+    }
 
-import static java.time.Instant.now;
-
-public class BeaconSignalEvent extends BaseEvent {
-    public BeaconSignalEvent() {
-        super(now(), now());
+    /**
+     * Consructs a new string resource with the specified backing string.
+     *
+     * @param string the string backing this resource.
+     */
+    public StringResource(String string) {
+        super(string);
     }
 }
