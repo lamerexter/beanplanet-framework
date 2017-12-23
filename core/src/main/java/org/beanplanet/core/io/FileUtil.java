@@ -10,14 +10,9 @@
 
 package org.beanplanet.core.io;
 
-import org.beanplanet.core.io.resource.FileResource;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileUtil {
