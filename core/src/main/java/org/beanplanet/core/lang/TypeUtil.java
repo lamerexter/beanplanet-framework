@@ -1,17 +1,34 @@
 /*
- * Copyright (C) 2017 Beanplanet Ltd
+ *  MIT Licence:
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *  Copyright (C) 2018 Beanplanet Ltd
+ *  Permission is hereby granted, free of charge, to any person
+ *  obtaining a copy of this software and associated documentation
+ *  files (the "Software"), to deal in the Software without restriction
+ *  including without limitation the rights to use, copy, modify, merge,
+ *  publish, distribute, sublicense, and/or sell copies of the Software,
+ *  and to permit persons to whom the Software is furnished to do so,
+ *  subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be
+ *  included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ *  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ *  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ *  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ *  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ *  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *  DEALINGS IN THE SOFTWARE.
  */
 
 package org.beanplanet.core.lang;
 
 import org.beanplanet.core.UncheckedException;
 import org.beanplanet.core.util.ExceptionUtil;
+import org.beanplanet.core.util.StringUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -30,8 +47,8 @@ import java.util.Set;
  * @author Gary Watson
  */
 public final class TypeUtil {
-    private static final Set<Class<?>> PRIMITIVE_TYPES = new HashSet<>();
 
+    private static final Set<Class<?>> PRIMITIVE_TYPES = new HashSet<>();
     private static final Set<Class<?>> PRIMITIVE_TYPE_WRAPPERS = new HashSet<>();
 
     private static final Set<Class<?>> NUMERIC_TYPES = new HashSet<>();
@@ -177,7 +194,7 @@ public final class TypeUtil {
         return clazz;
     }
 
-    public static java.lang.Class<?> loadClass(String className) {
+    public static java.lang.Class<?> loadClass(String className) throws TypeNotFoundException {
         Class<?> clazz = NAME_TO_PRIMITIVE_CLASS.get(className);
         if (clazz != null) {
             return clazz;
@@ -192,7 +209,7 @@ public final class TypeUtil {
                 try {
                     clazz = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
                 } catch (java.lang.ClassNotFoundException cnfThreadEx) {
-                    throw new UncheckedException(cnfThreadEx);
+                    throw new TypeNotFoundException("The given class ["+className+"] was not found: ", cnfThreadEx);
                 }
             }
         }
@@ -232,7 +249,7 @@ public final class TypeUtil {
                 try {
                     clazz = Class.forName(className, initialiseClass, Thread.currentThread().getContextClassLoader());
                 } catch (java.lang.ClassNotFoundException cnfThreadEx) {
-                    throw new UncheckedException(cnfThreadEx);
+                    throw new TypeNotFoundException("The given class ["+className+"] was not found: ", cnfEx);
                 }
             }
         }
@@ -270,7 +287,7 @@ public final class TypeUtil {
         return instantiateClass(clazz, ctorArgVals);
     }
 
-    public static <T> T instantiateClass(Class<T> type) throws ClassNotFoundException {
+    public static <T> T instantiateClass(Class<T> type) throws TypeNotFoundException {
         final Object NO_ARGS[] = new Object[] {};
         return instantiateClass(type, NO_ARGS);
     }
@@ -395,6 +412,47 @@ public final class TypeUtil {
             throw ExceptionUtil.unwindAndRethrowRuntimeException(UncheckedException.class, "Unable to invoke method [" + method + "]"
                 + (target == null ? "" : " on target bean [class=" + target.getClass().getName() + "]: "), invocationEx);
         }
+    }
+
+    /**
+     * Convenience method to return the display name of a type
+     *
+     * @param type
+     *           the type whose name is to be displayed
+     * @return the string display name for the type, useful for debugging
+     */
+    public static String getDisplayNameForType(Class<?> type) {
+        if (type == null) {
+            return "null";
+        }
+
+        String name = null;
+        if (type.isArray()) {
+            name = getDisplayNameForType(type.getComponentType()) + "[]";
+        } else {
+            name = type.getName();
+        }
+        name = StringUtil.lTrim(name, "class ");
+        name = StringUtil.lTrim(name, "java.lang.");
+        name = StringUtil.lTrim(name, "java.util.");
+        return name;
+    }
+
+    /**
+     * Determined whether all of the given types are interfaces.
+     *
+     * @param classes the types to be determined as interfaces.
+     * @return true, if all pf the given types are interfaces, false otherwise.
+     */
+    public static final boolean areAllInterfaces(Class<?> classes[]) {
+        Assert.notNull(classes, "The list of classes may not be null");
+        Assert.isTrue(classes.length > 0, "One or more classes must be specified");
+        boolean allInterfaces = true;
+        for (int n = 0; n < classes.length && allInterfaces; n++) {
+            allInterfaces = classes[n].isInterface();
+        }
+
+        return allInterfaces;
     }
 
 }

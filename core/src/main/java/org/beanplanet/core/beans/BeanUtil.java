@@ -1,11 +1,27 @@
 /*
- * Copyright (C) 2017 Beanplanet Ltd
+ *  MIT Licence:
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *  Copyright (C) 2018 Beanplanet Ltd
+ *  Permission is hereby granted, free of charge, to any person
+ *  obtaining a copy of this software and associated documentation
+ *  files (the "Software"), to deal in the Software without restriction
+ *  including without limitation the rights to use, copy, modify, merge,
+ *  publish, distribute, sublicense, and/or sell copies of the Software,
+ *  and to permit persons to whom the Software is furnished to do so,
+ *  subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be
+ *  included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ *  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ *  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ *  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ *  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ *  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *  DEALINGS IN THE SOFTWARE.
  */
 package org.beanplanet.core.beans;
 
@@ -15,6 +31,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Optional;
 
 import org.beanplanet.core.lang.TypeUtil;
 import org.beanplanet.core.util.StringUtil;
@@ -155,11 +172,11 @@ public class BeanUtil {
         Object value = null;
         try {
             JavabeanMetadata JavabeanMetadata = metaDataCache.getBeanMetaData(bean.getClass());
-            PropertyDescriptor property = JavabeanMetadata.getPropertyNamesToDescriptorMap().get(name);
+            Optional<PropertyDescriptor> property = JavabeanMetadata.getPropertyDescriptor(name);
             boolean readProperty = false;
-            if (property != null) {
-                if (property instanceof IndexedPropertyDescriptor) {
-                    IndexedPropertyDescriptor idxProperty = (IndexedPropertyDescriptor) property;
+            if (property.isPresent()) {
+                if (property.get() instanceof IndexedPropertyDescriptor) {
+                    IndexedPropertyDescriptor idxProperty = (IndexedPropertyDescriptor) property.get();
                     Method method = idxProperty.getIndexedReadMethod();
                     if (method != null) {
                         value = TypeUtil.invokeMethod(bean, method, new Object[] { new Integer(0) });
@@ -169,7 +186,7 @@ public class BeanUtil {
                     }
                 }
                 else {
-                    Method method = property.getReadMethod();
+                    Method method = property.get().getReadMethod();
                     if (method != null) {
                         value = TypeUtil.invokeMethod(bean, method, new Object[] {});
                         // value = method.invoke(Modifier.isStatic(method.getModifiers()) ? null : bean, new Object[] {});
@@ -257,11 +274,11 @@ public class BeanUtil {
         Class<?> propertyType = null;
         try {
             JavabeanMetadata JavabeanMetadata = metaDataCache.getBeanMetaData(beanClass);
-            PropertyDescriptor property = JavabeanMetadata.getPropertyNamesToDescriptorMap().get(name);
+            Optional<PropertyDescriptor> property = JavabeanMetadata.getPropertyDescriptor(name);
             boolean readProperty = false;
-            if (property != null) {
-                if (property instanceof IndexedPropertyDescriptor) {
-                    IndexedPropertyDescriptor idxProperty = (IndexedPropertyDescriptor) property;
+            if (property.isPresent()) {
+                if (property.get() instanceof IndexedPropertyDescriptor) {
+                    IndexedPropertyDescriptor idxProperty = (IndexedPropertyDescriptor) property.get();
                     Method method = idxProperty.getIndexedReadMethod();
                     if (method != null) {
                         propertyType = method.getReturnType();
@@ -269,7 +286,7 @@ public class BeanUtil {
                     }
                 }
                 else {
-                    Method method = property.getReadMethod();
+                    Method method = property.get().getReadMethod();
                     if (method != null) {
                         propertyType = method.getReturnType();
                         readProperty = true;

@@ -1,17 +1,34 @@
 /*
- * Copyright (C) 2017 Beanplanet Ltd
+ *  MIT Licence:
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *  Copyright (C) 2018 Beanplanet Ltd
+ *  Permission is hereby granted, free of charge, to any person
+ *  obtaining a copy of this software and associated documentation
+ *  files (the "Software"), to deal in the Software without restriction
+ *  including without limitation the rights to use, copy, modify, merge,
+ *  publish, distribute, sublicense, and/or sell copies of the Software,
+ *  and to permit persons to whom the Software is furnished to do so,
+ *  subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be
+ *  included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ *  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ *  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ *  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ *  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ *  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *  DEALINGS IN THE SOFTWARE.
  */
 
 package org.beanplanet.core.beans;
 
 import org.beanplanet.core.lang.TypeUtil;
 
+import javax.swing.text.html.Option;
 import java.beans.BeanInfo;
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.IntrospectionException;
@@ -19,13 +36,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Holds meta data for a <code>JavaBean</code> bean instance. Lazily loaded where possible.
@@ -104,7 +115,7 @@ class JavabeanMetadata {
      * @param startClass the class whose property design patterns are to be discovered.
      */
     public JavabeanMetadata(Class<?> startClass) {
-        setDesignStartClass(startClass);
+        this(startClass, null);
     }
 
     /**
@@ -116,24 +127,16 @@ class JavabeanMetadata {
      *        <code>Object</code> will be inspected.
      */
     public JavabeanMetadata(Class<?> startClass, Class<?> stopClass) {
-        setDesignStartClass(startClass);
-        setDesignStopClass(stopClass);
+        this.designStartClass = startClass;
+        this.designStopClass = stopClass;
     }
 
     public Class<?> getDesignStartClass() {
         return designStartClass;
     }
 
-    public void setDesignStartClass(Class<?> designStartClass) {
-        this.designStartClass = designStartClass;
-    }
-
     public Class<?> getDesignStopClass() {
         return designStopClass;
-    }
-
-    public void setDesignStopClass(Class<?> designStopClass) {
-        this.designStopClass = designStopClass;
     }
 
     public BeanInfo getBeanInfo() {
@@ -156,23 +159,15 @@ class JavabeanMetadata {
         return beanInfo;
     }
 
-    public void setBeanInfo(BeanInfo beanInfo) {
-        this.beanInfo = beanInfo;
-    }
-
-    public PropertyDescriptor[] getProperties() {
+    public PropertyDescriptor[] getPropertiesDescriptors() {
         if (properties == null) {
             properties = getBeanInfo().getPropertyDescriptors();
         }
         return properties;
     }
 
-    public void setProperties(PropertyDescriptor[] properties) {
-        this.properties = properties;
-    }
-
     public String[] getPropertyNames() {
-        getProperties(); // Cache property info
+        getPropertiesDescriptors();
         if (propertyNames == null) {
             String propNames[] = new String[properties.length];
             Map<String, PropertyDescriptor> propMap = new HashMap<String, PropertyDescriptor>();
@@ -186,20 +181,16 @@ class JavabeanMetadata {
         return propertyNames;
     }
 
-    public void setPropertyNames(String[] propertyNames) {
-        this.propertyNames = propertyNames;
+    public Optional<PropertyDescriptor> getPropertyDescriptor(String propertyName) {
+        return Optional.ofNullable(getPropertyNamesToDescriptorMap().get(propertyName));
     }
 
-    public Map<String, PropertyDescriptor> getPropertyNamesToDescriptorMap() {
+    private Map<String, PropertyDescriptor> getPropertyNamesToDescriptorMap() {
         if (propertyNames == null) {
             getPropertyNames(); // Cache property name
         }
         // info
         return propertyNamesToDescriptorMap;
-    }
-
-    public void setPropertyNamesToDescriptorMap(Map<String, PropertyDescriptor> propertyNamesToDescriptorMap) {
-        this.propertyNamesToDescriptorMap = propertyNamesToDescriptorMap;
     }
 
     /**
@@ -267,13 +258,11 @@ class JavabeanMetadata {
             }
         }
         else {
-            // System.out.println("** Assessing property name="+ of
-            // type="+property.getPropertyType().getName());
             for (int n = 0; n < beanMetaData.getPropertyNames().length; n++) {
                 String hPropName = (parentPropertyName + "." + beanMetaData.getPropertyNames()[n]);
                 namesList.add(hPropName);
                 Set<Class<?>> branchPathTypes = new HashSet<Class<?>>(pathTypes);
-                addDescendentPropertyNames(hPropName, beanMetaData.getProperties()[n], namesList, branchPathTypes);
+                addDescendentPropertyNames(hPropName, beanMetaData.getPropertiesDescriptors()[n], namesList, branchPathTypes);
                 branchPathTypes.clear();
                 branchPathTypes.addAll(pathTypes);
             }
