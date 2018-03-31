@@ -24,8 +24,8 @@ import net.sf.cglib.proxy.MethodProxy;
 public class CGLibMethodCallContext extends MethodCallContext {
    protected MethodProxy methodProxy;
 
-   public CGLibMethodCallContext(Method method, Object parameters[], MethodProxy methodProxy) {
-      super(method, parameters);
+   public CGLibMethodCallContext(Object target, Method method, Object parameters[], MethodProxy methodProxy) {
+      super(target, method, parameters);
       this.methodProxy = methodProxy;
    }
 

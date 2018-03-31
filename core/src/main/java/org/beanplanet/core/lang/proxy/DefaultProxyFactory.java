@@ -70,7 +70,7 @@ public class DefaultProxyFactory implements ProxyFactory {
 
          // Determine if beanplanet-proxy module (with CGLib support) is on the classpath also.
          Class<ProxyFactory> proxyFactoryClass = (Class<ProxyFactory>) TypeUtil
-               .loadClass("org.beanplanet.core.lang.proxy.cglib.CGLibProxyFactory");
+               .loadClass("org.beanplanet.proxy.cglib.CGLibProxyFactory");
          subclassCapableProxyFactory = proxyFactoryClass.newInstance();
          subclassProxyFactoryLoadProblem = null;
       } catch (Exception ignoreEx) {

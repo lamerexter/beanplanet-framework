@@ -32,7 +32,7 @@ public class MethodInterceptorToMethodCallInterceptorAdaptor implements MethodIn
    }
 
    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-      CGLibMethodCallContext context = new CGLibMethodCallContext(method, args, methodProxy);
+      CGLibMethodCallContext context = new CGLibMethodCallContext(proxy, method, args, methodProxy);
 
       return interceptor.interceptMethodCall(context);
    }
