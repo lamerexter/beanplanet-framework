@@ -265,8 +265,6 @@ class JavaBeanMetaData {
             }
         }
         else {
-            // System.out.println("** Assessing property name="+ of
-            // type="+property.getPropertyType().getName());
             for (int n = 0; n < beanMetaData.getPropertyNames().length; n++) {
                 String hPropName = (parentPropertyName + "." + beanMetaData.getPropertyNames()[n]);
                 namesList.add(hPropName);

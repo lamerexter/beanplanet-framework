@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static org.beanplanet.core.lang.TypeUtil.isPrimitiveType;
-import static org.beanplanet.core.util.CollectionUtil.nullSafe;
+import static org.beanplanet.core.util.ArrayUtil.nullSafe;
 
 /**
  * A useful support class for testing readable and writable properties on beans.
@@ -119,7 +119,7 @@ public final class BeanTestSupport {
 
     public final BeanTestSupport testProperties(Object instance, String... propertyNames) {
         Bean bean = new JavaBean(instance);
-        for (String propertyName : nullSafe(propertyNames)) {
+        for (String propertyName : nullSafe(String.class, propertyNames)) {
             if (excludedPropertyNames.contains(propertyName)) continue;
 
             if (bean.isReadableProperty(propertyName) && bean.isWritableProperty(propertyName)) {
@@ -323,14 +323,14 @@ public final class BeanTestSupport {
     private void assertPropertyReadableAndWritable(Bean bean, String propertyName) {
         Object value = generatePropertyValue(bean, propertyName);
         bean.set(propertyName, value);
-        Object retrievedPropertyValue = bean.get(propertyName);
+        Object retrievedPropertyValue = bean.get(propertyName).getValue();
         if (!Objects.equals(value, retrievedPropertyValue)) {
             throw new AssertionError(String.format("The property get/set tests on bean [type=%s] failed on property %s. Set value [%s] did not match retrieved value [%s]", bean.getWrappedInstance().getClass().getName(), propertyName, value, retrievedPropertyValue));
         }
 
         if (testWithNullValues && !isPrimitiveType(bean.getPropertyType(propertyName))) {
             bean.set(propertyName, null);
-            retrievedPropertyValue = bean.get(propertyName);
+            retrievedPropertyValue = bean.get(propertyName).getValue();
             if (retrievedPropertyValue != null) {
                 throw new AssertionError(String.format("The property get/set tests on bean [type=%s] failed on property %s. Set null value did not match retrieved value [%s]", bean.getWrappedInstance().getClass().getName(), propertyName, retrievedPropertyValue));
             }

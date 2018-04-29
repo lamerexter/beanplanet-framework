@@ -28,35 +28,13 @@ package org.beanplanet.core.util;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.Matchers.is;
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.CombinableMatcher.both;
 
-/**
- * Unit tests for {@link ArrayUtil}.
- */
-public class ArrayUtilTest {
+public class CollectionUtilTest {
     @Test
-    public void isEmptyOrNull() {
-        assertThat(ArrayUtil.isEmptyOrNull(null), is(true));
-        assertThat(ArrayUtil.isEmptyOrNull(new String[0]), is(true));
-        assertThat(ArrayUtil.isEmptyOrNull(new String[] {"Hello"}), is(false));
-    }
-
-    @Test
-    public void nullSafe() {
-        String arr[] = { "Hello", "World" };
-        assertThat(ArrayUtil.nullSafe(String.class, arr), sameInstance(arr));
-        assertThat(ArrayUtil.nullSafe(String.class, null), both(notNullValue()).and(equalTo(new String[0])));
-    }
-
-    @Test
-    public void emptyArray() {
-        String[] emptyArray = ArrayUtil.emptyArray(String.class);
-        assertThat(emptyArray, notNullValue());
-        assertThat(emptyArray.length, equalTo(0));
+    public void isNotNullOrEmpty() {
+        assertThat(CollectionUtil.isNotNullOrEmpty(asList("Hello", "World")), is(true));
     }
 }

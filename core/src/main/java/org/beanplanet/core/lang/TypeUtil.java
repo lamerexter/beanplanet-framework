@@ -303,7 +303,6 @@ public final class TypeUtil {
                 type = (Class<T>) ensureNonPrimitiveType(type);
             }
             java.lang.reflect.Constructor<T> beanCtor = getCallableConstructor(type, ctorArgVals);
-            // System.out.println("* Got ctor="+beanCtor+" argTypes="+Arrays.asList(beanCtor.getParameterTypes()));
             return beanCtor.newInstance(ctorArgVals);
         } catch (InstantiationException instantiateEx) {
             throw new UncheckedException("Unable to instantiate class, type=\"" + type.getName()
@@ -386,7 +385,7 @@ public final class TypeUtil {
             && (aClass == bClass || PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.get(aClass) == bClass || PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.get(aClass) == bClass);
     }
 
-    public static Object invokeMethod(Object target, Method method, Object params[]) {
+    public static Object invokeMethod(Object target, Method method, Object ... params) {
         try {
             return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, (params != null ? params : EMPTY_PARAMS));
         } catch (IllegalAccessException accessEx) {

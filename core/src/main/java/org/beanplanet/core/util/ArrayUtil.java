@@ -58,6 +58,19 @@ public class ArrayUtil {
     }
 
     /**
+     * A convenient method to not have to check if an array is null. Particularly useful
+     * in the new for loop which does not do this check.
+     *
+     * @param componentType the component type of the array.
+     * @param array the array which may be null.
+     * @return the array or an empty array if null.
+     */
+    @SuppressWarnings("unchecked")
+    public static final <T> T[] nullSafe(Class<T> componentType, T[] array) {
+        return array != null ? array : ArrayUtil.emptyArray(componentType);
+    }
+
+    /**
      * Returns an empty array of the component type inferred from the LHS context.
      *
      * @param <T> the component type of the empty array to be returned.

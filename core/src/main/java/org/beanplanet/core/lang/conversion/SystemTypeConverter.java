@@ -28,7 +28,21 @@ package org.beanplanet.core.lang.conversion;
 
 import org.beanplanet.core.logging.Logger;
 
-public abstract class DefaultTypeConverter extends AbstractTypeConverterRegistry implements TypeConverter, Logger {
+public class SystemTypeConverter extends AbstractTypeConverterRegistry implements TypeConverter, Logger {
+    private static SystemTypeConverter INSTANCE = new SystemTypeConverter();
+
+    public static final TypeConverter systemTypeConverter() {
+        return INSTANCE;
+    }
+
+    @Override
+    public <T> T convert(Object value, Class<T> targetType) throws UnsupportedTypeConversionException {
+        if (value == null) return null;
+
+        if (targetType.isAssignableFrom(value.getClass())) return (T)value;
+
+        throw new UnsupportedTypeConversionException();
+    }
 //   protected TypeConverterLoader loader = new PackageScanTypeConverterLoader();
 //   /**
 //    * Whether the type converter should use and apply heuristics in determining implicit type conversion capabilities of

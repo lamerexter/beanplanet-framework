@@ -63,19 +63,7 @@ public class CollectionUtil {
      * @return the iterable collection or an empty collection if null.
      */
     public static final <T> Iterable<T> nullSafe(Iterable<T> iterable) {
-        return iterable != null ? iterable : Collections.<T>emptyList();
-    }
-
-    /**
-     * A convenient method to not have to check if an array is null. Particularly useful
-     * in the new for loop which does not do this check.
-     *
-     * @param array the array which may be null.
-     * @return the array or an empty array if null.
-     */
-    @SuppressWarnings("unchecked")
-    public static final <T> T[] nullSafe(T[] array) {
-        return array != null ? array : (T[])ArrayUtil.emptyArray(Object.class);
+        return iterable != null ? iterable : Collections.emptyList();
     }
 
     /**

@@ -96,11 +96,7 @@ class JavabeanMetadataCache {
      */
     public JavabeanMetadata getBeanMetaData(Class<?> startClass, Class<?> stopClass) throws BeanException {
         String metaDataKey = getBeanMetaDataKey(startClass, stopClass);
-        JavabeanMetadata metaData = metaDataCache.get(metaDataKey);
-        if (metaData == null) {
-            metaData = new JavabeanMetadata(startClass, stopClass);
-            metaDataCache.put(metaDataKey, metaData);
-        }
+        JavabeanMetadata metaData = metaDataCache.computeIfAbsent(metaDataKey, k -> new JavabeanMetadata(startClass, stopClass));
 
         return metaData;
     }

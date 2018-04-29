@@ -28,9 +28,13 @@ package org.beanplanet.core.beans;
 
 import org.beanplanet.core.lang.TypeUtil;
 import org.beanplanet.core.lang.conversion.TypeConverter;
+import org.beanplanet.core.models.TypeConvertingValue;
 import org.beanplanet.core.models.Value;
 
 import java.beans.PropertyDescriptor;
+import java.util.Optional;
+
+import static org.beanplanet.core.lang.conversion.SystemTypeConverter.systemTypeConverter;
 
 public class JavaBean implements Bean {
     private JavabeanMetadataCache metadataCache;
@@ -40,15 +44,15 @@ public class JavaBean implements Bean {
     private TypeConverter typeConverter;
 
     public JavaBean(Object bean) {
-        this(JavabeanMetadataCache.getSystemCache(), null, bean);
+        this(JavabeanMetadataCache.getSystemCache(), systemTypeConverter(), bean);
     }
 
     public JavaBean(JavabeanMetadataCache metadataCache, Object bean) {
-        this(metadataCache, null, bean);
+        this(metadataCache, systemTypeConverter(), bean);
     }
 
     public JavaBean(TypeConverter typeConverter, Object bean) {
-        this(null, typeConverter, bean);
+        this(JavabeanMetadataCache.getSystemCache(), typeConverter, bean);
     }
 
     public JavaBean(JavabeanMetadataCache metadataCache, TypeConverter typeConverter, Object bean) {
@@ -68,12 +72,12 @@ public class JavaBean implements Bean {
 
     @Override
     public String[] getPropertyNames() {
-        return getBeanMetaData().propertyNames;
+        return getBeanMetaData().getPropertyNames();
     }
 
     @Override
     public boolean isReadableProperty(String name) {
-        return getBeanMetaData().getPropertyDescriptor(name).filter(JavaBean::isReadableProperty).isPresent();
+        return getPropertyDescriptor(name).filter(JavaBean::isReadableProperty).isPresent();
     }
 
     public static boolean isReadableProperty(PropertyDescriptor propertyDescriptor) {
@@ -91,29 +95,56 @@ public class JavaBean implements Bean {
                && propertyDescriptor.getWriteMethod().getParameterTypes()[0].equals(propertyDescriptor.getPropertyType());
     }
 
+    private Optional<PropertyDescriptor> getPropertyDescriptor(String name) {
+        return getBeanMetaData().getPropertyDescriptor(name);
+    }
+
+    private PropertyDescriptor assertAndGetPropertyDescriptor(String name) {
+        return getPropertyDescriptor(name)
+                .orElseThrow(() -> new PropertyNotFoundException(String.format("No such property [%s] on bean [%s]",
+                                                                               name, TypeUtil.getDisplayNameForType(bean.getClass()))));
+    }
+
+    private PropertyDescriptor assertAndGetReadablePropertyDescriptor(String name) throws PropertyNotFoundException {
+        return getPropertyDescriptor(name)
+                .filter(JavaBean::isReadableProperty)
+                .orElseThrow(() -> new PropertyNotFoundException(String.format("The property [%s] on bean [%s] is no readable. Does it have a no-arg accessor/getter?",
+                                                                               name, TypeUtil.getDisplayNameForType(bean.getClass()))));
+    }
+
+    private PropertyDescriptor assertAndGetWritablePropertyDescriptor(String name) throws PropertyNotFoundException {
+        return getPropertyDescriptor(name)
+                .filter(JavaBean::isWritableProperty)
+                .orElseThrow(() -> new PropertyNotFoundException(String.format("The property [%s] on bean [%s] is no writable. Does it have a single-arg accessor/setter?",
+                                                                               name, TypeUtil.getDisplayNameForType(bean.getClass()))));
+    }
+
     @Override
     public Value get(String name) throws PropertyNotFoundException {
-        PropertyDescriptor propertyDescriptor = getBeanMetaData().getPropertyDescriptor(name).filter(JavaBean::isReadableProperty).orElseThrow(
-                () -> new PropertyNotFoundException("Property [" + name + "] on the bean [" + TypeUtil.getDisplayNameForType(bean.getClass())+"] not found or not readable. Does it have a public accessor?")
-        );
+        PropertyDescriptor pd = assertAndGetReadablePropertyDescriptor(name);
 
-        return null;
-//        return TypeUtil.invokeMethod(bean, propertyDescriptor.getReadMethod(), EMPTY_ARRAY);
+        return new TypeConvertingValue(typeConverter, TypeUtil.invokeMethod(bean, pd.getReadMethod()));
     }
 
     @Override
     public Value get(String name, Object defaultValue) {
-        return null;
+        try {
+            return get(name);
+        } catch (PropertyNotFoundException e) {
+            return new TypeConvertingValue(typeConverter, defaultValue);
+        }
     }
 
     @Override
     public void set(String name, Object value) throws PropertyNotFoundException, BeanException {
+        PropertyDescriptor pd = assertAndGetWritablePropertyDescriptor(name);
 
+        TypeUtil.invokeMethod(bean, pd.getWriteMethod(), value);
     }
 
     @Override
     public Class<?> getPropertyType(String name) throws PropertyNotFoundException, BeanException {
-        return null;
+        return assertAndGetPropertyDescriptor(name).getPropertyType();
     }
 
     private JavabeanMetadata getBeanMetaData() {
