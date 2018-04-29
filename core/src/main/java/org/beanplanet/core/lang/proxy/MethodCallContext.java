@@ -25,8 +25,7 @@
  */
 package org.beanplanet.core.lang.proxy;
 
-import org.beanplanet.core.lang.ExceptionHandler;
-
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -43,11 +42,6 @@ public class MethodCallContext {
 
     /** The parameters to be supplied to the method invoked on the target object. */
     protected Object parameters[];
-
-    /**
-    * An handler of exceptions thrown during method invocation.
-    */
-    protected ExceptionHandler exceptionHandler;
 
     /**
     * Constructs a method call context.
@@ -69,25 +63,6 @@ public class MethodCallContext {
       this.target = target;
       this.method = method;
       this.parameters = parameters;
-    }
-
-
-    /**
-    * Returns the handler of exceptions thrown during method invocation.
-    *
-    * @return the exceptionHandler the configured handler of exceptions.
-    */
-    public ExceptionHandler getExceptionHandler() {
-      return exceptionHandler;
-    }
-
-    /**
-    * Sets the handler of exceptions thrown during method invocation.
-    *
-    * @param exceptionHandler the configured handler of exceptions.
-    */
-    public void setExceptionHandler(ExceptionHandler exceptionHandler) {
-      this.exceptionHandler = exceptionHandler;
     }
 
     /**
@@ -169,17 +144,8 @@ public class MethodCallContext {
     public Object invokeOnTarget(Object target) throws Throwable {
         try {
             return method.invoke(target, parameters);
-        } catch (Throwable th) {
-            Throwable throwEx = th;
-            if (exceptionHandler != null && exceptionHandler.canHandleException(th)) {
-                try {
-                    Object handlerReturnedValue = exceptionHandler.handleException(th);
-                    return handlerReturnedValue;
-                } catch (Throwable handlerRethrownEx) {
-                    throwEx = handlerRethrownEx;
-                }
-            }
-            throw throwEx;
+        } catch (InvocationTargetException itEx) {
+            throw itEx.getTargetException();
         }
     }
 }

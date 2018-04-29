@@ -28,7 +28,10 @@ package org.beanplanet.core.lang.conversion;
 import org.beanplanet.core.lang.Assert;
 import org.beanplanet.core.util.CollectionUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * <a href="http://en.wikipedia.org/wiki/Composite_pattern">Composite</a> design pattern for type converters. This converter encloses or aggregates a

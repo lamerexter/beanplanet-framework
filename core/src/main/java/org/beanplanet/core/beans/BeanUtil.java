@@ -25,16 +25,12 @@
  */
 package org.beanplanet.core.beans;
 
+import org.beanplanet.core.lang.TypeUtil;
+
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.List;
 import java.util.Optional;
-
-import org.beanplanet.core.lang.TypeUtil;
-import org.beanplanet.core.util.StringUtil;
 
 /**
  * A static utility class, containing convenient methods that deal will access to <a

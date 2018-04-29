@@ -26,15 +26,8 @@
 
 package org.beanplanet.core.models.tree;
 
-import org.beanplanet.core.lang.proxy.DefaultProxyFactory;
-import org.beanplanet.core.lang.proxy.MethodCallContext;
-import org.beanplanet.core.lang.proxy.MethodCallInterceptor;
-import org.beanplanet.core.lang.proxy.Proxy;
-
 import java.io.File;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -92,36 +85,5 @@ public class FilesystemTree implements Tree<File> {
     @Override
     public boolean add(File parent, File afterNode, File node) {
         return false;
-    }
-
-    public static void main(String ... args) {
-        final Tree<File> fs = new FilesystemTree(new File("D:\\Apps"));
-
-        Tree<File> cachingTree = DefaultProxyFactory.getInstance().createProxy(Tree.class, new MethodCallInterceptor() {
-            Map<List<Object>, Object> cache = new HashMap<>();
-            @Override
-            public Object interceptMethodCall(MethodCallContext context) throws Throwable {
-                if (context.getMethod().getName().equals("postorderIterator")) {
-                    return new PostorderIterator<>((Tree<File>)context.getTarget());
-                }
-                List<Object> cacheKey = new ArrayList();
-                cacheKey.add(context.getMethod());
-                if (context.getParameters() != null) {
-                    cacheKey.addAll(Arrays.asList(context.getParameters()));
-                }
-
-                Object cachedResult = cache.get(cacheKey);
-                if (cachedResult != null) {
-                    return cachedResult;
-                }
-
-                Object result = context.invokeOnTarget(fs);
-                cache.put(cacheKey, result);
-                return result;
-            }
-        });
-
-        long result = cachingTree.postorderIterator().stream().filter(File::isFile).mapToLong(File::length).sum();
-        System.out.println("Result : "+(result));
     }
 }

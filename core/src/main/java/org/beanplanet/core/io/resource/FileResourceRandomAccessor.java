@@ -29,11 +29,7 @@ package org.beanplanet.core.io.resource;
 import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.lang.Assert;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 
 /**
  * Implementation of random access operations over a file resource.

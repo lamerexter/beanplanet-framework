@@ -26,12 +26,12 @@
 
 package org.beanplanet.core.util;
 
+import org.beanplanet.core.lang.Assert;
+import org.beanplanet.core.lang.TypeUtil;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
-
-import org.beanplanet.core.lang.Assert;
-import org.beanplanet.core.lang.TypeUtil;
 
 /**
  * An exception related utility class.

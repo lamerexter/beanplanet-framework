@@ -26,7 +26,6 @@
 package org.beanplanet.core.models.tree;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 

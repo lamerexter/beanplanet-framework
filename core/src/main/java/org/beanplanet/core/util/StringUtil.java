@@ -26,12 +26,10 @@
 
 package org.beanplanet.core.util;
 
-import org.beanplanet.core.Functions;
-import org.beanplanet.core.Predicates;
-import org.beanplanet.core.lang.Assert;
-
-import java.util.*;
-import java.util.function.BiFunction;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;

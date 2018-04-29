@@ -28,12 +28,7 @@ package org.beanplanet.core.beans;
 
 import org.beanplanet.core.lang.TypeUtil;
 
-import javax.swing.text.html.Option;
-import java.beans.BeanInfo;
-import java.beans.IndexedPropertyDescriptor;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
+import java.beans.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;

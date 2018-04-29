@@ -15,85 +15,94 @@
  ******************************************************************************/
 package org.beanplanet.proxy.cglib;
 
-import java.lang.reflect.Modifier;
-
 import net.sf.cglib.proxy.Enhancer;
-
-import org.beanplanet.core.lang.Assert;
 import org.beanplanet.core.lang.TypeUtil;
 import org.beanplanet.core.lang.proxy.FinalClassProxyOperationException;
 import org.beanplanet.core.lang.proxy.MethodCallInterceptor;
 import org.beanplanet.core.lang.proxy.ProxyException;
-import org.beanplanet.core.lang.proxy.ProxyFactoryBase;
+import org.beanplanet.core.lang.proxy.ProxyFactory;
 
-public class CGLibProxyFactory extends ProxyFactoryBase {
+import java.lang.reflect.Modifier;
 
-   /**
-    * Internal method designed to be implemented by subclasses to create a proxy
-    * guaranteed to extend the specified superclass and/or implement the
-    * additional interfaces. Invocations of methods on the proxy object will be
-    * passed to the method call interceptor provided.
-    * 
-    * <p>
-    * The interceptor may choose to simply return a value, pass on the call to
-    * some target object or perform the necessary work itself in order to
-    * complete the method call, depending on the implementation. Any exceptions
-    * thrown by the interceptor will be passed to the exception handler
-    * provided, if any.
-    * <p>
-    * 
-    * @param classLoader
-    *           the class loader under which the new proxy instance will be
-    *           created. Guaranteed not to be null.
-    * @param superClass
-    *           a concrete super class type the created proxy is required to
-    *           extend. May be null if <code>proxyInterfaces</code> have been
-    *           specified.
-    * @param proxyInterfaces
-    *           the interfaces the proxy is required to implement. May not be
-    *           null and must contain at least one interface unless
-    *           <code>superClass</code> has been specified.
-    * @param interceptor
-    *           the method call interceptor which will handle invocations of
-    *           methods on the proxy object. May not be null.
-    * @return a proxy object, which extends the specified superclass and/or
-    *         implements the specified additional interfaces.
-    */
-   protected Object createProxyInternal(ClassLoader classLoader, Class<?> superClass, Class<?> proxyInterfaces[],
-         MethodCallInterceptor interceptor) throws ProxyException {
-      Assert.notNull(classLoader, "The classloader may not be null");
-      Assert.isTrue(superClass != null || (proxyInterfaces != null && proxyInterfaces.length > 0),
-            "The superclass to extend or one or more proxy interfaces may not be null");
-      Assert.isTrue(proxyInterfaces == null
-                    || (proxyInterfaces.length > 0 && TypeUtil.areAllInterfaces(proxyInterfaces)),
-            "Only interface types may be specified as proxy interfaces");
+import static org.beanplanet.core.lang.Assert.isTrue;
+import static org.beanplanet.core.lang.TypeUtil.areAllInterfaces;
+import static org.beanplanet.core.util.ArrayUtil.isEmptyOrNull;
 
-      if (superClass != null && Modifier.isFinal(superClass.getModifiers())) {
-         throw new FinalClassProxyOperationException("Unable to proxy object [class=" + superClass.getClass().getName()
-                                                     + "]: the class is marked as final.");
-      }
+public class CGLibProxyFactory implements ProxyFactory {
+    /**
+     * Creates a dynamic proxy that implements all of the specified interfaces. Invocations
+     * of methods on the proxy object will be passed to the method call handler provided.
+     *
+     * @param classloader     the class loader under which the new proxy instance will be created. May be null, in which
+     *                        case the classloader will be derived from the first proxied interface specified.
+     * @param proxyInterfaces the interfaces the proxy is required to implement. May not be null and must contain
+     *                        at least one element and all elements must be interface types.
+     * @param handler         the method call handler which will handle invocations of methods on the proxied object. May
+     *                        not be null.
+     * @return a proxy object, which extends the specified superclass, implements the specified additional interfaces and
+     * delegates all method calls to the handler specified.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T dynamicProxy(ClassLoader classloader, Class<?>[] proxyInterfaces, MethodCallInterceptor handler) throws ProxyException {
+        isTrue(proxyInterfaces != null && proxyInterfaces.length > 0, "The superclass to extend or one or more proxy interfaces may not be null");
+        isTrue(areAllInterfaces(proxyInterfaces), "Only interface types may be specified as proxy interfaces");
 
-      if (classLoader == null) {
-         if (superClass != null) {
-            classLoader = TypeUtil.getClassLoaderInContext(superClass);
-         }
-         else {
-            classLoader = TypeUtil.getClassLoaderInContext(proxyInterfaces[0]);
-         }
-      }
+        if (classloader == null) {
+            classloader = TypeUtil.getClassLoaderInContext(proxyInterfaces[0]);
+        }
 
-      Enhancer e = new Enhancer();
-      e.setClassLoader(classLoader);
-      if (superClass != null) {
-         e.setSuperclass(superClass);
-      }
-      if (proxyInterfaces != null) {
-         e.setInterfaces(proxyInterfaces);
-      }
-      e.setCallback(new MethodInterceptorToMethodCallInterceptorAdaptor(interceptor));
+        Enhancer e = new Enhancer();
+        e.setClassLoader(classloader);
+        if (proxyInterfaces != null) {
+            e.setInterfaces(proxyInterfaces);
+        }
+        e.setCallback(new MethodInterceptorToMethodCallInterceptorAdaptor(handler));
 
-      Object proxy = e.create();
-      return proxy;
-   }
+        return (T) e.create();
+    }
 
+    /**
+     * Creates a dynamic proxy that extends the specified superclass and implements all of the additional interfaces. Invocations
+     * of methods on the proxy object will be passed to the method call handler provided.
+     *
+     * @param classloader     the class loader under which the new proxy instance will be created. May be null, in which
+     *                        case the classloader will be derived from the superclass specified.
+     * @param superclass      a concrete super class type the created proxy is required to extend. May not be null.
+     * @param ctorArgTypes    the types of the arguments of the constructor to be used in the construction of the new
+     *                        proxy/superclass, which may be null to indicate the no-arg constructor should be used.  If
+     *                        specified, all argument types must be non-null.
+     * @param ctorArgs        arguments to be passed to the constructor of the new proxy/superclass for its
+     *                        construction, which may be null.  In addition, one or more of the arguments may be null.
+     * @param proxyInterfaces the interfaces the proxy is required to implement. May be null; if specified must contain
+     *                        at least one element and all elements must be interface types.
+     * @param handler         the method call handler which will handle invocations of methods on the proxied object. May
+     *                        not be null.
+     * @return a proxy object, which extends the specified superclass, implements the specified additional interfaces and
+     * delegates all method calls to the handler specified.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T dynamicProxy(ClassLoader classloader, Class<T> superclass, Class<?>[] ctorArgTypes, Object[] ctorArgs, Class<?>[] proxyInterfaces, MethodCallInterceptor handler) throws ProxyException {
+        isTrue(superclass != null, "The superclass may not be null");
+        isTrue(isEmptyOrNull(proxyInterfaces) || areAllInterfaces(proxyInterfaces), "Only interface types may be specified as proxy interfaces");
+
+        if (Modifier.isFinal(superclass.getModifiers())) {
+            throw new FinalClassProxyOperationException("Unable to proxy object [class=" + superclass.getClass() + "]: the class is marked as final.");
+        }
+
+        if (classloader == null) {
+            classloader = TypeUtil.getClassLoaderInContext(superclass);
+        }
+
+        Enhancer e = new Enhancer();
+        e.setClassLoader(classloader);
+        e.setSuperclass(superclass);
+        if (proxyInterfaces != null) {
+            e.setInterfaces(proxyInterfaces);
+        }
+        e.setCallback(new MethodInterceptorToMethodCallInterceptorAdaptor(handler));
+
+        return (T)(isEmptyOrNull(ctorArgTypes) ? e.create() : e.create(ctorArgTypes, ctorArgs));
+    }
 }

@@ -25,16 +25,6 @@
  */
 package org.beanplanet.core.lang.conversion;
 
-import org.beanplanet.core.util.StringUtil;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.*;
-
 public class PackageScanTypeConverterLoader { // implements TypeConverterLoader {
    public static final String TYPE_CONVERTER_PACKAGES_RESOURCE = "META-INF/services/org/beanplanet/converters/type-converter-packages.txt";
 

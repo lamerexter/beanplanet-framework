@@ -31,11 +31,7 @@ import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.io.resource.StringResource;
 import org.beanplanet.core.lang.Assert;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 

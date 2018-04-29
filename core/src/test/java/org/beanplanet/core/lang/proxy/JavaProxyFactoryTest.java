@@ -36,7 +36,7 @@ public class JavaProxyFactoryTest extends AbstractCommonProxyFactoryTests {
       ABProxiedClassImpl target = new ABProxiedClassImpl();
 
       try {
-         proxyFactory.createProxy(null, target.getClass(), new TargetInvokingMethodCallInterceptor(target), null);
+         proxyFactory.dynamicProxy(target.getClass(), new TargetInvokingMethodCallInterceptor(target));
          fail("The Java 1.3+ java.lang.Proxy based factory appears to support proxy on concrete types!");
       } catch (UnsupportedProxyOperationException unEx) {
       }

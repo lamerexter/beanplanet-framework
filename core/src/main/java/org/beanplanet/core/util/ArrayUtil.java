@@ -48,6 +48,16 @@ public class ArrayUtil {
     public static final Object[] EMPTY_ARRAY = new Object[0];
 
     /**
+     * Determines whether a given array is null or empty.
+     *
+     * @param array the array to be determined as null or empty;
+     * @return true is the array is null or contains no elements, false otherwise.
+     */
+    public static final <T> boolean isEmptyOrNull(T array[]) {
+        return array == null || array.length ==0;
+    }
+
+    /**
      * Returns an empty array of the component type inferred from the LHS context.
      *
      * @param <T> the component type of the empty array to be returned.

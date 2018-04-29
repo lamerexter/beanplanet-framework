@@ -30,12 +30,19 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * Unit tests for {@link ArrayUtil}.
  */
 public class ArrayUtilTest {
+    @Test
+    public void isEmptyOrNull() {
+        assertThat(ArrayUtil.isEmptyOrNull(null), is(true));
+        assertThat(ArrayUtil.isEmptyOrNull(new String[0]), is(true));
+        assertThat(ArrayUtil.isEmptyOrNull(new String[] {"Hello"}), is(false));
+    }
     @Test
     public void emptyArray() {
         String[] emptyArray = ArrayUtil.emptyArray(String.class);

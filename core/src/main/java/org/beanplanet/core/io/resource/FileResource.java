@@ -30,12 +30,7 @@ import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.lang.Assert;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 

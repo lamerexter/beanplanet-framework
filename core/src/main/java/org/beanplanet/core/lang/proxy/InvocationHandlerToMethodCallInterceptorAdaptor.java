@@ -25,10 +25,10 @@
  */
 package org.beanplanet.core.lang.proxy;
 
+import org.beanplanet.core.lang.Assert;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-
-import org.beanplanet.core.lang.Assert;
 
 /**
  * Adapts a standard Java 1.3+ <code>{@link InvocationHandler}</code> to a generic method call handler.
@@ -37,7 +37,6 @@ import org.beanplanet.core.lang.Assert;
  * 
  */
 public class InvocationHandlerToMethodCallInterceptorAdaptor implements InvocationHandler {
-   protected static final InvocationTargetExceptionUnwinder INVOCATION_TARGET_EX_TRANSLATOR = new InvocationTargetExceptionUnwinder();
    protected MethodCallInterceptor interceptor;
 
    public InvocationHandlerToMethodCallInterceptorAdaptor(MethodCallInterceptor interceptor) {
@@ -47,7 +46,6 @@ public class InvocationHandlerToMethodCallInterceptorAdaptor implements Invocati
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
       MethodCallContext context = new MethodCallContext(proxy, method, args);
-      context.setExceptionHandler(INVOCATION_TARGET_EX_TRANSLATOR);
 
       return interceptor.interceptMethodCall(context);
    }

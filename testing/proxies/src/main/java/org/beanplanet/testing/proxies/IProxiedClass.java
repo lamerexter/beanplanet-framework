@@ -29,11 +29,11 @@ import org.beanplanet.testing.core.ACheckedException;
 import org.beanplanet.testing.core.ARuntimeException;
 
 public interface IProxiedClass {
-   public void testMethod();
-   public IProxiedClass getThis();
-   public int getTestMethodCallCount();
+   void testMethod();
+   IProxiedClass getThis();
+   int getTestMethodCallCount();
    
-   public Object anExceptionThrowingMethodWithNoDeclaredExceptions();
-   public Object aMethodWithThrowingACheckedException() throws ACheckedException, ACheckedException;
-   public Object aMethodWithThrowingAnUncheckedException() throws ARuntimeException;
+   Object anExceptionThrowingMethodWithNoDeclaredExceptions();
+   Object aMethodWithThrowingACheckedException() throws ACheckedException;
+   Object aMethodWithThrowingAnUncheckedException() throws ARuntimeException;
 }

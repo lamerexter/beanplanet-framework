@@ -15,11 +15,13 @@
  ******************************************************************************/
 package org.beanplanet.proxy.cglib;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.beanplanet.core.lang.proxy.MethodCallContext;
 
 import net.sf.cglib.proxy.MethodProxy;
+import org.beanplanet.core.lang.proxy.ProxyException;
 
 public class CGLibMethodCallContext extends MethodCallContext {
    protected MethodProxy methodProxy;
@@ -29,21 +31,16 @@ public class CGLibMethodCallContext extends MethodCallContext {
       this.methodProxy = methodProxy;
    }
 
+   public MethodProxy getMethodProxy() {
+      return methodProxy;
+   }
+
    @Override
    public Object invokeOnTarget(Object target) throws Throwable {
       try {
          return methodProxy.invoke(target, parameters);
-      } catch (Throwable th) {
-         Throwable throwEx = th;
-         if (exceptionHandler != null && exceptionHandler.canHandleException(th)) {
-            try {
-               Object handlerReturnedValue = exceptionHandler.handleException(th);
-               return handlerReturnedValue;
-            } catch (Throwable handlerRethrownEx) {
-               throwEx = handlerRethrownEx;
-            }
-         }
-         throw throwEx;
+      } catch (InvocationTargetException itEx) {
+         throw itEx.getTargetException();
       }
    }
 }

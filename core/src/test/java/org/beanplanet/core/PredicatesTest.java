@@ -28,11 +28,11 @@ package org.beanplanet.core;
 
 import org.junit.Test;
 
+import static org.beanplanet.core.Predicates.falsePredicate;
+import static org.beanplanet.core.Predicates.truePredicate;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.*;
-import static org.beanplanet.core.Predicates.truePredicate;
-import static org.beanplanet.core.Predicates.falsePredicate;
+import static org.junit.Assert.assertThat;
 
 /**
  * Unit tests for @{@link Predicates}.

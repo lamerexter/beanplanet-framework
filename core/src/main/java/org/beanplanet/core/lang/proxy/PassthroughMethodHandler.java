@@ -23,51 +23,22 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
+
 package org.beanplanet.core.lang.proxy;
 
-/**
- * Configuration object for <code>{@link ProxyFactory}</code> implementations.
- * 
- * @author Gary Watson
- * 
- */
-public class ProxyFactoryConfig {
-   /**
-    * Whether the target class/object is to always be proxied via a subclass, even when just proxy interfaces are
-    * specified or required.
-    */
-   protected boolean proxyTargetClass = false;
-   /** Whether to decorate the generated proxy with a Proxy interface the client can see and manipulate. */
-   protected boolean exposeProxy = true;
+public class PassthroughMethodHandler<T> implements MethodCallInterceptor {
+    private T delegate;
 
-   public ProxyFactoryConfig() {
-   }
+    public PassthroughMethodHandler(T delegate) {
+        this.delegate = delegate;
+    }
 
-   /**
-    * @return the proxyTargetClass
-    */
-   public boolean getProxyTargetClass() {
-      return proxyTargetClass;
-   }
+    public T getDelegate() {
+        return delegate;
+    }
 
-   /**
-    * @param proxyTargetClass the proxyTargetClass to set
-    */
-   public void setProxyTargetClass(boolean proxyTargetClass) {
-      this.proxyTargetClass = proxyTargetClass;
-   }
-
-   /**
-    * @return the exposeProxy
-    */
-   public boolean getExposeProxy() {
-      return exposeProxy;
-   }
-
-   /**
-    * @param exposeProxy the exposeProxy to set
-    */
-   public void setExposeProxy(boolean exposeProxy) {
-      this.exposeProxy = exposeProxy;
-   }
+    @Override
+    public Object interceptMethodCall(MethodCallContext context) throws Throwable {
+        return context.invokeOnTarget(delegate);
+    }
 }

@@ -28,14 +28,6 @@ package org.beanplanet.core.util;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * A utility class containing useful collection methods.

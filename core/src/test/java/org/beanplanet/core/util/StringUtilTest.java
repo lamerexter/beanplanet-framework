@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.BiPredicate;
 
 import static java.util.Arrays.asList;
 import static org.beanplanet.core.Predicates.falsePredicate;

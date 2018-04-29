@@ -15,12 +15,16 @@
  ******************************************************************************/
 package org.beanplanet.proxy.cglib;
 
-import org.beanplanet.core.lang.proxy.FinalClassProxyOperationException;
-import org.beanplanet.core.lang.proxy.TargetInvokingMethodCallInterceptor;
-import org.beanplanet.core.lang.proxy.UnsupportedProxyOperationException;
+import org.beanplanet.core.lang.proxy.*;
+import org.beanplanet.core.models.tree.FilesystemTree;
+import org.beanplanet.core.models.tree.PostorderIterator;
+import org.beanplanet.core.models.tree.Tree;
 import org.beanplanet.testing.proxies.ABProxiedClassImpl;
 import org.beanplanet.testing.proxies.FinalClass;
 import org.beanplanet.testing.proxies.ProxiedClass;
+
+import java.io.File;
+import java.util.*;
 
 public class CGLibProxyFactoryTests extends AbstractCommonProxyFactoryTests {
 
@@ -32,9 +36,7 @@ public class CGLibProxyFactoryTests extends AbstractCommonProxyFactoryTests {
         ABProxiedClassImpl target = new ABProxiedClassImpl();
 
         try {
-            @SuppressWarnings("unused")
-            Object proxy = proxyFactory.createProxy(null, target.getClass(), new TargetInvokingMethodCallInterceptor(
-                    target), null);
+            proxyFactory.dynamicProxy(target.getClass(), new TargetInvokingMethodCallInterceptor(target));
         } catch (UnsupportedProxyOperationException unEx) {
             fail("The CGLIbProxyFactory is supposed to support proxy via concrete types!");
         }
@@ -42,8 +44,7 @@ public class CGLibProxyFactoryTests extends AbstractCommonProxyFactoryTests {
 
     public void testSimpleTargetProxy() {
         ProxiedClass target = new ProxiedClass();
-        ProxiedClass proxy = proxyFactory.createProxy(null, target.getClass(), new TargetInvokingMethodCallInterceptor(
-                target), null);
+        ProxiedClass proxy = proxyFactory.dynamicProxy(target.getClass(), new TargetInvokingMethodCallInterceptor(target));
         assertTrue(proxy != target);
         assertTrue(target == proxy.getThis());
         assertTrue(target == target.getThis());
@@ -66,9 +67,7 @@ public class CGLibProxyFactoryTests extends AbstractCommonProxyFactoryTests {
         FinalClass target = new FinalClass();
 
         try {
-            @SuppressWarnings("unused")
-            Object proxy = proxyFactory.createProxy(null, target.getClass(), new TargetInvokingMethodCallInterceptor(
-                    target), null);
+            proxyFactory.dynamicProxy(target.getClass(), new TargetInvokingMethodCallInterceptor(target));
             fail("The CGLIb framework is not supposed to be able to proxy concrete types marked as final!");
         } catch (FinalClassProxyOperationException unEx) {
         }

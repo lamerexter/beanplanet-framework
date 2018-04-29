@@ -27,7 +27,6 @@
 package org.beanplanet.core.models.tree;
 
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 public class PostorderIterator<E> implements TreeIterator<E> {
     private Tree<E> tree;

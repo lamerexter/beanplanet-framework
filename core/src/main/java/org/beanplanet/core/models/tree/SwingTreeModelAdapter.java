@@ -25,12 +25,6 @@
  */
 package org.beanplanet.core.models.tree;
 
-import java.util.Vector;
-
-import javax.swing.event.TreeModelListener;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-
 /**
  * @author Gary Watson
  * @since 17th December, 2003

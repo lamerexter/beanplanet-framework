@@ -28,8 +28,6 @@ package org.beanplanet.core.lang.conversion;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.beanplanet.core.lang.TypeUtil;
-
 /**
  * Default implementation of a type converter registry.
  * 

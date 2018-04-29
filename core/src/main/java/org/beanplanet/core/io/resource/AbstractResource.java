@@ -29,12 +29,7 @@ import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.io.Path;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;

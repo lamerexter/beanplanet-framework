@@ -40,8 +40,8 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
                 return super.getTestMethodCallCount() * 2;
             }
         };
-        IProxiedClass proxy = proxyFactory.createProxy(null, IProxiedClass.class,
-                                                       new TargetInvokingMethodCallInterceptor(target), null);
+        IProxiedClass proxy = proxyFactory.dynamicProxy(IProxiedClass.class,
+                                                        new TargetInvokingMethodCallInterceptor(target));
         assertEquals(0, target.getTestMethodCallCount());
         proxy.testMethod();
         assertEquals(2, target.getTestMethodCallCount());
@@ -54,8 +54,8 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
 
     public void testExactMultipleInterfaceProxyInterceptor() {
         ABProxiedClassImpl target = new ABProxiedClassImpl();
-        Object proxy = proxyFactory.createProxy(null, new Class<?>[]{IA.class, IB.class, IProxiedClass.class},
-                new TargetInvokingMethodCallInterceptor(target), null);
+        Object proxy = proxyFactory.dynamicProxy(new Class<?>[]{IA.class, IB.class, IProxiedClass.class},
+                                                 new TargetInvokingMethodCallInterceptor(target));
         Assert.assertTrue(proxy instanceof IA);
         Assert.assertTrue(proxy instanceof IB);
         Assert.assertTrue(proxy instanceof IProxiedClass);
@@ -78,8 +78,8 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
 
     public void testSubsetMultipleInterfaceProxyInterceptor() {
         ABProxiedClassImpl target = new ABProxiedClassImpl();
-        Object proxy = proxyFactory.createProxy(null, new Class<?>[]{IA.class, IB.class},
-                new TargetInvokingMethodCallInterceptor(target), null);
+        Object proxy = proxyFactory.dynamicProxy(new Class<?>[]{IA.class, IB.class},
+                                                 new TargetInvokingMethodCallInterceptor(target));
         Assert.assertTrue(proxy instanceof IA);
         Assert.assertTrue(proxy instanceof IB);
         Assert.assertFalse(proxy instanceof IProxiedClass);
@@ -99,7 +99,7 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
 
     public void testInvocationOfMethodWithNoDeclaredExceptionsThrowingUncheckedException() {
         IProxiedClass target = new ProxiedClass();
-        IProxiedClass proxy = proxyFactory.createProxy(null, IProxiedClass.class, new TargetInvokingMethodCallInterceptor(target), null);
+        IProxiedClass proxy = proxyFactory.dynamicProxy(IProxiedClass.class, new TargetInvokingMethodCallInterceptor(target));
         try {
             proxy.anExceptionThrowingMethodWithNoDeclaredExceptions();
         } catch (ARuntimeException expectedEx) {
@@ -111,8 +111,8 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
 
     public void testSimpleSingleInterfaceProxyInterceptor() {
         ProxiedClass target = new ProxiedClass();
-        IProxiedClass proxy = proxyFactory.createProxy(null, IProxiedClass.class,
-                new TargetInvokingMethodCallInterceptor(target), null);
+        IProxiedClass proxy = proxyFactory.dynamicProxy(IProxiedClass.class,
+                                                        new TargetInvokingMethodCallInterceptor(target));
         Assert.assertTrue(proxy != target);
         Assert.assertTrue(target == proxy.getThis());
         assertEquals(0, proxy.getTestMethodCallCount());
@@ -132,7 +132,7 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
 
     public void testInvocationOfCheckedExceptionThrowingMethod() {
         IProxiedClass target = new ProxiedClass();
-        IProxiedClass proxy = proxyFactory.createProxy(null, IProxiedClass.class, new TargetInvokingMethodCallInterceptor(target), null);
+        IProxiedClass proxy = proxyFactory.dynamicProxy(IProxiedClass.class, new TargetInvokingMethodCallInterceptor(target));
         try {
             proxy.aMethodWithThrowingACheckedException();
         } catch (ACheckedException expectedEx) {
@@ -144,7 +144,7 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
 
     public void testInvocationOfUncheckedExceptionThrowingMethod() {
         IProxiedClass target = new ProxiedClass();
-        IProxiedClass proxy = proxyFactory.createProxy(null, IProxiedClass.class, new TargetInvokingMethodCallInterceptor(target), null);
+        IProxiedClass proxy = proxyFactory.dynamicProxy(IProxiedClass.class, new TargetInvokingMethodCallInterceptor(target));
         try {
             proxy.aMethodWithThrowingAnUncheckedException();
         } catch (ARuntimeException expectedEx) {
