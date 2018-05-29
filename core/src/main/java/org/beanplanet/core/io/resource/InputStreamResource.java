@@ -86,7 +86,7 @@ public class InputStreamResource extends AbstractResource implements ReadableRes
      * @throws UnsupportedOperationException always thrown as this resource is an in-memory resource.
      */
     @Override
-    public URL getURL() throws UnsupportedOperationException {
+    public URL getUrl() throws UnsupportedOperationException {
         throw new UnsupportedOperationException(getBaseName(InputStreamResource.class)
             + " are in-memory resources and have no URL");
     }

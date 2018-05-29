@@ -26,10 +26,9 @@
 
 package org.beanplanet.core.util;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import org.beanplanet.core.lang.Assert;
+
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -46,6 +45,49 @@ import static org.beanplanet.core.Predicates.truePredicate;
  * A static utility class containing string-based operations.
  */
 public class StringUtil {
+    public static final boolean isEmptyOrNull(String str) {
+        return str == null || str.trim().isEmpty();
+    }
+
+    public static final boolean notEmptyAndNotNull(String str) {
+        return !(isEmptyOrNull(str));
+    }
+
+    /**
+     * Replaces all occurrences of an old string with a new string for a given input string.
+     *
+     * @param inString to string in which the replacements are to occur.
+     * @param oldPattern the string to be replaced.
+     * @param newPattern the replacement string.
+     * @return a string with all occurrences of <code>oldPattern</code> replaced with <code>newPattern</code>.
+     */
+    public static String replaceAll(String inString, String oldPattern, String newPattern) {
+        // Pick up error conditions
+        if (inString == null) {
+            return null;
+        }
+        if (oldPattern == null || newPattern == null) {
+            return inString;
+        }
+
+        StringBuilder sbuf = new StringBuilder(); // Output StringBuilder we'll
+        // build up
+        int pos = 0; // Our position in the old string
+        int index = inString.indexOf(oldPattern); // The index of an occurrence
+        // we've found, or -1
+        int patLen = oldPattern.length();
+        while (index >= 0) {
+            sbuf.append(inString.substring(pos, index));
+            sbuf.append(newPattern);
+            pos = index + patLen;
+            index = inString.indexOf(oldPattern, pos);
+        }
+        sbuf.append(inString.substring(pos)); // Remember to append any
+        // characters to the right of a
+        // match
+        return sbuf.toString();
+    }
+
     /**
      * Replaces all occurrences of an old regular expression string with a new string for a given input string.
      *
@@ -54,7 +96,7 @@ public class StringUtil {
      * @param newStr the replacement string.
      * @return a string with all occurrences of <code>regexPattern</code> replaced with <code>newPattern</code>.
      */
-    public static String replaceRegex(String inString, String regexPattern, String newStr) {
+    public static String replaceAllRegex(String inString, String regexPattern, String newStr) {
         Pattern p = Pattern.compile(regexPattern);
         Matcher m = p.matcher(inString);
 
@@ -497,5 +539,128 @@ public class StringUtil {
                                                   String entryDelimiter,
                                                   String kvDelimiter) {
         return asDelimitedString(map, null, entryDelimiter, kvDelimiter, null, null);
+    }
+
+    /**
+     * Ensures the specified string, <code>str</code>, has the given prefix, <code>prefix</code>. The check for the
+     * string prefix is case-sensitive.
+     *
+     * @param str the string to have the prefix, which may be null.
+     * @param prefix the prefix to apply to the string, if not already present, which may be null.
+     * @return the specified string, guaranteed to have the prefix if it doesn't already or <code>null</code> if the
+     *         string is <code>null</code>.
+     * @see #ensureHasPrefix(String, String, boolean)
+     */
+    public static String ensureHasPrefix(String str, String prefix) {
+        return ensureHasPrefix(str, prefix, false);
+    }
+
+    /**
+     * Ensures the specified string, <code>str</code>, has the given prefix, <code>prefix</code>.
+     *
+     * @param str the string to have the prefix, which may be null.
+     * @param prefix the prefix to apply to the string, if not already present, which may be null.
+     * @param caseSensitive <code>false</code> if the check for the string prefix is to be case-sensitive.
+     * @return the specified string, guaranteed to have the prefix if it doesn't already or <code>null</code> if the
+     *         string is <code>null</code>.
+     */
+    public static String ensureHasPrefix(String str, String prefix, boolean caseSensitive) {
+        if (str == null) {
+            return null;
+        }
+        if (prefix == null) {
+            return str;
+        }
+
+        if (caseSensitive ? str.toLowerCase().startsWith(prefix.toLowerCase()) : str.startsWith(prefix)) {
+            return str;
+        }
+        else {
+            return prefix + str;
+        }
+    }
+
+    /**
+     * Ensures the specified string, <code>str</code>, has the given suffix, <code>suffix</code>. The check for the
+     * string suffix is case-sensitive.
+     *
+     * @param str the string to have the suffix, which may be null.
+     * @param suffix the suffix to apply to the string, if not already present, which may be null.
+     * @return the specified string, guaranteed to have the suffix if it doesn't already or <code>null</code> if the
+     *         string is <code>null</code>.
+     * @see #ensureHasSuffix(String, String, boolean)
+     */
+    public static String ensureHasSuffix(String str, String suffix) {
+        return ensureHasSuffix(str, suffix, false);
+    }
+
+    /**
+     * Ensures the specified string, <code>str</code>, has the given suffix, <code>suffix</code>.
+     *
+     * @param str the string to have the suffix, which may be null.
+     * @param suffix the suffix to apply to the string, if not already present, which may be null.
+     * @param caseSensitive <code>false</code> if the check for the string prefix is to be case-sensitive.
+     * @return the specified string, guaranteed to have the prefix if it doesn't already or <code>null</code> if the
+     *         string is <code>null</code>.
+     */
+    public static String ensureHasSuffix(String str, String suffix, boolean caseSensitive) {
+        if (str == null) {
+            return null;
+        }
+        if (suffix == null) {
+            return str;
+        }
+
+        if (caseSensitive ? str.toLowerCase().endsWith(suffix.toLowerCase()) : str.endsWith(suffix)) {
+            return str;
+        }
+        else {
+            return str + suffix;
+        }
+    }
+
+    public static Stream asDsvStream(String str, String delim, boolean trimWhitespace) {
+        if (str == null)
+            return null;
+
+        if (delim == null || delim.length() == 0) {
+            throw new IllegalArgumentException("Cannot split a string using a null or empty delimiter [str=" + str + ", delimeter=" + delim + "]");
+        }
+
+        int delimPos = str.indexOf(delim);
+        if (delimPos < 0) {
+            return Stream.of(str);
+        }
+
+        LinkedList<String> splitParts = new LinkedList<>();
+
+        while (delimPos >= 0) {
+            if (delimPos == 0) {
+                splitParts.add("");
+            } else {
+                splitParts.add(trimWhitespace ? str.substring(0, delimPos).trim() : str.substring(0, delimPos));
+            }
+            str = str.substring(delimPos + delim.length());
+            delimPos = str.indexOf(delim);
+        }
+
+        // Add the trailing part that's left
+        splitParts.add(trimWhitespace ? str.trim() : str);
+
+        return splitParts.stream();
+    }
+
+    public static Stream<String> asDsvStream(String str, String delim) {
+        return asDsvStream(str, delim, true);
+    }
+
+    public static List<String> asDsvList(String str, String delim) {
+        Stream<String> dsvStream = asDsvStream(str, delim);
+        return dsvStream == null ? null : dsvStream.collect(Collectors.toList());
+    }
+
+    public static List<String> asCsvList(String str) {
+        Stream<String> dsvStream = asDsvStream(str, ",");
+        return dsvStream == null ? null : dsvStream.collect(Collectors.toList());
     }
 }

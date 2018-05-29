@@ -23,18 +23,32 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.lang.conversion;
+
+package org.beanplanet.core.models.tree;
 
 /**
- * A strategy for loading <code>{@link TypeConverter}</code> instances.
- *
- * @author Gary Watson
+ * Maintains the root node of this tree model.
  */
-public interface TypeConverterLoader {
+public abstract class AbstractTree<T> implements Tree<T> {
+    /** The root node of this tree model instance, */
+    protected T root;
+
     /**
-     * Discovers and loads type converters into the specified registry.
+     * Constructs an abstract tree model with the given root node in this instance.
      *
-     * @param registry the registry to receive the loaded converters.
+     * @param root the known root of this tree model.
      */
-    void load(TypeConverterRegistry registry);
+    public AbstractTree(T root) {
+        this.root = root;
+    }
+
+    /**
+     * Returns the known root node of this tree model instance.
+     *
+     * @return the root node of this tree model.
+     */
+    @Override
+    public T getRoot() {
+        return root;
+    }
 }

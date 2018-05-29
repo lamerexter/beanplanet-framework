@@ -114,7 +114,7 @@ public class CharSequenceResource extends AbstractResource implements ReadableRe
      * @throws UnsupportedOperationException if the URL of the resource could not be determined or the type of the
      *         resource is such that URL references are not supported.
      */
-    public URL getURL() throws UnsupportedOperationException {
+    public URL getUrl() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("URL references to string resources is not supported");
     }
 

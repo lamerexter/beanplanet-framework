@@ -26,8 +26,13 @@
 
 package org.beanplanet.core.io;
 
+import java.net.URI;
+
 /**
  * Created by gary on 10/11/17.
  */
 public interface Path {
+    URI toUri();
+
+    Path getParentPath();
 }

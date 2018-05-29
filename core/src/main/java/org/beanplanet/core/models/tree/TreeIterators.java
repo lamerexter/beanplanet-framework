@@ -28,6 +28,9 @@ package org.beanplanet.core.models.tree;
 
 import java.util.ListIterator;
 
+/**
+ * Defines all of the iterator operations over a tree model.
+ */
 public interface TreeIterators<E> extends Iterable<E>, DepthFirstTreeIterators<E> {
     /**
      * Returns an iterator over the children of the specified parent node. Optionally, the iterator backs the

@@ -35,108 +35,56 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
         return INSTANCE;
     }
 
-    @Override
-    public <T> T convert(Object value, Class<T> targetType) throws UnsupportedTypeConversionException {
-        if (value == null) return null;
+   protected TypeConverterLoader loader = new PackageScanTypeConverterLoader();
 
-        if (targetType.isAssignableFrom(value.getClass())) return (T)value;
+   private boolean isLoaded = false;
 
-        throw new UnsupportedTypeConversionException();
-    }
-//   protected TypeConverterLoader loader = new PackageScanTypeConverterLoader();
-//   /**
-//    * Whether the type converter should use and apply heuristics in determining implicit type conversion capabilities of
-//    * registered converters. Defaults to <code>true</code>.
-//    */
-//   protected boolean useHeuristics = true;
-//
-//   private boolean isLoaded = false;
-//
-//   private static DefaultTypeConverter instance;
-//
-//   /**
-//    * Returns the system default type converter.
-//    *
-//    * @return a system-wide type converter for general use.
-//    */
-//   public synchronized static TypeConverter getInstance() {
-//      if (instance == null) {
-//         instance = new DefaultTypeConverter();
-//      }
-//
-//      return instance;
-//   }
-//
-//   /**
-//    * Gets whether the type converter should use and apply heuristics in determining implicit type conversion
-//    * capabilities of registered converters. Essentially, if an additional type conversion capability of a registered
-//    * converter is discovered (when heuristics are turned on) then the registry will be updated with the new capability
-//    * to optimise and improve future performance.
-//    *
-//    * <p>
-//    * A registered type converter may declare generalised type conversion capabilities over <em>interfaces</em> or
-//    * superclasses in order to support a wide range of type conversions. This implies it may be capable of converting
-//    * many specialised instances. With heuristics turned on, such implicit conversions will be detected and added to the
-//    * registry as explicit conversions.
-//    * </p>
-//    *
-//    * @return true if heuristics are turned on in this registry.
-//    */
-//   public boolean getUseHeuristics() {
-//      return useHeuristics;
-//   }
-//
-//   /**
-//    * Sets whether the type converter should use and apply heuristics in determining implicit type conversion
-//    * capabilities of registered converters. Essentially, if an additional type conversion capability of a registered
-//    * converter is discovered (when heuristics are turned on) then the registry will be updated with the new capability
-//    * to optimise and improve future performance.
-//    *
-//    * <p>
-//    * A registered type converter may declare generalised type conversion capabilities over <em>interfaces</em> or
-//    * <em>superclasses</em> in order to support a wide range of type conversions. This implies it may be capable of
-//    * converting many specialised instances. With heuristics turned on, such implicit conversions will be detected and
-//    * added to the registry as explicit conversions.
-//    * </p>
-//    *
-//    * @return the useHeuristics
-//    * @param useHeuristics the useHeuristics to set
-//    */
-//   public void setUseHeuristics(boolean useHeuristics) {
-//      this.useHeuristics = useHeuristics;
-//   }
-//
-//   /**
-//    * Returns the type converter loader that will populate this type converter
-//    *
-//    * @return the loader that will be called to populate this type converter with component converters.
-//    */
-//   public TypeConverterLoader getLoader() {
-//      return loader;
-//   }
-//
-//   /**
-//    * Sets the type converter loader that will populate this type converter
-//    *
-//    * @param loader the loader that will be called to populate this type converter with component converters.
-//    */
-//   public synchronized void setLoader(TypeConverterLoader loader) {
-//      this.loader = loader;
-//      isLoaded = false;
-//   }
-//
-//   protected void loadTypeConverters() {
-//      clear();
-//      loader.load(this);
-//   }
-//
-//   protected synchronized void checkLoaded() {
-//      if (!isLoaded) {
-//         loadTypeConverters();
-//         isLoaded = true;
-//      }
-//   }
-//
+   private static SystemTypeConverter instance;
+
+   /**
+    * Returns the system default type converter.
+    *
+    * @return a system-wide type converter for general use.
+    */
+   public synchronized static TypeConverter getInstance() {
+      if (instance == null) {
+         instance = new SystemTypeConverter();
+      }
+
+      return instance;
+   }
+
+   /**
+    * Returns the type converter loader that will populate this type converter
+    *
+    * @return the loader that will be called to populate this type converter with component converters.
+    */
+   public TypeConverterLoader getLoader() {
+      return loader;
+   }
+
+   /**
+    * Sets the type converter loader that will populate this type converter
+    *
+    * @param loader the loader that will be called to populate this type converter with component converters.
+    */
+   public synchronized void setLoader(TypeConverterLoader loader) {
+      this.loader = loader;
+      isLoaded = false;
+   }
+
+   protected void loadTypeConverters() {
+      clear();
+      loader.load(this);
+   }
+
+   protected synchronized void checkLoaded() {
+      if (!isLoaded) {
+         loadTypeConverters();
+         isLoaded = true;
+      }
+   }
+
 //   @SuppressWarnings("unchecked")
 //   public <T> T convert(Object value, Class<T> targetType) throws UnsupportedTypeConversionException {
 //      Assert.notNull(targetType, "The target type of the conversion may not be null");
@@ -144,7 +92,7 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
 //         return null;
 //      }
 //
-//      targetType = (Class<T>)TypeUtil.ensureNonPrimitiveType(targetType);
+//      targetType = (Class<T>) TypeUtil.ensureNonPrimitiveType(targetType);
 //      checkLoaded();
 //
 //      // -------------------------------------------------------------------------
@@ -262,4 +210,18 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
 //                                                   + ", targetType="
 //                                                   + TypeUtil.getDisplayNameForType(targetType) + "] ");
 //   }
+
+    @Override
+    public <T> T convert(Object value, Class<T> targetType) throws UnsupportedTypeConversionException {
+        checkLoaded();
+        if (value == null) return null;
+
+        if (targetType.isAssignableFrom(value.getClass())) return (T)value;
+
+        throw new UnsupportedTypeConversionException();
+    }
+
+    public static void main(String ... args) {
+       SystemTypeConverter.getInstance().convert(1L, String.class);
+    }
 }

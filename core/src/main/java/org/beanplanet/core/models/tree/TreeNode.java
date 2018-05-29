@@ -76,16 +76,23 @@ public class TreeNode<E> implements Serializable {
         this.managedObject = managedObject;
     }
 
-    List<TreeNode<E>> getChildNodes() {
+    List<TreeNode<E>> getChildren() {
         return children;
     }
 
+    public void setChildren(List<TreeNode<E>> children) {
+        this.children = children;
+
+        if (children != null) {
+            this.children.stream().forEach(c -> c.setParent(this));
+        }
+    }
     public boolean equals(Object other) {
         if (this == other) return true;
 
         return other instanceof TreeNode
                && Objects.equals(((TreeNode)other).getManagedObject(), getManagedObject())
-               && Objects.equals(((TreeNode)other).getChildNodes(), getChildNodes());
+               && Objects.equals(((TreeNode)other).getChildren(), getChildren());
     }
 
     public int hashCode() {

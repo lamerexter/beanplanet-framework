@@ -23,18 +23,25 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.lang.conversion;
+package org.beanplanet.core.lang.conversion.system;
+
+import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 /**
- * A strategy for loading <code>{@link TypeConverter}</code> instances.
- *
+ * A type converter which simply calls the <code>toString()</code> method on an object to convert its value to a string.
+ * 
  * @author Gary Watson
  */
-public interface TypeConverterLoader {
-    /**
-     * Discovers and loads type converters into the specified registry.
-     *
-     * @param registry the registry to receive the loaded converters.
-     */
-    void load(TypeConverterRegistry registry);
+@TypeConverter
+public final class ObjectToStringTypeConverter {
+
+   /**
+    * Converts the specified value to a string, using the objects <code>toString()</code> method.
+    * 
+    * @param value the value to be stringified.
+    */
+   @TypeConverter
+   public static String toString(Object value) {
+      return (value == null ? null : value.toString());
+   }
 }

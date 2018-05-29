@@ -69,14 +69,14 @@ public interface WritableResource extends Resource {
     /**
      * Creates a new writer, suitable for writing to the resource. It is the caller's responsibility to close the writer.
      *
-     * @param charSetName the name of the character set encoding to apply to bytes written to the resource.
+     * @param charsetName the name of the character set encoding to apply to bytes written to the resource.
      * @return a newly created reader for writing the resource or an existing reader, created by a previous call to a
      *         <code>getWriter(...)</code> method on an already open resource.
      * @throws IoException if an error occurs creating the stream or if the operation is not supported.
      * @see #getWriter(Charset)
      * @see #getWriter(CharsetEncoder)
      */
-    Writer getWriter(String charSetName) throws IoException;
+    Writer getWriter(String charsetName) throws IoException;
 
     /**
      * Creates a new writer, suitable for writing to the resource. It is the caller's responsibility to close the writer.

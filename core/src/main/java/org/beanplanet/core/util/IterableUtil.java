@@ -23,18 +23,13 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.lang.conversion;
 
-/**
- * A strategy for loading <code>{@link TypeConverter}</code> instances.
- *
- * @author Gary Watson
- */
-public interface TypeConverterLoader {
-    /**
-     * Discovers and loads type converters into the specified registry.
-     *
-     * @param registry the registry to receive the loaded converters.
-     */
-    void load(TypeConverterRegistry registry);
+package org.beanplanet.core.util;
+
+import java.util.stream.Stream;
+
+public class IterableUtil {
+    public static <E> Stream<E> asStream(Iterable<E> iterable) {
+        return IteratorUtil.asStream(iterable.iterator());
+    }
 }

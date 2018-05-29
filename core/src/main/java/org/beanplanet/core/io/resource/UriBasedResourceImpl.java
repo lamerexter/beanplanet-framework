@@ -23,18 +23,38 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.lang.conversion;
 
-/**
- * A strategy for loading <code>{@link TypeConverter}</code> instances.
- *
- * @author Gary Watson
- */
-public interface TypeConverterLoader {
-    /**
-     * Discovers and loads type converters into the specified registry.
-     *
-     * @param registry the registry to receive the loaded converters.
-     */
-    void load(TypeConverterRegistry registry);
+package org.beanplanet.core.io.resource;
+
+import java.net.URI;
+import java.util.stream.Collectors;
+
+import static java.util.Arrays.stream;
+
+public class UriBasedResourceImpl extends AbstractUrlBasedResource implements UriBasedResource {
+    public UriBasedResourceImpl() {}
+
+    public UriBasedResourceImpl(String uri) {
+        this(URI.create(uri));
+    }
+
+    public UriBasedResourceImpl(URI uri) {
+        super(uri);
+    }
+
+    @Override
+    public boolean exists() {
+        return false;
+    }
+
+    @Override
+    public Resource getParentResource() {
+        if (getUri() == null) return null;
+
+        String path = getUri().getPath();
+        String[] pathElements = path.split("\\/");
+        if (pathElements.length <= 1) return null;
+
+        return new UriBasedResourceImpl(stream(pathElements, 0, pathElements.length-1).collect(Collectors.joining("/")));
+    }
 }

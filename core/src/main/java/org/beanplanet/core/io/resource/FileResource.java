@@ -70,6 +70,7 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
      * @param file the file backing this resource.
      */
     public FileResource(File file) {
+        super(file.toURI());
         setFile(file);
     }
 
@@ -135,7 +136,7 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
      *         resource is such that URL references are not supported.
      */
     @Override
-    public URL getURL() throws UnsupportedOperationException {
+    public URL getUrl() throws UnsupportedOperationException {
         try {
             return file.toURI().toURL();
         } catch (MalformedURLException malformedURLEx) {
@@ -220,6 +221,11 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
         } catch (FileNotFoundException fnfEx) {
             throw new IoException("Unable to create read/write file resource accessor: ", fnfEx);
         }
+    }
+
+    @Override
+    public FileResource getParentResource() {
+        return new FileResource(file.getParentFile());
     }
 
     /**

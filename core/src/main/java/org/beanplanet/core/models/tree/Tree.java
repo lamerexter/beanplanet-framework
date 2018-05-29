@@ -28,13 +28,14 @@ package org.beanplanet.core.models.tree;
 import java.io.Serializable;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Stream;
 
 /**
  * Model of a tree. This model makes no assumption about how the tree node information is stored or where it comes from.
  *
  * @author Gary Watson
  */
-public interface Tree<E> extends TreeIterators<E>, Serializable {
+public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable {
     /**
     * Returns the root of the tree, if this tree model represents a single tree instance.
     * <p>
@@ -183,8 +184,11 @@ public interface Tree<E> extends TreeIterators<E>, Serializable {
      * @param parent the parent whose child is to be removed.
      * @param child the child node to remove.
      * @return true if the child node was removed, false otherwise.
+     * @throws UnsupportedOperationException if the tree model does not support removal operations
      */
-    boolean remove(E parent, E child);
+    default boolean remove(E parent, E child) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Replaces the old child with the new child under the given parent node.
@@ -193,8 +197,11 @@ public interface Tree<E> extends TreeIterators<E>, Serializable {
      * @param old the child to be replaced.
      * @param replacement the child node to replace the old node.
      * @return true if the old node was substituted by the replacement, false otherwise.
+     * @throws UnsupportedOperationException if the tree model does not support set operations
      */
-    boolean set(E parent, E old, E replacement);
+    default boolean set(E parent, E old, E replacement) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Adds a node after the old child with the new child under the given parent node.
@@ -203,8 +210,11 @@ public interface Tree<E> extends TreeIterators<E>, Serializable {
      * @param afterNode the child after which the new node will be added.
      * @param node the child node add after the given sibling.
      * @return true if the node was added, false otherwise.
+     * @throws UnsupportedOperationException if the tree model does not support add operations
      */
-    boolean add(E parent, E afterNode, E node);
+    default boolean add(E parent, E afterNode, E node) {
+        throw new UnsupportedOperationException();
+    }
 
     default TreeIterator<E> preorderIterator() {
         return new PreorderTreeIterator<>(this);
@@ -216,5 +226,33 @@ public interface Tree<E> extends TreeIterators<E>, Serializable {
 
     default TreeIterator<E> postorderIterator() {
         return new PostorderIterator<E>(this);
+    }
+
+    /**
+     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in pre-order.
+
+     * @return a stream over every node in the tree by traversal of the tree in a depth-first pre-order.
+     */
+    default Stream<E> preorderStream() {
+        return preorderIterator().stream();
+    }
+
+    /**
+     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in post-order.
+
+     * @return a stream over every node in the tree by traversal of the tree in a depth-first post-order.
+     */
+    default Stream<E> postorderStream() {
+        return postorderIterator().stream();
+    }
+
+    /**
+     * Determines the size of the tree. This default implementation iterates over the entire tree in order
+     * to determine the size. Which may be very expensive.
+     *
+     * @return the total size of the tree;
+     */
+    default long size() {
+        return preorderIterator().stream().count();
     }
 }

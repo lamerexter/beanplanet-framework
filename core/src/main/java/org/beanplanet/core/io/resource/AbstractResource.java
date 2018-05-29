@@ -117,8 +117,8 @@ public abstract class AbstractResource implements Resource {
      *
      * @return always null in this implementation.
      */
-    public URI getURI() throws UnsupportedOperationException {
-        return null;
+    public URI getUri() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -127,8 +127,8 @@ public abstract class AbstractResource implements Resource {
      *
      * @return always null in this implementation.
      */
-    public URL getURL() throws UnsupportedOperationException {
-        return null;
+    public URL getUrl() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -253,16 +253,16 @@ public abstract class AbstractResource implements Resource {
     /**
      * Creates a new writer, suitable for writing to the resource. It is the caller's responsibility to close the writer.
      *
-     * @param charSetName the name of the character set encoding to apply to bytes written to the resource.
+     * @param charsetName the name of the character set encoding to apply to bytes written to the resource.
      * @return a newly created reader for writing the resource or an existing reader, created by a previous call to a
      *         <code>getWriter(...)</code> method on an already open resource.
      * @throws IoException if an error occurs creating the stream or if the operation is not supported.
      * @see #getWriter(Charset)
      * @see #getWriter(CharsetEncoder)
      */
-    public Writer getWriter(String charSetName) throws IoException {
+    public Writer getWriter(String charsetName) throws IoException {
         try {
-            return new OutputStreamWriter(getOutputStream(), charSetName);
+            return new OutputStreamWriter(getOutputStream(), charsetName);
         } catch (Exception fnfEx) {
             throw new IoException(fnfEx);
         }
@@ -330,6 +330,11 @@ public abstract class AbstractResource implements Resource {
     public RandomAccessor getRandomReadWriteAccessor() throws IoException {
         throw new UnsupportedOperationException(
             "Unable to create a random read/write accessor for this resource - please provide a subclass to implement this functionality");
+    }
+
+    @Override
+    public Resource getParentResource() {
+        throw new UnsupportedOperationException();
     }
 
     /**

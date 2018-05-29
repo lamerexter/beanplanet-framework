@@ -23,18 +23,33 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.lang.conversion;
+package org.beanplanet.core.lang;
+
+import java.util.Set;
+
+
 
 /**
- * A strategy for loading <code>{@link TypeConverter}</code> instances.
- *
+ * Defines a strategy for scanning for and returning resources within packages.
+ *  
  * @author Gary Watson
  */
-public interface TypeConverterLoader {
-    /**
-     * Discovers and loads type converters into the specified registry.
-     *
-     * @param registry the registry to receive the loaded converters.
-     */
-    void load(TypeConverterRegistry registry);
+public interface PackageResourceScanner<R> {
+   /**
+    * Scans the packages, whose names are determined by the given strategy, for resources of the required type according to the
+    * filter provided.
+    *
+    * @param packageSourceStrategy the strategy used to determine the package names
+    * @return a set of the resources found in the given packages, or the empty set if no resources were found.
+    */
+    Set<R> findResourcesInPackages(PackageSourceStrategy packageSourceStrategy);
+
+   /**
+    * Scans the specified named packages for resources of the required type according to the
+    * filter provided.
+    * 
+    * @param packageNames the names of the packages to be scanned
+    * @return a set of the resources found in the given packages, or the empty set if no resources were found.
+    */
+   Set<R> findResourcesInPackages(String... packageNames);
 }

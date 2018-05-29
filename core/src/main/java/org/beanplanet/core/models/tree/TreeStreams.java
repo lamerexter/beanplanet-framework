@@ -23,18 +23,37 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.lang.conversion;
+
+package org.beanplanet.core.models.tree;
+
+import java.util.ListIterator;
+import java.util.stream.Stream;
 
 /**
- * A strategy for loading <code>{@link TypeConverter}</code> instances.
- *
- * @author Gary Watson
+ * Defines all of the stream operations over a tree model.
  */
-public interface TypeConverterLoader {
+public interface TreeStreams<E> {
     /**
-     * Discovers and loads type converters into the specified registry.
+     * Creates a stream over the elements of the tree. All nodes will be visited but the order is not guaranteed.
      *
-     * @param registry the registry to receive the loaded converters.
+     * @return a stream over every node in the tree.
      */
-    void load(TypeConverterRegistry registry);
+    default Stream<E> stream() {
+        return preorderStream();
+    }
+
+    /**
+     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in pre-order.
+
+     * @return a stream over every node in the tree by traversal of the tree in a depth-first pre-order.
+     */
+    Stream<E> preorderStream();
+
+    /**
+     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in post-order.
+
+     * @return a stream over every node in the tree by traversal of the tree in a depth-first post-order.
+     */
+    Stream<E> postorderStream();
+
 }

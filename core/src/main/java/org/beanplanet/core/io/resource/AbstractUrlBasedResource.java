@@ -76,6 +76,7 @@ public abstract class AbstractUrlBasedResource extends AbstractResource implemen
      *
      * @return the URI backing this resource.
      */
+    @Override
     public URI getUri() {
         return uri;
     }
@@ -122,7 +123,7 @@ public abstract class AbstractUrlBasedResource extends AbstractResource implemen
      */
     public int compareTo(UrlBasedResource other) {
         URI thisURI  = getUri();
-        URI otherURI = (other == null || other.getURI() == null ? null : other.getURI());
+        URI otherURI = (other == null || other.getUri() == null ? null : other.getUri());
         if (thisURI == null && otherURI == null) {
             return 0;
         } else if (thisURI == null) {
@@ -153,6 +154,10 @@ public abstract class AbstractUrlBasedResource extends AbstractResource implemen
      * @return the hash code of this resource, based on the resource URL.
      */
     public int hashCode() {
-        return Objects.hash(getURI());
+        return Objects.hash(this.getUri());
+    }
+
+    public String toString() {
+        return getUri().toString();
     }
 }

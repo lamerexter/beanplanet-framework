@@ -28,12 +28,10 @@
 package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.io.IoException;
+import org.beanplanet.core.io.IoUtil;
 import org.beanplanet.core.io.Path;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -106,7 +104,7 @@ public interface Resource {
      *
      * @return the URI of the resource, or null if the URI is null or if this is not a URI based resource.
      */
-    URI getURI() throws UnsupportedOperationException;
+    URI getUri() throws UnsupportedOperationException;
 
     /**
      * Attempts to return a Uniform Resource Locator (URL) for the resource, if the resource type supports URL
@@ -114,7 +112,7 @@ public interface Resource {
      *
      * @return the URL of the resource, or null if the URL is null or if this is not a URL based resource.
      */
-    URL getURL() throws UnsupportedOperationException;
+    URL getUrl() throws UnsupportedOperationException;
 
     /**
      * Creates a new input stream, suitable for reading the resource. It is the caller's responsibility to close the
@@ -219,7 +217,7 @@ public interface Resource {
     /**
      * Creates a new writer, suitable for writing to the resource. It is the caller's responsibility to close the writer.
      *
-     * @param charSetName the name of the character set encoding to apply to bytes written to the resource.
+     * @param charsetName the name of the character set encoding to apply to bytes written to the resource.
      * @return a newly created reader for writing the resource or an existing reader, created by a previous call to a
      *         <code>getWriter(...)</code> method on an already open resource.
      * @throws UnsupportedOperationException if this resource is not readable or the operation is not supported
@@ -227,7 +225,7 @@ public interface Resource {
      * @see #getWriter(Charset)
      * @see #getWriter(CharsetEncoder)
      */
-    Writer getWriter(String charSetName) throws UnsupportedOperationException, IoException;
+    Writer getWriter(String charsetName) throws UnsupportedOperationException, IoException;
 
     /**
      * Creates a new writer, suitable for writing to the resource. It is the caller's responsibility to close the writer.
@@ -270,7 +268,6 @@ public interface Resource {
      * @return a random accessor which exposes the random read access operations. The accessor should be closed after
      *         use.
      * @throws IoException if an I/O error occurs creating the random accessor
-     * @see IOUtil#closeIgnoringErrors(RandomAccessor)
      */
     RandomAccessor getRandomReadAccessor() throws IoException;
 
@@ -285,7 +282,12 @@ public interface Resource {
      *
      * @return a random accessor which exposes the random access operations. The accessor should be closed after use.
      * @throws IoException if an I/O error occurs creating the random accessor
-     * @see IOUtil#closeIgnoringErrors(RandomAccessor)
      */
     RandomAccessor getRandomReadWriteAccessor() throws IoException;
+
+    default String readFullyAsString() {
+        return IoUtil.transferAndClose(this.getReader(), new StringWriter()).toString();
+    }
+
+    Resource getParentResource();
 }

@@ -46,7 +46,7 @@ public class DateUtil {
    /** The simple date format for an ISO date and time. */
    public static final String ISO8601_DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
    /** The simple date format for an ISO date and time. */
-   public static final String ISO8601_DATETIME_FORMAT_WITH_MILLIS = "yyyy-MM-dd'T'HH:mm:ss.S'Z'";
+   public static final String ISO8601_DATETIME_FORMAT_WITH_MILLIS = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
    
    /** The earliest possible date. */
    public static final Date MIN_DATE = new Date(0L);

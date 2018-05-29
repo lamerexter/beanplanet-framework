@@ -28,20 +28,13 @@ package org.beanplanet.core.models.tree;
 
 import java.util.List;
 
-public class TreeNodeTree<E> implements Tree<TreeNode<E>> {
-    private TreeNode<E> root;
-
+public class TreeNodeTree<E> extends AbstractTree<TreeNode<E>> {
     public TreeNodeTree(E root) {
         this(new TreeNode<>(root));
     }
 
-    TreeNodeTree(TreeNode<E> root) {
-        this.root = root;
-    }
-
-    @Override
-    public TreeNode<E> getRoot() {
-        return root;
+    public TreeNodeTree(TreeNode<E> root) {
+        super(root);
     }
 
     @Override
@@ -68,7 +61,7 @@ public class TreeNodeTree<E> implements Tree<TreeNode<E>> {
 
     @Override
     public List<TreeNode<E>> getChildren(TreeNode<E> parent) {
-        return parent.getChildNodes();
+        return parent.getChildren();
     }
 
     @Override
@@ -88,7 +81,7 @@ public class TreeNodeTree<E> implements Tree<TreeNode<E>> {
 
     @Override
     public TreeIterator<TreeNode<E>> preorderIterator() {
-        return null;
+        return new PreorderTreeIterator<>(this);
     }
 
     @Override
@@ -98,6 +91,6 @@ public class TreeNodeTree<E> implements Tree<TreeNode<E>> {
 
     @Override
     public TreeIterator<TreeNode<E>> postorderIterator() {
-        return null;
+        return new PostorderIterator<>(this);
     }
 }

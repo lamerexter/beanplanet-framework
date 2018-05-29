@@ -27,6 +27,7 @@
 package org.beanplanet.core.lang;
 
 import org.beanplanet.core.UncheckedException;
+import org.beanplanet.core.models.tree.TreeNode;
 import org.beanplanet.core.util.ExceptionUtil;
 import org.beanplanet.core.util.StringUtil;
 
@@ -36,10 +37,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A static utility class for the everything <code>type-related</code> related.
@@ -454,4 +454,10 @@ public final class TypeUtil {
         return allInterfaces;
     }
 
+    public static Stream<Method> getMethodsInClassHierarchy(Class<?> specificType) {
+        return new TypeTree(specificType)
+                .preorderStream()
+                .map(TreeNode::getManagedObject)
+                .flatMap(type -> Arrays.stream(type.getDeclaredMethods()));
+    }
 }

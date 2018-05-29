@@ -278,7 +278,7 @@ public class IoUtil {
      *      method used by this method
      */
     public static void transferResourceStreamsAndClose(Resource fromResource, Resource toResource)
-        throws IOException {
+        throws IoException {
         transferResourceCharStreamsAndClose(fromResource, toResource, DEFAULT_TRANSFER_BUF_SIZE);
     }
 
@@ -299,7 +299,7 @@ public class IoUtil {
      *      data
      */
     public static void transferResourceStreamsAndClose(Resource fromResource, Resource toResource,
-                                                       int bufferSize) throws IOException {
+                                                       int bufferSize) throws IoException {
 
         transferAndClose(fromResource.getInputStream(), toResource.getOutputStream(), bufferSize);
     }
@@ -318,9 +318,10 @@ public class IoUtil {
      * @exception IOException thrown if an error occurs during the transfer.
      * @see #transferResourceStreamsAndClose(Resource, Resource)
      */
-    public static void transferAndClose(Resource fromResource, Resource toResource)
-        throws IOException {
+    public static <R extends Resource> R transferAndClose(Resource fromResource, R toResource)
+        throws IoException {
         transferResourceStreamsAndClose(fromResource, toResource);
+        return toResource;
     }
 
     /**
@@ -338,9 +339,10 @@ public class IoUtil {
      * @exception IOException thrown if an error occurs during the transfer.
      * @see #transferResourceStreamsAndClose(Resource, Resource, int)
      */
-    public static void transferAndClose(Resource fromResource, Resource toResource,
-                                        int bufferSize) throws IOException {
-        transferResourceStreamsAndClose(fromResource, toResource, DEFAULT_TRANSFER_BUF_SIZE);
+    public static <R extends Resource> R transferAndClose(Resource fromResource, R toResource,
+                                        int bufferSize) throws IoException {
+        transferResourceStreamsAndClose(fromResource, toResource, bufferSize);
+        return toResource;
     }
 
     /**
@@ -364,7 +366,7 @@ public class IoUtil {
      * @see #transfer(java.io.Reader, java.io.Writer, int) for the method called by this method to stream the data
      */
     public static void transferResourceCharStreamsAndClose(Resource fromResource, Resource toResource)
-        throws IOException {
+        throws IoException {
         transferResourceCharStreamsAndClose(fromResource, toResource, DEFAULT_TRANSFER_BUF_SIZE);
     }
 
@@ -534,9 +536,10 @@ public class IoUtil {
      * @exception IoException thrown if an error occurs during the transfer.
      * @see #transfer(java.io.Reader, java.io.Writer, int)
      */
-    public static void transferAndClose(Reader reader, Writer writer) throws IoException {
+    public static <R extends Writer> R transferAndClose(Reader reader, R writer) throws IoException {
         try {
             transfer(reader, writer);
+            return writer;
         } finally {
             closeIgnoringErrors(reader);
             closeIgnoringErrors(writer);

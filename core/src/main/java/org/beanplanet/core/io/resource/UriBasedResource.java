@@ -41,5 +41,5 @@ public interface UriBasedResource extends PathBasedResource {
      *
      * @return the URL of the resource.
      */
-    URI getURI();
+    URI getUri();
 }
