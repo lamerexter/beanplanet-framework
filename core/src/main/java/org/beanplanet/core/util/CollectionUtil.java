@@ -51,8 +51,18 @@ public class CollectionUtil {
      * @param collection the collection to determine if null or empty.
      * @return true if the collection is null or contains no items, false otherwise.
      */
-    public static final boolean isNullOrEmpty(Collection<?> collection) {
+    public static final boolean isEmptyOrNull(Collection<?> collection) {
         return collection == null || collection.isEmpty();
+    }
+
+    /**
+     * Determines whether a given collection is null or is empty.
+     *
+     * @param collection the collection to determine if null or empty.
+     * @return true if the collection is null or contains no items, false otherwise.
+     */
+    public static final boolean isNullOrEmpty(Collection<?> collection) {
+        return isEmptyOrNull(collection);
     }
 
     /**
