@@ -24,27 +24,22 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.util;
+package org.beanplanet.core.events;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
-public class IterableUtil {
-    public static <E> Stream<E> asStream(Iterable<E> iterable) {
-        return IteratorUtil.asStream(iterable.iterator());
-    }
+public interface PropertyChangeEventSource extends EventSource {
+    /**
+     * Adds a listener of property changes to this event source.
+     *
+     * @param listener the property change listener to be added, which may not be null.
+     * @return true if the property listener was added, false otherwise.
+     */
+    boolean addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
-     * Guarantees to return a non-null {@link Iterable} for a possibly null enumeration.
+     * Removes a listener of property changes from this event source.
      *
-     * @param enumerationSupplier a supplier of an enumeration over whose elements the iterable will iterate, which may be null.
-     * @return an iterable, either backed by the enumeration supplied if the enumeration was not null, or an empty collection otherwise.
+     * @param listener the property change listener to be removed, which may not be null.
+     * @return true if the property listener was removed, false otherwise.
      */
-    public static <T> Iterable<T> nullSafeEnumerationIterable(final Supplier<Enumeration<T>> enumerationSupplier) {
-        if (enumerationSupplier == null) return Collections.emptyList();
-
-        return new EnumerationIterable<>(enumerationSupplier);
-    }
+    boolean removePropertyChangeListener(PropertyChangeListener listener);
 }

@@ -33,6 +33,12 @@ package org.beanplanet.core.models;
  *
  * @param <T>
  */
+@FunctionalInterface
 public interface Builder<T> {
+    @SuppressWarnings("unchecked")
+    default <B extends Builder<T>> B withBuilder(Class<B> builderClass) {
+        return (B)this;
+    }
+
     T build();
 }

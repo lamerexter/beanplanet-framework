@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,6 +52,16 @@ public class StringUtil {
 
     public static final boolean notEmptyAndNotNull(String str) {
         return !(isEmptyOrNull(str));
+    }
+
+    /**
+     * Convenience method to return the empty string. Great as a method reference to
+     * {@link ObjectUtil#nvl(Object, Supplier)} expressions.
+     *
+     * @return the zero-length empty string.
+     */
+    public static final String emptyString() {
+        return "";
     }
 
     /**

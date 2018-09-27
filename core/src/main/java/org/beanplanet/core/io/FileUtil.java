@@ -74,10 +74,7 @@ public class FileUtil {
     }
 
     /**
-     * Returns the basename of a file path specification.
-     * <p>
-     * For example, given a file "/usr/local/bin/grep" this method will return "grep". Or given
-     * "/usr/home/garyw/test.txt" this menoth will return "test.txt".
+     * Returns the basename of a file path specification, using the system default path separator.
      *
      * @param file a file path specification
      * @return the base element of the path specification.
@@ -87,23 +84,27 @@ public class FileUtil {
     }
 
     /**
-     * Returns the basename of a file path specification.
-     * <p>
-     * For example, given a file "/usr/local/bin/grep" this method will return "grep". Or given
-     * "/usr/home/garyw/test.txt" this menoth will return "test.txt".
+     * Returns the basename of a file path specification, using the system default path separator.
      *
      * @param fileSpec a file path specification
      * @return the base element of the path specification, or null if the file path specification was null
      */
     public static final String getBaseName(String fileSpec) {
+        return getBaseName(fileSpec, File.separator);
+    }
+
+    /**
+     * Returns the basename of a file path specification, given the path element separator. On MS Windos
+     * the path separator is "/" and on Unix-based systems it is "/".
+     *
+     * @param fileSpec a file path specification
+     * @return the base element of the path specification, or null if the file path specification was null
+     */
+    public static final String getBaseName(String fileSpec, String separator) {
         if (fileSpec == null) {
             return null;
         }
-        int lastPartIndex = fileSpec.lastIndexOf("/");
-
-        if (lastPartIndex < 0) {
-            lastPartIndex = fileSpec.lastIndexOf("\\");
-        }
+        int lastPartIndex = fileSpec.lastIndexOf(separator);
 
         if (lastPartIndex >= 0) {
             fileSpec = fileSpec.substring(lastPartIndex + 1);

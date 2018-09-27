@@ -26,23 +26,7 @@
 
 package org.beanplanet.core.util;
 
-import org.beanplanet.core.models.Factory;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class MultiValueListMap<K, V> extends MultiValueCollectionMap<K, V, List<V>> {
-    public MultiValueListMap() {
-        super();
-    }
-
-    public MultiValueListMap(Map<K, List<V>> backingMap) {
-        super(backingMap, ArrayList::new);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <C extends List<V>> MultiValueListMap(Map<K, C> backingMap, Factory<C> listFactory) {
-        super((Map<K, List<V>>)backingMap, listFactory);
-    }
+public interface MultiValueListMap<K, V> extends MultiValueCollectionMap<K, V, List<V>> {
 }

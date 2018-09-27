@@ -26,7 +26,7 @@
 
 package org.beanplanet.events.monitoring;
 
-import org.beanplanet.events.core.domain.BaseEvent;
+import org.beanplanet.core.events.BaseEvent;
 
 import static java.time.Instant.now;
 

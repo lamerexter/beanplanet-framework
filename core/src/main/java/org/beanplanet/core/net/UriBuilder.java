@@ -26,7 +26,7 @@
 
 package org.beanplanet.core.net;
 
-import org.beanplanet.core.util.MultiValueListMap;
+import org.beanplanet.core.util.MultiValueListMapImpl;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.net.URI;
@@ -55,7 +55,7 @@ public class UriBuilder {
     private Integer port;
     private String path;
 
-    private MultiValueListMap<String, String> queryParameters;
+    private MultiValueListMapImpl<String, String> queryParameters;
 
     public UriBuilder() {}
 
@@ -71,7 +71,7 @@ public class UriBuilder {
         withPath(uri.getPath());
 
         if (uri.getQuery() != null) {
-            withQueryParameters(new MultiValueListMap<>(
+            withQueryParameters(new MultiValueListMapImpl<>(
                     Arrays.asList(uri.getQuery().split("&")).stream()
                     .map(s -> s.split("="))
                     .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())))
@@ -160,7 +160,7 @@ public class UriBuilder {
         return this;
     }
 
-    public MultiValueListMap<String, String> getQueryParameters() {
+    public MultiValueListMapImpl<String, String> getQueryParameters() {
         return queryParameters;
     }
 
@@ -168,11 +168,11 @@ public class UriBuilder {
         return queryParameters != null && !queryParameters.getOrDefault(name, Collections.emptyList()).isEmpty();
     }
 
-    public void setQueryParameters(MultiValueListMap<String, String> queryParameters) {
+    public void setQueryParameters(MultiValueListMapImpl<String, String> queryParameters) {
         this.queryParameters = queryParameters;
     }
 
-    public UriBuilder withQueryParameters(MultiValueListMap<String, String> queryParameters) {
+    public UriBuilder withQueryParameters(MultiValueListMapImpl<String, String> queryParameters) {
         setQueryParameters(queryParameters);
         return this;
     }

@@ -27,7 +27,7 @@
 package org.beanplanet.core.net.http;
 
 import org.beanplanet.core.io.resource.Resource;
-import org.beanplanet.core.util.MultiValueListMap;
+import org.beanplanet.core.util.MultiValueListMapImpl;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.util.Map;
@@ -50,7 +50,7 @@ public class HttpResponse extends HttpMessage {
     public HttpResponse() {
     }
 
-    public HttpResponse(int status, MultiValueListMap<String, String> headers) {
+    public HttpResponse(int status, MultiValueListMapImpl<String, String> headers) {
         this.statusCode = status;
         setHeaders(headers);
     }

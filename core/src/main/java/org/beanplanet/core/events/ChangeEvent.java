@@ -24,27 +24,50 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.util;
+package org.beanplanet.core.events;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
-public class IterableUtil {
-    public static <E> Stream<E> asStream(Iterable<E> iterable) {
-        return IteratorUtil.asStream(iterable.iterator());
+import java.util.Objects;
+
+public class ChangeEvent<T> extends BaseEvent {
+    private T oldValue;
+    private T newValue;
+
+    public ChangeEvent(T oldValue, T newValue) {
+        this(null, oldValue, newValue);
     }
 
-    /**
-     * Guarantees to return a non-null {@link Iterable} for a possibly null enumeration.
-     *
-     * @param enumerationSupplier a supplier of an enumeration over whose elements the iterable will iterate, which may be null.
-     * @return an iterable, either backed by the enumeration supplied if the enumeration was not null, or an empty collection otherwise.
-     */
-    public static <T> Iterable<T> nullSafeEnumerationIterable(final Supplier<Enumeration<T>> enumerationSupplier) {
-        if (enumerationSupplier == null) return Collections.emptyList();
+    public ChangeEvent(Object source, T oldValue, T newValue) {
+        super(source);
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+    }
 
-        return new EnumerationIterable<>(enumerationSupplier);
+    public T getOldValue() {
+        return oldValue;
+    }
+
+    public T getNewValue() {
+        return newValue;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (getClass() != o.getClass())
+            return false;
+        ChangeEvent<?> that = (ChangeEvent<?>) o;
+        return Objects.equals(oldValue, that.oldValue) && Objects.equals(newValue, that.newValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(oldValue, newValue);
+    }
+
+    public String toString() {
+        return new PropertyBasedToStringBuilder(this).build();
     }
 }

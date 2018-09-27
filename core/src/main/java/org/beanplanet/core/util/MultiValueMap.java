@@ -29,7 +29,5 @@ package org.beanplanet.core.util;
 import java.util.Collection;
 import java.util.Map;
 
-public interface MultiValueMap<K, V, C extends Collection<V>> extends Map<K, C> {
-    boolean addValue(K key, V value);
-    boolean removeValue(K key, V value);
+public interface MultiValueMap<K, V> extends MultiValueCollectionMap<K, V, Collection<V>> {
 }

@@ -26,25 +26,24 @@
 
 package org.beanplanet.core.util;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import org.beanplanet.core.models.Factory;
 
-public class IterableUtil {
-    public static <E> Stream<E> asStream(Iterable<E> iterable) {
-        return IteratorUtil.asStream(iterable.iterator());
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+public class MultiValueMapImpl<K, V> extends AbstractMultiValueMap<K, V, Collection<V>> implements MultiValueMap<K, V> {
+    public MultiValueMapImpl() {
+        this(new HashMap<>());
     }
 
-    /**
-     * Guarantees to return a non-null {@link Iterable} for a possibly null enumeration.
-     *
-     * @param enumerationSupplier a supplier of an enumeration over whose elements the iterable will iterate, which may be null.
-     * @return an iterable, either backed by the enumeration supplied if the enumeration was not null, or an empty collection otherwise.
-     */
-    public static <T> Iterable<T> nullSafeEnumerationIterable(final Supplier<Enumeration<T>> enumerationSupplier) {
-        if (enumerationSupplier == null) return Collections.emptyList();
+    public MultiValueMapImpl(Map<K, Collection<V>> backingMap) {
+        this(backingMap, ArrayList::new);
+    }
 
-        return new EnumerationIterable<>(enumerationSupplier);
+    @SuppressWarnings("unchecked")
+    public <C> MultiValueMapImpl(Map<K, Collection<V>> backingMap, Factory<? extends Collection<V>> listFactory) {
+        super(backingMap, (Factory<Collection<V>>)listFactory);
     }
 }

@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public abstract class AbstractMultiValueMap<K, V, C extends Collection<V>> implements MultiValueMap<K, V, C>{
+public abstract class AbstractMultiValueMap<K, V, C extends Collection<V>> implements Map<K, C>{
     private Map<K, C> backingMap;
     private Factory<C> factory;
 
@@ -90,12 +90,10 @@ public abstract class AbstractMultiValueMap<K, V, C extends Collection<V>> imple
         return backingMap.entrySet();
     }
 
-    @Override
     public boolean addValue(K key, V value) {
         return backingMap.computeIfAbsent(key, v -> factory.create()).add(value);
     }
 
-    @Override
     public boolean removeValue(K key, V value) {
         final boolean valueRemoved[] = { false };
         backingMap.computeIfPresent(key, (k, lov) -> { valueRemoved[0] = lov.remove(value); return lov; });

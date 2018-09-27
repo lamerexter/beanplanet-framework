@@ -24,27 +24,24 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.util;
+package org.beanplanet.core.events;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import org.beanplanet.core.events.Event;
+import org.beanplanet.core.events.EventListener;
 
-public class IterableUtil {
-    public static <E> Stream<E> asStream(Iterable<E> iterable) {
-        return IteratorUtil.asStream(iterable.iterator());
-    }
-
-    /**
-     * Guarantees to return a non-null {@link Iterable} for a possibly null enumeration.
-     *
-     * @param enumerationSupplier a supplier of an enumeration over whose elements the iterable will iterate, which may be null.
-     * @return an iterable, either backed by the enumeration supplied if the enumeration was not null, or an empty collection otherwise.
-     */
-    public static <T> Iterable<T> nullSafeEnumerationIterable(final Supplier<Enumeration<T>> enumerationSupplier) {
-        if (enumerationSupplier == null) return Collections.emptyList();
-
-        return new EnumerationIterable<>(enumerationSupplier);
-    }
+/**
+ * A generic event dispatcher, capable of dispatching an event of a given class
+ * through a corresponding listener type.
+ *  
+ * @author Gary Watson
+ */
+public interface EventDispatcher<E extends Event, L extends EventListener> {
+   /**
+    * Called to dispatch an event through the given listener.
+    * 
+    * @param event the event to be dispatched. 
+    * @param listener the listener through which the event should be dispatched.
+    * @throws Exception if an error occurs dispatching the event.
+    */
+   public void dispatchEvent(E event, L listener) throws Exception;
 }

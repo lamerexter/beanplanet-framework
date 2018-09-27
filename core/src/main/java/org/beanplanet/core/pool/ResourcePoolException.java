@@ -23,28 +23,35 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
+package org.beanplanet.core.pool;
 
-package org.beanplanet.core.util;
+/**
+ * Superclass of all Pool related exceptions.
+ * 
+ * @author Gary Watson
+ */
+public class ResourcePoolException extends RuntimeException {
+   /**
+    * 
+    */
+   private static final long serialVersionUID = 1L;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+   /**
+    * Constructs a <code>PoolException</code> with the specified detail message.
+    * 
+    * @param msg the detail message.
+    */
+   public ResourcePoolException(String msg) {
+      super(msg);
+   }
 
-public class IterableUtil {
-    public static <E> Stream<E> asStream(Iterable<E> iterable) {
-        return IteratorUtil.asStream(iterable.iterator());
-    }
-
-    /**
-     * Guarantees to return a non-null {@link Iterable} for a possibly null enumeration.
-     *
-     * @param enumerationSupplier a supplier of an enumeration over whose elements the iterable will iterate, which may be null.
-     * @return an iterable, either backed by the enumeration supplied if the enumeration was not null, or an empty collection otherwise.
-     */
-    public static <T> Iterable<T> nullSafeEnumerationIterable(final Supplier<Enumeration<T>> enumerationSupplier) {
-        if (enumerationSupplier == null) return Collections.emptyList();
-
-        return new EnumerationIterable<>(enumerationSupplier);
-    }
+   /**
+    * Constructs a <code>PoolException</code> with the specified detail message and nested exception.
+    * 
+    * @param s the detail message
+    * @param ex the nested exception
+    */
+   public ResourcePoolException(String s, Throwable ex) {
+      super(s, ex);
+   }
 }

@@ -38,7 +38,6 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -292,18 +291,27 @@ public final class TypeUtil {
         return instantiateClass(type, NO_ARGS);
     }
 
-    public static <T> Constructor<T> getCallableConstructor(Class<?> type, Object[] ctorParameterValues) {
-        throw new UnsupportedOperationException("TODO");
+    @SuppressWarnings("unchecked")
+    public static <T> Optional<Constructor<T>> getCallableConstructor(Class<T> type, Object[] ctorParameterValues) {
+        return Arrays.stream((Constructor<T>[])type.getDeclaredConstructors())
+                .filter(c -> c.getParameterCount() == (ctorParameterValues == null ? 0 : ctorParameterValues.length))
+                .filter(c -> {
+                    for (int n=0; n < c.getParameterCount(); n++) {
+                        if ( !(ctorParameterValues[n] == null || type.getDeclaredConstructors()[n].equals(ctorParameterValues[n].getClass())) ) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .findFirst();
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T instantiateClass(Class<T> type, Object ctorArgVals[]) {
+    public static <T> T instantiateClass(final Class<T> type, Object ctorArgVals[]) {
         try {
-            if (type.isPrimitive()) {
-                type = (Class<T>) ensureNonPrimitiveType(type);
-            }
-            java.lang.reflect.Constructor<T> beanCtor = getCallableConstructor(type, ctorArgVals);
-            return beanCtor.newInstance(ctorArgVals);
+            return getCallableConstructor(type, ctorArgVals).orElseThrow(() -> new UncheckedException("Unable to instantiate class, type=\"" + type.getName()
+                                                                                                      + "\" - no suitable constructor found"))
+                                                            .newInstance(ctorArgVals);
         } catch (InstantiationException instantiateEx) {
             throw new UncheckedException("Unable to instantiate class, type=\"" + type.getName()
                 + "\" - it is likely the type does not have a no-arg constructor or invalid arguments have been specified: ", instantiateEx);

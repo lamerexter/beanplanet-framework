@@ -26,23 +26,7 @@
 
 package org.beanplanet.core.util;
 
-import org.beanplanet.core.models.Factory;
-
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-public class MultiValueSetMap<K, V> extends MultiValueCollectionMap<K, V, Set<V>> {
-    public MultiValueSetMap() {
-        super();
-    }
-
-    public MultiValueSetMap(Map<K, Set<V>> backingMap) {
-        super(backingMap, HashSet::new);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <C extends Set<V>> MultiValueSetMap(Map<K, C> backingMap, Factory<C> listFactory) {
-        super((Map<K, Set<V>>)backingMap, listFactory);
-    }
+public interface MultiValueSetMap<K, V> extends MultiValueCollectionMap<K, V, Set<V>> {
 }

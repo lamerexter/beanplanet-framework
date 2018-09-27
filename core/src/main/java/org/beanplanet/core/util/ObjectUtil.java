@@ -33,10 +33,20 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 
 public class ObjectUtil {
+    public static final <T> T nvl(T value, Supplier<T> supplier) {
+        return value != null ? value : supplier.get();
+    }
+
+    public static final <S, T> T nvl2(S value, Function<S, T> notNullExpr, Supplier<T> nullExpr) {
+        return value != null ? notNullExpr.apply(value) : nullExpr.get();
+    }
+
     public static final boolean equalByProperties(Object obj1, Object obj2, String ... propertyNames) {
         if (obj1 == obj2) return true;
         if (obj1 != null && obj2 == null || obj1 == null) return false;

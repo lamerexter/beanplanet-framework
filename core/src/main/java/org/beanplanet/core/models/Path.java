@@ -26,20 +26,30 @@
 
 package org.beanplanet.core.models;
 
-import java.util.Collections;
+import org.beanplanet.core.util.IterableUtil;
+
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.beanplanet.core.util.CollectionUtil.isEmptyOrNull;
 
-public interface Path<T> {
-    Path<Object> EMPTY_PATH = new PathImpl<>(Collections.emptyList());
+public interface Path<T> extends Iterable<Path<T>> {
+    Path<?> EMPTY_PATH = new FilePath("");
 
     @SuppressWarnings("unchecked")
     default Path<T> emptyPath() {
         return (Path<T>)EMPTY_PATH;
     }
 
-    List<T> getPathElements();
+    boolean isAbsolute();
+
+    Path<T> toAbsolutePath();
+
+    Path<T> normalise();
+
+    T getRoot();
+
+    List<Path<T>> getPathElements();
 
     default Path<T> parentPath() {
         return isEmptyOrNull(getPathElements()) ? emptyPath() : subPath(0, size()-1);
@@ -53,16 +63,22 @@ public interface Path<T> {
         return isEmptyOrNull(getPathElements()) ? 0 : getPathElements().size();
     }
 
-    default Path<T> subPath(int fromIndexInclusive, int toIndexExclusive) {
-        return new PathImpl<>(getPathElements().subList(fromIndexInclusive, toIndexExclusive));
+    default Stream<Path<T>> stream() {
+        return IterableUtil.asStream(this);
     }
 
-    default T getFirstElement() {
+    default Path<T> subPath(int fromIndexInclusive, int toIndexExclusive) {
+        return null; //new FilePath(getPathElements().subList(fromIndexInclusive, toIndexExclusive));
+    }
+
+    default Path<T> getFirstElement() {
         return getPathElements().get(0);
     }
 
-    default T getLastElement() {
-        List<T> pathElements = getPathElements();
+    default Path<T> getLastElement() {
+        List<Path<T>> pathElements = getPathElements();
         return pathElements.get(pathElements.size()-1);
     }
+
+    Path<T> relativeTo(Path<T> other);
 }

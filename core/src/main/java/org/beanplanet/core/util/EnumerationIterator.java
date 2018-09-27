@@ -26,25 +26,22 @@
 
 package org.beanplanet.core.util;
 
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.Iterator;
 
-public class IterableUtil {
-    public static <E> Stream<E> asStream(Iterable<E> iterable) {
-        return IteratorUtil.asStream(iterable.iterator());
+public class EnumerationIterator<T> implements Iterator<T> {
+    final Enumeration<T> enumeration;
+
+    public EnumerationIterator(final Enumeration<T> enumeration) {
+        this.enumeration = enumeration;
+    }
+    @Override
+    public boolean hasNext() {
+        return enumeration.hasMoreElements();
     }
 
-    /**
-     * Guarantees to return a non-null {@link Iterable} for a possibly null enumeration.
-     *
-     * @param enumerationSupplier a supplier of an enumeration over whose elements the iterable will iterate, which may be null.
-     * @return an iterable, either backed by the enumeration supplied if the enumeration was not null, or an empty collection otherwise.
-     */
-    public static <T> Iterable<T> nullSafeEnumerationIterable(final Supplier<Enumeration<T>> enumerationSupplier) {
-        if (enumerationSupplier == null) return Collections.emptyList();
-
-        return new EnumerationIterable<>(enumerationSupplier);
+    @Override
+    public T next() {
+        return enumeration.nextElement();
     }
 }

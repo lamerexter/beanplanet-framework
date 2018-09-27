@@ -27,7 +27,7 @@
 package org.beanplanet.core.net.http;
 
 import org.beanplanet.core.io.resource.Resource;
-import org.beanplanet.core.util.MultiValueListMap;
+import org.beanplanet.core.util.MultiValueListMapImpl;
 
 import java.util.Map;
 
@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public class HttpMessage {
     /** The headers associated with the message. */
-    private MultiValueListMap<String, String> headers;
+    private MultiValueListMapImpl<String, String> headers;
     /** The entity associated with the message. */
     private Resource entity;
 
@@ -47,7 +47,7 @@ public class HttpMessage {
      *
      * @return the headers associated with the message.
      */
-    public MultiValueListMap<String, String> getHeaders() {
+    public MultiValueListMapImpl<String, String> getHeaders() {
         return headers;
     }
 
@@ -56,7 +56,7 @@ public class HttpMessage {
      *
      * @param headers the headers associated with the message.
      */
-    public void setHeaders(MultiValueListMap<String, String> headers) {
+    public void setHeaders(MultiValueListMapImpl<String, String> headers) {
         this.headers = headers;
     }
 
@@ -72,7 +72,7 @@ public class HttpMessage {
 
     public HttpMessage withHeader(String name, String value) {
         if (headers == null) {
-            this.headers = new MultiValueListMap<>();
+            this.headers = new MultiValueListMapImpl<>();
         }
 
         headers.addValue(name, value);

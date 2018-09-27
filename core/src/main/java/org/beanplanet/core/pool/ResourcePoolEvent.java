@@ -23,28 +23,51 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
+package org.beanplanet.core.pool;
 
-package org.beanplanet.core.util;
+import org.beanplanet.core.events.BaseEvent;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+public class ResourcePoolEvent<E> extends BaseEvent {
 
-public class IterableUtil {
-    public static <E> Stream<E> asStream(Iterable<E> iterable) {
-        return IteratorUtil.asStream(iterable.iterator());
-    }
+   public enum PoolEventType {
+      LISTENER_REGISTERED, LISTENER_UNREGISTERED,
+      ITEM_LOANED, ITEM_RETURNED,
+      ITEM_CREATED, ITEM_DESTROYED,
+      ITEM_VALID, ITEM_INVALID;
+   }
 
-    /**
-     * Guarantees to return a non-null {@link Iterable} for a possibly null enumeration.
-     *
-     * @param enumerationSupplier a supplier of an enumeration over whose elements the iterable will iterate, which may be null.
-     * @return an iterable, either backed by the enumeration supplied if the enumeration was not null, or an empty collection otherwise.
-     */
-    public static <T> Iterable<T> nullSafeEnumerationIterable(final Supplier<Enumeration<T>> enumerationSupplier) {
-        if (enumerationSupplier == null) return Collections.emptyList();
+   protected PoolEventType eventType;
+   protected ResourcePool<E> pool;
+   protected E resource;
 
-        return new EnumerationIterable<>(enumerationSupplier);
-    }
+   public ResourcePoolEvent(PoolEventType eventType, ResourcePool<E> pool, E resource) {
+      super(pool);
+      this.eventType = eventType;
+      this.pool = pool;
+      this.resource = resource;
+   }
+
+   public PoolEventType getEventType() {
+      return eventType;
+   }
+
+   public void setEventType(PoolEventType eventType) {
+      this.eventType = eventType;
+   }
+
+   public ResourcePool<E> getPool() {
+      return pool;
+   }
+
+   public void setPool(ResourcePool<E> pool) {
+      this.pool = pool;
+   }
+
+   public E getResource() {
+      return resource;
+   }
+
+   public void setResource(E resource) {
+      this.resource = resource;
+   }
 }

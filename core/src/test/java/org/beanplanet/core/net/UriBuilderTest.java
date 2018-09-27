@@ -26,7 +26,7 @@
 
 package org.beanplanet.core.net;
 
-import org.beanplanet.core.util.MultiValueListMap;
+import org.beanplanet.core.util.MultiValueListMapImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -69,7 +69,7 @@ public class UriBuilderTest {
         assertThat(builder.getPort(), equalTo(uri.getPort()));
         assertThat(builder.getPath(), equalTo(uri.getPath()));
 
-        MultiValueListMap<String, String> expectedQueryParams = new MultiValueListMap<>();
+        MultiValueListMapImpl<String, String> expectedQueryParams = new MultiValueListMapImpl<>();
         expectedQueryParams.addValue("a", "1");
         expectedQueryParams.addValue("b", "2");
         expectedQueryParams.addValue("b", "22");

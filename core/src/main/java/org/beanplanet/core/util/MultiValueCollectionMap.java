@@ -26,24 +26,10 @@
 
 package org.beanplanet.core.util;
 
-import org.beanplanet.core.models.Factory;
-
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
-public class MultiValueCollectionMap<K, V, C extends Collection<V>> extends AbstractMultiValueMap<K, V, C> {
-    public MultiValueCollectionMap() {
-        this(new HashMap<>());
-    }
-
-    public MultiValueCollectionMap(Map<K, C> backingMap) {
-        this(backingMap, ArrayList::new);
-    }
-
-    @SuppressWarnings("unchecked")
-    public MultiValueCollectionMap(Map<K, C> backingMap, Factory<? extends Collection<V>> listFactory) {
-        super(backingMap, (Factory<C>)listFactory);
-    }
+public interface MultiValueCollectionMap<K, V, C extends Collection<V>> extends Map<K, C> {
+    boolean addValue(K key, V value);
+    boolean removeValue(K key, V value);
 }
