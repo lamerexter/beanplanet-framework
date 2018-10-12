@@ -26,6 +26,10 @@
 
 package org.beanplanet.core.io.resource;
 
+import org.beanplanet.core.io.IoException;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.stream.Collectors;
 
@@ -56,5 +60,21 @@ public class UriBasedResourceImpl extends AbstractUrlBasedResource implements Ur
         if (pathElements.length <= 1) return null;
 
         return new UriBasedResourceImpl(stream(pathElements, 0, pathElements.length-1).collect(Collectors.joining("/")));
+    }
+
+    /**
+     * This abstract resource knows nothing about how to create a stream from the resource so simply throws an
+     * <code>{@link UnsupportedOperationException}<code>. Implementations must provide a useful, specific,
+     * implementation of this method suited to the type of backing resource.
+     *
+     * @return a newly created input stream for reading the resource.
+     */
+    @Override
+    public InputStream getInputStream() {
+        try {
+            return getUri().toURL().openStream();
+        } catch (IOException e) {
+            throw new IoException(e);
+        }
     }
 }

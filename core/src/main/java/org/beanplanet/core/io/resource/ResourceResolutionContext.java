@@ -24,42 +24,17 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.mediatypes;
+package org.beanplanet.core.io.resource;
 
-import org.beanplanet.core.lang.Assert;
-import org.beanplanet.core.util.StringUtil;
-
-public class DefaultMediaType implements MediaType {
-    private String baseType;
-    private String subType;
-
-    public DefaultMediaType(String mediaTypeName) {
-        Assert.notNull(mediaTypeName);
-        int separatorPos = mediaTypeName.indexOf('/');
-        Assert.isTrue(separatorPos >= 0);
-
-        this.baseType = mediaTypeName.substring(0, separatorPos);
-        this.subType = mediaTypeName.substring(separatorPos+1);;
-    }
-
-    public DefaultMediaType(String baseType, String subType) {
-        this.baseType = baseType;
-        this.subType = subType;
-    }
-
-    public String getBaseType() {
-        return baseType;
-    }
-
-    public void setBaseType(String baseType) {
-        this.baseType = baseType;
-    }
-
-    public String getSubType() {
-        return subType;
-    }
-
-    public void setSubType(String subType) {
-        this.subType = subType;
-    }
+/**
+ * The superclass of all resource resolution contexts.
+ */
+public interface ResourceResolutionContext {
+    /**
+     * Gets the descriptor which describes how to resolve the resource. This might be a URI/URL, identity of the resource or
+     * the resource itself.
+     *
+     * @return the resource descriptor.
+     */
+    String getResourceDescriptor();
 }

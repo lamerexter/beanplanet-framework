@@ -27,6 +27,7 @@
 package org.beanplanet.core.net.http;
 
 import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.mediatypes.MediaType;
 import org.beanplanet.core.util.MultiValueListMapImpl;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
@@ -96,6 +97,10 @@ public class HttpResponse extends HttpMessage {
 
     public HttpResponse withHeader(String name, String value) {
         return (HttpResponse)super.withHeader(name, value);
+    }
+
+    public HttpResponse withContentType(MediaType contentType) {
+        return (HttpResponse)super.withContentType(contentType);
     }
 
     public HttpResponse withContentType(String contentType) {

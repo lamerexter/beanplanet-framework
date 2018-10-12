@@ -24,42 +24,18 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.mediatypes;
+package org.beanplanet.core.models;
 
-import org.beanplanet.core.lang.Assert;
-import org.beanplanet.core.util.StringUtil;
+/**
+ * Defines a strategy for a registry of a given type.
+ * @param <K> The key type used to lookup an entry.
+ * @param <T> The type of entries kept in the registry.
+ */
+public interface Registry<K, T> {
+    boolean addToRegistry(K key, T item);
+    boolean removeFromRegistry(K key);
 
-public class DefaultMediaType implements MediaType {
-    private String baseType;
-    private String subType;
+    T lookup(K key);
 
-    public DefaultMediaType(String mediaTypeName) {
-        Assert.notNull(mediaTypeName);
-        int separatorPos = mediaTypeName.indexOf('/');
-        Assert.isTrue(separatorPos >= 0);
-
-        this.baseType = mediaTypeName.substring(0, separatorPos);
-        this.subType = mediaTypeName.substring(separatorPos+1);;
-    }
-
-    public DefaultMediaType(String baseType, String subType) {
-        this.baseType = baseType;
-        this.subType = subType;
-    }
-
-    public String getBaseType() {
-        return baseType;
-    }
-
-    public void setBaseType(String baseType) {
-        this.baseType = baseType;
-    }
-
-    public String getSubType() {
-        return subType;
-    }
-
-    public void setSubType(String subType) {
-        this.subType = subType;
-    }
+    int size();
 }

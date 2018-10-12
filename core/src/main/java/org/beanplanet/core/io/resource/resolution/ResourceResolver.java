@@ -24,42 +24,22 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.mediatypes;
+package org.beanplanet.core.io.resource.resolution;
 
-import org.beanplanet.core.lang.Assert;
-import org.beanplanet.core.util.StringUtil;
+import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.io.resource.ResourceResolutionContext;
 
-public class DefaultMediaType implements MediaType {
-    private String baseType;
-    private String subType;
-
-    public DefaultMediaType(String mediaTypeName) {
-        Assert.notNull(mediaTypeName);
-        int separatorPos = mediaTypeName.indexOf('/');
-        Assert.isTrue(separatorPos >= 0);
-
-        this.baseType = mediaTypeName.substring(0, separatorPos);
-        this.subType = mediaTypeName.substring(separatorPos+1);;
-    }
-
-    public DefaultMediaType(String baseType, String subType) {
-        this.baseType = baseType;
-        this.subType = subType;
-    }
-
-    public String getBaseType() {
-        return baseType;
-    }
-
-    public void setBaseType(String baseType) {
-        this.baseType = baseType;
-    }
-
-    public String getSubType() {
-        return subType;
-    }
-
-    public void setSubType(String subType) {
-        this.subType = subType;
-    }
+/**
+ * Defines a strategy for resolving resources from, at the very least, a resource descriptor.
+ */
+public interface ResourceResolver {
+    /**
+     * Attempts to resolve the resource from the given context. Resource resolution will only be attempted if
+     * the resolver understands the resolution context specified.
+     *
+     * @param context the context under which resource resolution is to be carried out.
+     * @return the resource resolved or null if the resolver does not understand the context specified or if the resource
+     * could not be resolved by the resolver
+     */
+    Resource resolve(ResourceResolutionContext context);
 }

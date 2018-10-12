@@ -141,4 +141,8 @@ public class CompositeValidator<T> extends AbstractValueProvidedValidator<T> {
     public <R> Validator<R>[] getValidators() {
         return (Validator[])validators;
     }
+
+    public void setValidators(Validator<?> ... validators) {
+        this.validators = validators;
+    }
 }

@@ -27,6 +27,7 @@
 package org.beanplanet.core.net.http;
 
 import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.mediatypes.MediaType;
 import org.beanplanet.core.util.MultiValueListMapImpl;
 
 import java.util.Map;
@@ -42,6 +43,10 @@ public class HttpMessage {
     /** The entity associated with the message. */
     private Resource entity;
 
+    @SuppressWarnings("unchecked")
+    public <B extends HttpMessage> B withBuilder(Class<B> builder) {
+        return (B)this;
+    }
     /**
      * Gets the headers associated with the message.
      *
@@ -77,6 +82,10 @@ public class HttpMessage {
 
         headers.addValue(name, value);
         return this;
+    }
+
+    public HttpMessage withContentType(MediaType contentType) {
+        return withContentType(contentType.getName());
     }
 
     public HttpMessage withContentType(String contentType) {

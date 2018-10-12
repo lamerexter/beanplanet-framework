@@ -27,6 +27,7 @@
 package org.beanplanet.core.net.http;
 
 import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.mediatypes.MediaType;
 import org.beanplanet.core.net.UriBuilder;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
@@ -114,6 +115,9 @@ public class HttpRequest extends HttpMessage {
        return (HttpRequest)super.withHeader(name, value);
     }
 
+    public HttpRequest withContentType(MediaType contentType) {
+        return (HttpRequest)super.withContentType(contentType);
+    }
     public HttpRequest withContentType(String contentType) {
         return (HttpRequest)super.withContentType(contentType);
     }

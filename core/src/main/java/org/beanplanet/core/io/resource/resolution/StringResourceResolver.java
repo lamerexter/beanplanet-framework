@@ -24,42 +24,25 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.mediatypes;
+package org.beanplanet.core.io.resource.resolution;
 
-import org.beanplanet.core.lang.Assert;
-import org.beanplanet.core.util.StringUtil;
+import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.io.resource.ResourceResolutionContext;
+import org.beanplanet.core.io.resource.StringResource;
 
-public class DefaultMediaType implements MediaType {
-    private String baseType;
-    private String subType;
-
-    public DefaultMediaType(String mediaTypeName) {
-        Assert.notNull(mediaTypeName);
-        int separatorPos = mediaTypeName.indexOf('/');
-        Assert.isTrue(separatorPos >= 0);
-
-        this.baseType = mediaTypeName.substring(0, separatorPos);
-        this.subType = mediaTypeName.substring(separatorPos+1);;
-    }
-
-    public DefaultMediaType(String baseType, String subType) {
-        this.baseType = baseType;
-        this.subType = subType;
-    }
-
-    public String getBaseType() {
-        return baseType;
-    }
-
-    public void setBaseType(String baseType) {
-        this.baseType = baseType;
-    }
-
-    public String getSubType() {
-        return subType;
-    }
-
-    public void setSubType(String subType) {
-        this.subType = subType;
+/**
+ * A resource resolver which assumes the resource descriptor is the resource itself. As a consequence, this resolver will
+ * always resolve the resource from a non-null resource descriptor.
+ */
+public class StringResourceResolver implements ResourceResolver {
+    /**
+     * Always resolves to a string resource, by assuming the resource descriptor is the string resource itself.
+     *
+     * @param context the context under which resource resolution is to be carried out.
+     * @return the string resource resolved only if the resource descriptor in the given context is non-null, null otherwise.
+     */
+    @Override
+    public Resource resolve(ResourceResolutionContext context) {
+        return context.getResourceDescriptor() != null ? new StringResource(context.getResourceDescriptor()) : null;
     }
 }
