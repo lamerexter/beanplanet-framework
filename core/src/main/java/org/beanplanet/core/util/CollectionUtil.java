@@ -69,11 +69,11 @@ public class CollectionUtil {
      * A convenient method to not have to check if a collection is null. Particularly useful
      * in the new for loop which does not do this check.
      *
-     * @param iterable the iterable collection.
-     * @return the iterable collection or an empty collection if null.
+     * @param collection the collection to check if null.
+     * @return the specified collection if not null or an immutable empty collection otherwise.
      */
-    public static final <T> Iterable<T> nullSafe(Iterable<T> iterable) {
-        return iterable != null ? iterable : Collections.emptyList();
+    public static final <T> Collection<T> nullSafe(Collection<T> collection) {
+        return collection != null ? collection : Collections.emptyList();
     }
 
     /**

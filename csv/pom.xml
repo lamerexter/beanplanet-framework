@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>beanplanet</artifactId>
+        <groupId>org.beanplanet</groupId>
+        <version>2.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>BeanPlanet - CSV</name>
+    <groupId>org.beanplanet</groupId>
+    <artifactId>beanplanet-csv</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.beanplanet</groupId>
+            <artifactId>beanplanet-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+        <plugin>
+            <groupId>com.helger.maven</groupId>
+            <artifactId>ph-javacc-maven-plugin</artifactId>
+            <version>4.1.1</version>
+            <executions>
+                <execution>
+                    <id>jjc1</id>
+                    <phase>generate-sources</phase>
+                    <goals>
+                        <goal>javacc</goal>
+                    </goals>
+                    <configuration>
+                        <!--<jdkVersion>1.5</jdkVersion>-->
+                        <!--<javadocFriendlyComments>true</javadocFriendlyComments>-->
+                        <!--<packageName>org.javacc.parser</packageName>-->
+                        <!--<sourceDirectory>src/main/java/org/javacc/parser</sourceDirectory>-->
+                        <!--<outputDirectory>${project.build.directory}/generated-sources/javacc1</outputDirectory>-->
+                    </configuration>
+                </execution>
+                <!--<execution>-->
+                    <!--<id>jjt2</id>-->
+                    <!--<phase>generate-sources</phase>-->
+                    <!--<goals>-->
+                        <!--<goal>javacc</goal>-->
+                    <!--</goals>-->
+                    <!--<configuration>-->
+                        <!--<jdkVersion>1.5</jdkVersion>-->
+                        <!--<javadocFriendlyComments>true</javadocFriendlyComments>-->
+                        <!--<packageName>org.javacc.utils</packageName>-->
+                        <!--<sourceDirectory>src/main/java/org/javacc/utils</sourceDirectory>-->
+                        <!--<outputDirectory>${project.build.directory}/generated-sources/javacc2</outputDirectory>-->
+                    <!--</configuration>-->
+                <!--</execution>-->
+                <!--<execution>-->
+                    <!--<id>jjt1</id>-->
+                    <!--<phase>generate-sources</phase>-->
+                    <!--<goals>-->
+                        <!--<goal>jjtree-javacc</goal>-->
+                    <!--</goals>-->
+                    <!--<configuration>-->
+                        <!--<jdkVersion>1.5</jdkVersion>-->
+                        <!--<javadocFriendlyComments>true</javadocFriendlyComments>-->
+                        <!--<packageName>org.javacc.parser</packageName>-->
+                        <!--<sourceDirectory>src/main/java/org/javacc/jjtree</sourceDirectory>-->
+                        <!--<excludes>-->
+                            <!--<exclude>**/parser/**</exclude>-->
+                        <!--</excludes>-->
+                        <!--<outputDirectory>${project.build.directory}/generated-sources/jjtree1</outputDirectory>-->
+                    <!--</configuration>-->
+                <!--</execution>-->
+            </executions>
+        </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -154,5 +154,6 @@
         <module>messages</module>
         <module>validation</module>
         <module>testing</module>
+        <module>csv</module>
     </modules>
 </project>

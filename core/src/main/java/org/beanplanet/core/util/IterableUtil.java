@@ -47,4 +47,25 @@ public class IterableUtil {
 
         return new EnumerationIterable<>(enumerationSupplier);
     }
+
+    /**
+     * A convenient method to not have to check if a collection is null. Particularly useful
+     * in the new for loop which does not do this check.
+     *
+     * @param iterable the iterable collection.
+     * @return the iterable collection or an empty collection if null.
+     */
+    public static final <T> Iterable<T> nullSafe(Iterable<T> iterable) {
+        return iterable != null ? iterable : Collections.emptyList();
+    }
+
+    /**
+     * Returns an empty immutable iterable.
+     *
+     * @return an immutable iterable.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Iterable<T> emptyImmutableIterable() {
+        return (Iterable<T>)Collections.emptyList();
+    }
 }

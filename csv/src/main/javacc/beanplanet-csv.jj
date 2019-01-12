@@ -1,0 +1,137 @@
+
+//-------------------------------------------------------------------------------------------------
+// Parser options
+//-------------------------------------------------------------------------------------------------
+options
+{
+   // Parser options:
+   DEBUG_PARSER = false;                   // Whether the parser should output debugging information to diagnose problems.
+   DEBUG_LOOKAHEAD = false;                // Whether the parser should output debugging information when making lookahead decisions.
+   DEBUG_TOKEN_MANAGER = false;            // Whether the parser tokeniser should output debugging information to diagnose problems.
+   LOOKAHEAD = 1;                          // The input stream symbol lookahead of the generated parser i.e. and LR(<nnn>) parser
+   JAVA_UNICODE_ESCAPE = true;             // Whether Java Unicode sequences are expanded prior to transmission to the tokeniser.
+   STATIC    = false;                      // Whether to produce a singleton parser class (containing static variables) or allow multiple instances
+   UNICODE_INPUT = true;                   // Use a unicode capable input stream.
+}
+
+PARSER_BEGIN(CSVResourceParser)
+package org.beanplanet.csv;
+
+import java.util.*;
+
+//import org.beanplanet.csv.ast.*;
+
+public class CSVResourceParser
+{
+   @SuppressWarnings("unchecked")
+   private List add(List list, Object obj) {
+      if (list == null) {
+         list = new ArrayList();
+      }
+
+      list.add(obj);
+      return list;
+   }
+}
+PARSER_END(CSVResourceParser)
+
+//-------------------------------------------------------------------------------------------------
+// Lexical Analyser definitions and tokens
+//-------------------------------------------------------------------------------------------------
+TOKEN :
+{
+   <DQUOTE_START: "\""> : WITHIN_ESCAPED_FIELD
+   |
+   <CRLF: "\r\n" | "\n" >
+   |
+   <UNESCAPED_FIELD_TEXTDATA: ~["\"",",","\r","\n"] (~[",","\r","\n"])* >
+}
+
+<WITHIN_ESCAPED_FIELD> TOKEN :
+{
+   <TEXTDATA: (~[",","\r","\n","\""])+>
+   |
+   <COMMA: ",">
+   |
+   <CR: "\r">
+   |
+   <LF: "\n">
+   |
+   <ESCAPED_DQUOTE: "\"\"">  { image.setLength(image.length()-1); matchedToken.image = image.toString(); }
+   |
+   <DQUOTE_END: "\""> : DEFAULT
+}
+
+
+List<CharSequence> Line() :
+{
+	List<CharSequence> fieldsList = null;
+	CharSequence field = null;
+	boolean addEmptyFinalField = false;
+}
+{
+
+  (
+    ","    { fieldsList=add(fieldsList, ""); addEmptyFinalField = true; }
+  )*
+
+  (
+	field=Field() { fieldsList=add(fieldsList, field); addEmptyFinalField = false; }
+    (
+      ","    { if (addEmptyFinalField) fieldsList=add(fieldsList, ""); addEmptyFinalField = true; }
+    )*
+  )*
+
+  [ <CRLF> ]
+
+  { if (addEmptyFinalField) { fieldsList=add(fieldsList, ""); }; return fieldsList; }
+}
+
+CharSequence Field() :
+{
+   CharSequence c;
+}
+{
+  (
+    c=EscapedField()
+    |
+    c=NonEscapedField()
+  )
+
+  { return c; }
+}
+
+CharSequence EscapedField() :
+{
+    StringBuilder s = null;
+}
+{
+   <DQUOTE_START>       { s = new StringBuilder(); }
+
+   (
+     (<TEXTDATA>
+      |
+      <COMMA>
+      |
+      <CR>
+      |
+      <LF>
+      |
+      <ESCAPED_DQUOTE>
+     )
+     { s.append(token.image); }
+   )*
+
+   <DQUOTE_END>
+
+   { return s; }
+}
+
+CharSequence NonEscapedField() :
+{
+    StringBuilder s = null;
+}
+{
+  <UNESCAPED_FIELD_TEXTDATA> { s = new StringBuilder(); s.append(token.image);}
+  { return s; }
+}

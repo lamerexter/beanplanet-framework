@@ -84,7 +84,7 @@ public final class BeanTestSupport {
     }
 
     static {
-        propertyValueGenerators.put(String.class, valueClass -> "thePropertyValue");
+        propertyValueGenerators.put(String.class, valueClass -> UUID.randomUUID().toString());
         propertyValueGenerators.put(Boolean.class, valueClass -> Boolean.TRUE);
         propertyValueGenerators.put(boolean.class, valueClass -> Boolean.TRUE);
         propertyValueGenerators.put(Date.class, valueClass -> new Date());
@@ -193,6 +193,13 @@ public final class BeanTestSupport {
         }
     }
 
+    private void assertFalse(boolean result, Supplier<String> messageSupplier, Object ... messageArgs) {
+        if ( result ) {
+            String message = messageSupplier.get();
+            throw new AssertionError(String.format(message, messageArgs));
+        }
+    }
+
     public final BeanTestSupport testBuilderProperties() {
         testBuilderProperties(instance);
         return this;
@@ -236,6 +243,43 @@ public final class BeanTestSupport {
                 throw new AssertionError(String.format("The builder method method [%s] on instance [%s] returned incorrect value type [%s] when expecting the instance", method.getName(), instance.getClass(), (returnValue != null ? returnValue.getClass() : null)));
             }
         });
+        return this;
+    }
+
+    public final BeanTestSupport testEqualsWithProperties(Supplier<?> instanceSupplier, String ... propertyNames) {
+        //--------------------------------------------------------------------------------------------------------------
+        // Affirmative case: two instances are equal
+        //--------------------------------------------------------------------------------------------------------------
+        Object instance1 = instanceSupplier.get();
+        Object instance2 = instanceSupplier.get();
+        Bean bean1 = new JavaBean(instance1);
+        Bean bean2 = new JavaBean(instance2);
+
+        Arrays.stream(propertyNames)
+                .forEach(p -> {
+                    ValueGenerator<?> propertyValueGenerator = determinePropertyValueGenerator(bean1.getPropertyType(p));
+                    Object propertyValue = propertyValueGenerator.generateValue(bean1.getPropertyType(p));
+                    bean1.set(p, propertyValue);
+                    bean2.set(p, propertyValue);
+                });
+        assertTrue(instance1.equals(instance2),
+                () -> "The equals() methjod of bean [type=%s] failed for the given properties [%s]",
+                instance1.getClass(), Arrays.asList(propertyNames));
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Negative case: two instances are not equal
+        //--------------------------------------------------------------------------------------------------------------
+        if ( propertyNames != null && propertyNames.length > 0 ) {
+            int randonProperty = (int)Math.floor(Math.random() * propertyNames.length);
+            String randomPropertyName = propertyNames[randonProperty];
+            ValueGenerator<?> propertyValueGenerator = determinePropertyValueGenerator(bean1.getPropertyType(randomPropertyName));
+            Object propertyValue = propertyValueGenerator.generateValue(bean1.getPropertyType(randomPropertyName));
+            bean2.set(randomPropertyName, propertyValue);
+
+            assertFalse(instance1.equals(instance2),
+                    () -> "The equals() methjod of bean [type=%s] passed unexpectedly for differing property [%s]",
+                    instance1.getClass(), randomPropertyName);
+        }
         return this;
     }
 

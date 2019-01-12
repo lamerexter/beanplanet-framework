@@ -88,6 +88,22 @@ public class IoUtil {
     }
 
     /**
+     * Closes a closable, coverting any checked exception to an unchecked {@link IoException}.
+     *
+     * @param closeable the closable to close, which may be null
+     */
+    public static void close(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (java.io.IOException ioEx) {
+            throw new IoException(ioEx);
+        }
+    }
+
+    /**
      * Obtains the <code>String</code> representation of the specified <code>ByteBuffer</code> assuming the UTF-16
      * encoding.
      * <p>
@@ -718,6 +734,22 @@ public class IoUtil {
             writer.flush();
         } catch (java.io.IOException ioEx) {
             throw new IoException("Error flushing writer: ", ioEx);
+        }
+    }
+
+    /**
+     * Writes a character sequence through the given writer.
+     *
+     * @param writer the writer through which the stream of characters will be written.
+     * @param characterSequence the sequence of characters to be written.
+     */
+    public static void write(Writer writer, CharSequence characterSequence) {
+        for (int n=0; n < characterSequence.length(); n++) {
+            try {
+                writer.write(characterSequence.charAt(n));
+            } catch (IOException ioEx) {
+                throw new IoException(ioEx);
+            }
         }
     }
 }

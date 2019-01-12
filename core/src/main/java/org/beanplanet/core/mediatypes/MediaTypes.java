@@ -31,4 +31,7 @@ public class MediaTypes {
 
     public static final MediaType TEXT_HTML = new DefaultMediaType("text/html");
     public static final MediaType TEXT_PLAIN = new DefaultMediaType("text/plain");
+
+    public static final MediaType IMAGE_PNG = new DefaultMediaType("image/png");
+
 }
