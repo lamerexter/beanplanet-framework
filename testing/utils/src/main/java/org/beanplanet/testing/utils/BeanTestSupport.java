@@ -31,7 +31,9 @@ import org.beanplanet.core.beans.JavaBean;
 import org.beanplanet.core.events.PropertyChangeEvent;
 import org.beanplanet.core.events.PropertyChangeEventSource;
 import org.beanplanet.core.events.PropertyChangeListener;
+import org.beanplanet.core.lang.TypeUtil;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -54,6 +56,7 @@ import static org.beanplanet.core.util.ArrayUtil.nullSafe;
  *
  * @author Gary Watson
  */
+@SuppressWarnings("unchecked")
 public final class BeanTestSupport {
     public static interface PropertyValueGenerator<T> {
         T generateValue(Bean bean, String propertyName);
@@ -65,9 +68,9 @@ public final class BeanTestSupport {
 
     private static final Map<Class<?>, ValueGenerator<?>> propertyValueGenerators = new HashMap<Class<?>, ValueGenerator<?>>();
 
-    private static final Map<Predicate<Class<?>>, ValueGenerator<?>> DEFAULT_PREDICATED_VALUE_GENERATORS = new HashMap<Predicate<Class<?>>, ValueGenerator<?>>();
+    private static final Map<Predicate<Class<?>>, ValueGenerator<?>> DEFAULT_PREDICATED_VALUE_GENERATORS = new LinkedHashMap<>();
 
-    private final Map<Predicate<Class<?>>, ValueGenerator<?>> predicatedPropertyValueGenerators = new HashMap<Predicate<Class<?>>, ValueGenerator<?>>(DEFAULT_PREDICATED_VALUE_GENERATORS);
+    private final Map<Predicate<Class<?>>, ValueGenerator<?>> predicatedPropertyValueGenerators = new LinkedHashMap<Predicate<Class<?>>, ValueGenerator<?>>(DEFAULT_PREDICATED_VALUE_GENERATORS);
 
     private final Set<String> excludedPropertyNames = new LinkedHashSet<String>();
 
@@ -84,23 +87,37 @@ public final class BeanTestSupport {
     }
 
     static {
-        propertyValueGenerators.put(String.class, valueClass -> UUID.randomUUID().toString());
         propertyValueGenerators.put(Boolean.class, valueClass -> Boolean.TRUE);
         propertyValueGenerators.put(boolean.class, valueClass -> Boolean.TRUE);
+        propertyValueGenerators.put(CharSequence.class, valueClass -> UUID.randomUUID().toString());
         propertyValueGenerators.put(Date.class, valueClass -> new Date());
         propertyValueGenerators.put(Double.class, valueClass -> Math.random() * Double.MAX_VALUE);
         propertyValueGenerators.put(Float.class, valueClass -> (float) (Math.random() * Float.MAX_VALUE));
         propertyValueGenerators.put(int.class, valueClass -> (int) (Math.random() * Integer.MAX_VALUE));
         propertyValueGenerators.put(Integer.class, valueClass -> (int) (Math.random() * Integer.MAX_VALUE));
         propertyValueGenerators.put(List.class, valueClass -> Collections.emptyList());
-        propertyValueGenerators.put(Long.class, valueClass -> (long) (Math.random() * Long.MAX_VALUE));
-        propertyValueGenerators.put(long.class, valueClass -> (long)(Math.random() * Long.MAX_VALUE));
-        propertyValueGenerators.put(Set.class, valueClass -> Collections.emptySet());
         propertyValueGenerators.put(LocalDate.class, valueClass -> LocalDate.now(ZoneId.of("UTC")));
         propertyValueGenerators.put(LocalTime.class, valueClass -> LocalTime.now(ZoneId.of("UTC")));
         propertyValueGenerators.put(LocalDateTime.class, valueClass -> LocalDateTime.now(ZoneId.of("UTC")));
+        propertyValueGenerators.put(Long.class, valueClass -> (long) (Math.random() * Long.MAX_VALUE));
+        propertyValueGenerators.put(long.class, valueClass -> (long)(Math.random() * Long.MAX_VALUE));
+        propertyValueGenerators.put(Set.class, valueClass -> Collections.emptySet());
+        propertyValueGenerators.put(String.class, valueClass -> UUID.randomUUID().toString());
 
-        DEFAULT_PREDICATED_VALUE_GENERATORS.put(clazz -> clazz.isEnum() && clazz.getEnumConstants().length > 0, valueClass -> valueClass.getEnumConstants()[0]);
+        // Array of basic types (primitive, character-sequence and class)
+        DEFAULT_PREDICATED_VALUE_GENERATORS.put(clazz -> clazz.isArray() && (TypeUtil.isPrimitiveTypeOrWrapperClass(clazz) || CharSequence.class.isAssignableFrom(clazz.getComponentType())),
+                valueClass -> {
+                    Object element = propertyValueGenerators.get(valueClass.getComponentType()).generateValue(valueClass);
+                    Object array = Array.newInstance(valueClass.getComponentType(), 1);
+                    Array.set(array, 0, element);
+                    return array;
+        });
+
+        DEFAULT_PREDICATED_VALUE_GENERATORS.put(clazz -> clazz.isEnum() && clazz.getEnumConstants().length > 0,
+                valueClass -> {
+                    Class<? extends Enum> enumClass = (Class<? extends Enum>)valueClass;
+                    return enumClass.getEnumConstants()[(int)Math.floor(Math.random() * ((Class<? extends Enum>)valueClass).getEnumConstants().length)];
+        });
     }
 
     public BeanTestSupport() {
@@ -208,7 +225,7 @@ public final class BeanTestSupport {
     public final BeanTestSupport testBuilderProperties(Object instance) {
         return testBuilderProperties(
                 instance,
-                stream(instance.getClass().getDeclaredMethods())
+                TypeUtil.getMethodsInClassHierarchy(instance.getClass())
                 .filter(m -> m.getName().startsWith("with") && m.getParameterTypes() != null && m.getParameterTypes().length == 1)
         );
     }
@@ -217,7 +234,7 @@ public final class BeanTestSupport {
         Set<String> methodNamesSet = new LinkedHashSet<>(asList(methodNames));
         return testBuilderProperties(
                 instance,
-                stream(instance.getClass().getDeclaredMethods())
+                TypeUtil.getMethodsInClassHierarchy(instance.getClass())
                         .filter(m -> methodNamesSet.contains(m.getName()))
                         .filter(m -> m.getParameterTypes() != null && m.getParameterTypes().length == 1)
         );
@@ -246,6 +263,10 @@ public final class BeanTestSupport {
         return this;
     }
 
+    public final BeanTestSupport testEqualsWithProperties(Supplier<?> instanceSupplier) {
+        return testEqualsWithProperties(instanceSupplier, new JavaBean(instanceSupplier.get()).getPropertyNames());
+    }
+
     public final BeanTestSupport testEqualsWithProperties(Supplier<?> instanceSupplier, String ... propertyNames) {
         //--------------------------------------------------------------------------------------------------------------
         // Affirmative case: two instances are equal
@@ -263,23 +284,56 @@ public final class BeanTestSupport {
                     bean2.set(p, propertyValue);
                 });
         assertTrue(instance1.equals(instance2),
-                () -> "The equals() methjod of bean [type=%s] failed for the given properties [%s]",
+                () -> "The equals() method of bean [type=%s] failed for the given properties [%s]",
                 instance1.getClass(), Arrays.asList(propertyNames));
 
         //--------------------------------------------------------------------------------------------------------------
         // Negative case: two instances are not equal
         //--------------------------------------------------------------------------------------------------------------
-        if ( propertyNames != null && propertyNames.length > 0 ) {
-            int randonProperty = (int)Math.floor(Math.random() * propertyNames.length);
-            String randomPropertyName = propertyNames[randonProperty];
-            ValueGenerator<?> propertyValueGenerator = determinePropertyValueGenerator(bean1.getPropertyType(randomPropertyName));
-            Object propertyValue = propertyValueGenerator.generateValue(bean1.getPropertyType(randomPropertyName));
-            bean2.set(randomPropertyName, propertyValue);
+        // GAW: 2019-01-14: Can't test the negative case until we have a way to 'toggle' a value to be different!
+        // e.g. instance1.isMale=true  so instance2.isMale=false  MUST be the case!
+//        if ( propertyNames != null && propertyNames.length > 0 ) {
+//            int randonProperty = (int)Math.floor(Math.random() * propertyNames.length);
+//            String randomPropertyName = propertyNames[randonProperty];
+//            ValueGenerator<?> propertyValueGenerator = determinePropertyValueGenerator(bean1.getPropertyType(randomPropertyName));
+//            Object propertyValue = propertyValueGenerator.generateValue(bean1.getPropertyType(randomPropertyName));
+//            bean2.set(randomPropertyName, propertyValue);
+//
+//            assertFalse(instance1.equals(instance2),
+//                    () -> "The equals() methjod of bean [type=%s] passed unexpectedly for differing property [%s]",
+//                    instance1.getClass(), randomPropertyName);
+//        }
+        return this;
+    }
 
-            assertFalse(instance1.equals(instance2),
-                    () -> "The equals() methjod of bean [type=%s] passed unexpectedly for differing property [%s]",
-                    instance1.getClass(), randomPropertyName);
-        }
+    /**
+     * Test that the hashcode  of new instance of an object is equivalent to the hash of a number of properties,
+     * equivalent to a call to <i>Objects.hash(propertyValues[]</i>, where <i>propertyValues[]</i> are the values of
+     * the properties set in order they were specified. That is, the hashcode of an object is equivalent to the hash of
+     * the properties specified, in order - which is the common was <i>hashCode</i> methods are written.
+     *
+     * @param instanceSupplier a supplier of new instances of the object to be hashed.
+     * @param propertyNames the names of the properties to set and hash, in order.
+     * @return this BeanTestSupport object, to facilitate method chaining.
+     */
+    public final BeanTestSupport testObjectsHashcodeWithProperties(Supplier<?> instanceSupplier, String ... propertyNames) {
+        //--------------------------------------------------------------------------------------------------------------
+        // Affirmative case: two instances are equal
+        //--------------------------------------------------------------------------------------------------------------
+        Object instance = instanceSupplier.get();
+        Bean bean = new JavaBean(instance);
+        List<Object> hashValues = new ArrayList<>(propertyNames == null ? 0 : propertyNames.length);
+
+        Arrays.stream(propertyNames)
+                .forEach(p -> {
+                    ValueGenerator<?> propertyValueGenerator = determinePropertyValueGenerator(bean.getPropertyType(p));
+                    Object propertyValue = propertyValueGenerator.generateValue(bean.getPropertyType(p));
+                    bean.set(p, propertyValue);
+                    hashValues.add(propertyValue);
+                });
+        assertTrue(instance.hashCode() == Arrays.hashCode(hashValues.toArray()),
+                () -> "The hashCode() method of bean [type=%s] failed for the given properties [%s] and values [%s]",
+                instance.getClass(), Arrays.asList(propertyNames), hashValues);
         return this;
     }
 
@@ -302,6 +356,7 @@ public final class BeanTestSupport {
      * under test that looks for the presence of "name=value" or "name=<value>" in the toString() output.
      *
      * Excluded properties are supported.
+     *
      *
      * @param propertyNvp   String array of property names and values, name1,  value1, name2, value3, name3, value3...
      * @return              this BeanTestSupport object, to facilitate method chaining.
@@ -471,5 +526,11 @@ public final class BeanTestSupport {
         }
 
         return null;
+    }
+
+    public static void testEnum(Class<? extends Enum> enumClass) {
+        for (int n=0; n < enumClass.getEnumConstants().length; n++) {
+            enumClass.getEnumConstants()[n].name();
+        }
     }
 }
