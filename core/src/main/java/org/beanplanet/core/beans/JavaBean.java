@@ -36,32 +36,32 @@ import java.util.Optional;
 
 import static org.beanplanet.core.lang.conversion.SystemTypeConverter.systemTypeConverter;
 
-public class JavaBean implements Bean {
+public class JavaBean<T> implements Bean {
     private JavabeanMetadataCache metadataCache;
 
-    private Object bean;
+    private T bean;
 
     private TypeConverter typeConverter;
 
-    public JavaBean(Object bean) {
+    public JavaBean(T bean) {
         this(JavabeanMetadataCache.getSystemCache(), systemTypeConverter(), bean);
     }
 
-    public JavaBean(JavabeanMetadataCache metadataCache, Object bean) {
+    public JavaBean(JavabeanMetadataCache metadataCache, T bean) {
         this(metadataCache, systemTypeConverter(), bean);
     }
 
-    public JavaBean(TypeConverter typeConverter, Object bean) {
+    public JavaBean(TypeConverter typeConverter, T bean) {
         this(JavabeanMetadataCache.getSystemCache(), typeConverter, bean);
     }
 
-    public JavaBean(JavabeanMetadataCache metadataCache, TypeConverter typeConverter, Object bean) {
+    public JavaBean(JavabeanMetadataCache metadataCache, TypeConverter typeConverter, T bean) {
         this.metadataCache = metadataCache;
         this.typeConverter = typeConverter;
         this.bean = bean;
     }
 
-    public Object getWrappedInstance() {
+    public T getBean() {
         return bean;
     }
 
@@ -136,14 +136,19 @@ public class JavaBean implements Bean {
     }
 
     @Override
-    public void set(String name, Object value) throws PropertyNotFoundException, BeanException {
+    public void set(String name, Object value) throws BeanException {
         PropertyDescriptor pd = assertAndGetWritablePropertyDescriptor(name);
 
         TypeUtil.invokeMethod(bean, pd.getWriteMethod(), value);
     }
 
+    public JavaBean<T> with(String name, Object value) throws BeanException {
+        set(name, value);
+        return this;
+    }
+
     @Override
-    public Class<?> getPropertyType(String name) throws PropertyNotFoundException, BeanException {
+    public Class<?> getPropertyType(String name) throws BeanException {
         return assertAndGetPropertyDescriptor(name).getPropertyType();
     }
 

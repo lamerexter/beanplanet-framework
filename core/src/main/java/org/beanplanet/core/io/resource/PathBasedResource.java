@@ -40,5 +40,5 @@ public interface PathBasedResource extends Resource {
      *
      * @return the full path of the resource.
      */
-    Path getPath();
+    Path<Resource> getPath();
 }

@@ -32,6 +32,7 @@ import org.beanplanet.core.io.IoUtil;
 import org.beanplanet.core.io.Path;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -56,7 +57,29 @@ import java.nio.charset.CharsetEncoder;
  * @see #canRead()
  * @see #canWrite()
  */
-public interface Resource {
+public interface Resource extends Cloneable {
+    /**
+     * Whether this resource is absolute. A resource is absolute if it is a path-based resource and it does not need any
+     * further information in order to locate or resolve it.
+     *
+     * @return true if the resource is absolute, false otherwise.
+     */
+    default boolean isAbsolute() {
+        return false;
+    }
+
+    /**
+     * Returns the well-known form of the resource a.k.a. the resource canonical form. For example, a URI based
+     * resource will be the URI/URL itself; for a file resource this will be the absolute path to the file and for
+     * a classpath resource this might be the location on the filesystem or path within a JAR.
+     *
+     * @return the resource canonical form, useful for logging, debugging, display to a user and for configuration of
+     * a resource. Guaranteed to be non-null.
+     */
+    default String getCanonicalForm() {
+        return toString();
+    }
+
     /**
      * Determines whether this resource exists in some form.
      *
@@ -96,7 +119,7 @@ public interface Resource {
      *
      * @return the full path of the resource, or null if the path is null or if this is not a path based resource.
      */
-    Path getPath() throws UnsupportedOperationException;
+    <R extends Resource> Path<R> getPath() throws UnsupportedOperationException;
 
     /**
      * Returns a Uniform Resource Identifier (URI) for the resource, if the resource type supports URI
@@ -112,7 +135,14 @@ public interface Resource {
      *
      * @return the URL of the resource, or null if the URL is null or if this is not a URL based resource.
      */
-    URL getUrl() throws UnsupportedOperationException;
+    default URL getUrl() throws UnsupportedOperationException {
+        try {
+            return getUri().toURL();
+        } catch (MalformedURLException malformedURLEx) {
+            throw new UnsupportedOperationException("The resource [" + getCanonicalForm()
+                    + "] is not suitable for reference as a URL: ", malformedURLEx);
+        }
+    }
 
     /**
      * Creates a new input stream, suitable for reading the resource. It is the caller's responsibility to close the
@@ -287,6 +317,31 @@ public interface Resource {
 
     default String readFullyAsString() {
         return IoUtil.transferAndClose(this.getReader(), new StringWriter()).toString();
+    }
+
+    /**
+     * Resolve the given path relative to this resource.
+     *
+     * <p>
+     * If the {@code path} is an {@link Path#isAbsolute() absolute}
+     * path then this method simply returns a new resource with the given {@code path}. If {@code path}
+     * is an <i>empty path</i> then this method simply returns this resource.
+     * Otherwise this method considers this resource to be a directory and resolves
+     * the given path against this resource's path. In the simplest case, the given path
+     * does not have a {@link Path#getRoot root} component, in which case this method
+     * <em>joins</em> the given path to the path of this resource and returns a resulting resource with path
+     * that {@link String#endsWith(String)} the given path. Where the given path has
+     * a root component then resolution is highly implementation dependent and
+     * therefore unspecified.
+     * </p>
+     *
+     * @param path the path to be resolved against this resource.
+     * @return a new resource whose path is resolved relative to the path of this resource.
+     * @throws UnsupportedOperationException if this resource is not a path-based resource or if the operation is not
+     * supported on this type of resource.
+     */
+    default Resource resolve(Path<Resource> path) {
+        throw new UnsupportedOperationException("Path resolution is not supported by this resource");
     }
 
     Resource getParentResource();

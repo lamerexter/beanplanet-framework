@@ -26,9 +26,14 @@
 
 package org.beanplanet.core.io;
 
+import org.beanplanet.core.models.tree.FilesystemTree;
+import org.beanplanet.core.util.IterableUtil;
+import org.beanplanet.core.util.IteratorUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Iterator;
 import java.util.stream.Stream;
 
 public class FileUtil {
@@ -195,5 +200,75 @@ public class FileUtil {
             return null;
         }
         return getFilenameSuffix(file.getName());
+    }
+
+    /**
+     * Deletes the given files or directories quietly, ignoring any errors.
+     *
+     * @param files the files or directories to be deleted.
+     * @return true if all the files or directories (recursively) were removed, false otherwise.
+     */
+    public static final boolean deleteIgnoringErrors(File ... files) {
+        if (files == null) return false;
+
+        boolean result = false, first = true;
+        for (File file : files) {
+            boolean thisResult = deleteIgnoringErrors(file);
+            if (first) {
+                result = thisResult;
+                first = false;
+            } else {
+                result = result && thisResult;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Deletes the given file or directory quietly, ignoring any errors.
+     *
+     * @param file the file or directory to be deleted.
+     * @return true if the file or directory (recursively) was removed, false otherwise.
+     */
+    public static final boolean deleteIgnoringErrors(File file) {
+        if (!file.exists() ) return false;
+
+        if (file.isFile()) {
+            return file.delete();
+        } else {
+            Iterator<File> filesIterator = new FilesystemTree(file).postorderIterator();
+            boolean result = filesIterator.next().delete();
+            while (filesIterator.hasNext() ) {
+                result = result && filesIterator.next().delete();
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Creates a temporary directory with the given path, relative to the O/S dependent temporary files directory.
+     *
+     * <p>
+     * For example, on *nix systems where the temporary files directory is typically {@code /tmp}, given the path
+     * {@code foo/bar}, then the temporary directory created will be {@code /tmp/foo/bar}.
+     * </p>
+     *
+     * @param path the path beneath the system-dependent temporary files directory where the temporary directory is to
+     *             be created.
+     * @return the directory created.
+     * @throws IoException if the directory could not be created.
+     */
+    public static final File createTemporaryDirectory(String path) {
+        File tmpDir = new File(getTemporaryFilesDirectory(), path);
+        if (tmpDir.exists() && tmpDir.isDirectory()) return tmpDir;
+
+        boolean created = tmpDir.mkdirs();
+        if ( !created ) {
+            throw new IoException(String.format("The temporary directory [%s] could not be created partially or at all", tmpDir));
+        }
+
+        return tmpDir;
     }
 }

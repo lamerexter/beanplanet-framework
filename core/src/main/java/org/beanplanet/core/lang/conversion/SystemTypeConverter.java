@@ -139,7 +139,7 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
 //               // if (logger.isInfoEnabled()) {
 //               // logger.info("Detected explicit type conversion capability [matchingConverter="
 //               // + (matchingConverter instanceof CompositeTypeConverter &&
-//               // ((CompositeTypeConverter)matchingConverter).size() == 1 ?
+//               // ((CompositeTypeConverter)matchingConverter).length() == 1 ?
 //               // ((CompositeTypeConverter)matchingConverter).iterator().next().getClass().getName()
 //               // : matchingConverter.getClass().getName()) + ", declaredFromType="
 //               // + TypeUtil.getDisplayNameForType(fromTypeToAxisToNodeTestMapEntry.getKey())
@@ -151,7 +151,7 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
 //               // addNavigator(from.getClass(),
 //               // canonicalAxisName,
 //               // ((NodeTest) axisStep.getNodeTest()).getClass(),
-//               // (navigator.size() == 1 ? navigator.iterator().next() : navigator));
+//               // (navigator.length() == 1 ? navigator.iterator().next() : navigator));
 //               // }
 //               return result;
 //            }

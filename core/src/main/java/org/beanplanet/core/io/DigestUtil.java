@@ -93,7 +93,7 @@ public class DigestUtil {
      * @param messageDigestAlgorthmName the message digest algorithm required (such as "SHA", "MD5", and so on).
      * @param providerName the message digest algorithm provider (such as "BC" for BouncyCastle), which may be null; in
      *        which case the default, if any, will be used.
-     * @param transferBufSize the I/O transfer buffer size to use in the digest; large buffers improve performance but
+     * @param transferBufSize the I/O transfer buffer length to use in the digest; large buffers improve performance but
      *        use more memory.
      * @return the digest hash value calculated over the byte stream.
      * @throws IoException thrown if an error occurs performing the message digest.
@@ -116,7 +116,7 @@ public class DigestUtil {
      * @param messageDigestAlgorthmName the message digest algorithm required (such as "SHA", "MD5", and so on).
      * @param providerName the message digest algorithm provider (such as "BC" for BouncyCastle), which may be null; in
      *        which case the default, if any, will be used.
-     * @param transferBufSize the I/O transfer buffer size to use in the digest; large buffers improve performance but
+     * @param transferBufSize the I/O transfer buffer length to use in the digest; large buffers improve performance but
      *        use more memory.
      * @return the digest hash value calculated over the byte stream.
      * @throws IoException thrown if an error occurs performing the message digest.
@@ -139,7 +139,7 @@ public class DigestUtil {
     }
 
     /**
-     * Calculates a message digest of the specified byte stream. The default transfer buffer size will be used for I/O
+     * Calculates a message digest of the specified byte stream. The default transfer buffer length will be used for I/O
      * transfers.
      *
      * @param is the stream to digest.
@@ -148,7 +148,7 @@ public class DigestUtil {
      *        which case the default, if any, will be used.
      * @return the digest hash value calculated over the byte stream.
      * @throws IoException thrown if an error occurs performing the message digest.
-     * @see IoUtil#DEFAULT_TRANSFER_BUF_SIZE the default transfer buffer size.
+     * @see IoUtil#DEFAULT_TRANSFER_BUF_SIZE the default transfer buffer length.
      */
     public static byte[] hashByteStream(InputStream is, String messageDigestAlgorthmName, String providerName)
         throws IoException {
@@ -161,7 +161,7 @@ public class DigestUtil {
      *
      * @param is the stream to digest.
      * @param messageDigestAlgorthmName the message digest algorithm required (such as "SHA", "MD5", and so on).
-     * @param transferBufSize the I/O transfer buffer size to use in the digest; large buffers improve performance but
+     * @param transferBufSize the I/O transfer buffer length to use in the digest; large buffers improve performance but
      *        use more memory.
      * @return the digest hash value calculated over the byte stream.
      * @throws IOException thrown if an error occurs performing the message digest.
@@ -173,13 +173,13 @@ public class DigestUtil {
 
     /**
      * Calculates a message digest of the specified byte stream. The default provider of the specified digest algorithm
-     * will be used and the default transfer buffer size will be used for I/O transfers
+     * will be used and the default transfer buffer length will be used for I/O transfers
      *
      * @param is the stream to digest.
      * @param messageDigestAlgorthmName the message digest algorithm required (such as "SHA", "MD5", and so on).
      * @return the digest hash value calculated over the byte stream.
      * @throws IoException thrown if an error occurs performing the message digest.
-     * @see IoUtil#DEFAULT_TRANSFER_BUF_SIZE the default transfer buffer size.
+     * @see IoUtil#DEFAULT_TRANSFER_BUF_SIZE the default transfer buffer length.
      */
     public static byte[] hashByteStream(InputStream is, String messageDigestAlgorthmName) throws IoException {
         return hashByteStream(is, messageDigestAlgorthmName, null, DEFAULT_TRANSFER_BUF_SIZE);
@@ -193,7 +193,7 @@ public class DigestUtil {
      * @param messageDigestAlgorthmName the message digest algorithm required (such as "SHA", "MD5", and so on).
      * @param providerName the message digest algorithm provider (such as "BC" for BouncyCastle), which may be null; in
      *        which case the default, if any, will be used.
-     * @param transferBufSize the I/O transfer buffer size to use in the digest; large buffers improve performance but
+     * @param transferBufSize the I/O transfer buffer length to use in the digest; large buffers improve performance but
      *        use more memory.
      * @return the digest hash value calculated over the byte stream.
      * @throws IoException thrown if an error occurs performing the message digest.
@@ -205,7 +205,7 @@ public class DigestUtil {
 
     /**
      * Calculates a message digest of the specified byte stream and returns the hexadecimal (Base 16) string of the
-     * hashcode. The default transfer buffer size will be used for I/O transfers.
+     * hashcode. The default transfer buffer length will be used for I/O transfers.
      *
      * @param is the stream to digest.
      * @param messageDigestAlgorthmName the message digest algorithm required (such as "SHA", "MD5", and so on).
@@ -213,7 +213,7 @@ public class DigestUtil {
      *        which case the default, if any, will be used.
      * @return the digest hash value calculated over the byte stream.
      * @throws IoException thrown if an error occurs performing the message digest.
-     * @see IoUtil#DEFAULT_TRANSFER_BUF_SIZE the default transfer buffer size.
+     * @see IoUtil#DEFAULT_TRANSFER_BUF_SIZE the default transfer buffer length.
      */
     public static String hashByteStreamToHexadecimal(InputStream is, String messageDigestAlgorthmName,
                                                      String providerName) throws IoException {
@@ -226,7 +226,7 @@ public class DigestUtil {
      *
      * @param is the stream to digest.
      * @param messageDigestAlgorthmName the message digest algorithm required (such as "SHA", "MD5", and so on).
-     * @param transferBufSize the I/O transfer buffer size to use in the digest; large buffers improve performance but
+     * @param transferBufSize the I/O transfer buffer length to use in the digest; large buffers improve performance but
      *        use more memory.
      * @return the digest hash value calculated over the byte stream.
      * @throws IoException thrown if an error occurs performing the message digest.
@@ -238,14 +238,14 @@ public class DigestUtil {
 
     /**
      * Calculates a message digest of the specified byte stream and returns the hexadecimal (Base 16) string of the
-     * hashcode. The default provider of the specified digest algorithm will be used and the default transfer buffer size
+     * hashcode. The default provider of the specified digest algorithm will be used and the default transfer buffer length
      * will be used for I/O transfers
      *
      * @param is the stream to digest.
      * @param messageDigestAlgorthmName the message digest algorithm required (such as "SHA", "MD5", and so on).
      * @return the digest hash value calculated over the byte stream.
      * @throws IoException thrown if an error occurs performing the message digest.
-     * @see IoUtil#DEFAULT_TRANSFER_BUF_SIZE the default transfer buffer size.
+     * @see IoUtil#DEFAULT_TRANSFER_BUF_SIZE the default transfer buffer length.
      */
     public static String hashByteStreamToHexadecimal(InputStream is, String messageDigestAlgorthmName)
         throws IoException {

@@ -104,7 +104,7 @@ public class ManagedResourcePool<E> extends ManagedResourcePoolBase<E> implement
    /**
     * Returns the initial capacity of the pool and the minimum number of available resources to maintain.
     * 
-    * return the initial size of the pool and minimum number of available resources to maintain.
+    * return the initial length of the pool and minimum number of available resources to maintain.
     */
    public Integer getMinimumAvailableResources() {
       return minimumAvailableResources;
@@ -114,7 +114,7 @@ public class ManagedResourcePool<E> extends ManagedResourcePoolBase<E> implement
     * Sets the initial capacity of the pool. That is, the initial number of free items that will reside in the pool at
     * startup.
     * 
-    * @param minimumAvailableResources the initial size of the pool and minimum number of available resources to
+    * @param minimumAvailableResources the initial length of the pool and minimum number of available resources to
     *        maintain.
     */
    public void setMinimumAvailableResources(Integer minimumAvailableResources) {
@@ -125,7 +125,7 @@ public class ManagedResourcePool<E> extends ManagedResourcePoolBase<E> implement
     * Returns the maximum allowed capacity of the pool. That is, the maximum total number of free + loaned items that
     * are allowed.
     * 
-    * @return the maximum allowed size of the pool, or <code>Integer.MAX_VALUE</code> if no maximum size has been
+    * @return the maximum allowed length of the pool, or <code>Integer.MAX_VALUE</code> if no maximum length has been
     *         configured.
     */
    public Integer getMaximumTotalSize() {
@@ -136,7 +136,7 @@ public class ManagedResourcePool<E> extends ManagedResourcePoolBase<E> implement
     * Sets the maximum allowed capacity of the pool. That is, the maximum total number of free + loaned items that are
     * allowed.
     * 
-    * @param maximumTotalSize the maximum size of the pool.
+    * @param maximumTotalSize the maximum length of the pool.
     */
    public void setMaximumTotalSize(Integer maximumTotalSize) {
       this.maximumTotalSize = maximumTotalSize;
@@ -237,7 +237,7 @@ public class ManagedResourcePool<E> extends ManagedResourcePoolBase<E> implement
    }
 
    /**
-    * Returns the total size of the pool.
+    * Returns the total length of the pool.
     * 
     * <p>
     * Equivalent to <code>getNumberOfLoanedItems()</code> + <code>getNumberOfFreeItems()</code>.

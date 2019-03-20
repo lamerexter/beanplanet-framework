@@ -87,7 +87,7 @@ public class CompositeTypeConverter implements TypeConverter, Iterable<TypeConve
     }
 
     /**
-    * Returns the size of the composite.
+    * Returns the length of the composite.
     *
     * @return the number of converters that comprise this composite.
     */

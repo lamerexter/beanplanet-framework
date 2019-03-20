@@ -8,7 +8,7 @@ import org.beanplanet.core.dao.TooManyCardinalityException;
 import org.beanplanet.core.io.IoUtil;
 import org.beanplanet.core.io.resource.FileResource;
 import org.beanplanet.core.io.resource.Resource;
-import org.beanplanet.core.io.resource.UriBasedResourceImpl;
+import org.beanplanet.core.io.resource.UriResource;
 import org.beanplanet.core.util.StringUtil;
 import org.w3c.dom.*;
 
@@ -239,7 +239,7 @@ public class DomElement {
 
     public static DomElement createDocument(URL documentURL) throws DataAccessException {
         try {
-            return createDocument(new UriBasedResourceImpl(documentURL.toURI()));
+            return createDocument(new UriResource(documentURL.toURI()));
         } catch (URISyntaxException syntaxEx) {
             throw new DataAccessException(syntaxEx);
         }
@@ -247,7 +247,7 @@ public class DomElement {
 
     public static DomElement createDocument(URL documentURL, boolean namespaceAware) throws DataAccessException {
         try {
-            return createDocument(new UriBasedResourceImpl(documentURL.toURI()), namespaceAware);
+            return createDocument(new UriResource(documentURL.toURI()), namespaceAware);
         } catch (URISyntaxException syntaxEx) {
             throw new DataAccessException(syntaxEx);
         }
@@ -255,7 +255,7 @@ public class DomElement {
 
     public static DomElement createDocument(URL documentURL, boolean namespaceAware, NamespaceContext namespaceContext) throws DataAccessException {
         try {
-            return createDocument(new UriBasedResourceImpl(documentURL.toURI()), namespaceAware, namespaceContext);
+            return createDocument(new UriResource(documentURL.toURI()), namespaceAware, namespaceContext);
         } catch (URISyntaxException syntaxEx) {
             throw new DataAccessException(syntaxEx);
         }

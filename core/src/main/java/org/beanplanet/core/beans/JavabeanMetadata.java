@@ -204,7 +204,7 @@ class JavabeanMetadata {
         if (nestedPropertyNames == null) {
             List<String> hNames = new ArrayList<String>(getPropertyNames().length * 2); // a guess
             // at the
-            // size!
+            // length!
 
             for (int n = 0; n < propertyNames.length; n++) {
                 hNames.add(propertyNames[n]);

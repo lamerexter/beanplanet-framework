@@ -30,5 +30,5 @@ package org.beanplanet.core.beans;
  * An abstract model of a 'bean' or object which exhibits attributes/properties, methods and events.
  */
 public interface Bean extends Properties {
-    Object getWrappedInstance();
+    Object getBean();
 }

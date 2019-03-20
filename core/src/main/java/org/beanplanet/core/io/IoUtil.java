@@ -44,7 +44,7 @@ public class IoUtil {
     private static final char[] HEXDIGITS = "0123456789ABCDEF".toCharArray();
 
     /**
-     * The size of any transfer buffer, byte or chracter orientated, used by the transfer utility methods.
+     * The length of any transfer buffer, byte or chracter orientated, used by the transfer utility methods.
      */
     public static final int DEFAULT_TRANSFER_BUF_SIZE = (32 * 1024);
 
@@ -187,7 +187,7 @@ public class IoUtil {
      *
      * @param inputResource the input resource from which the data will be read
      * @param os the output stream where the data will be written.
-     * @param bufferSize the transfer buffer size of the buffer to use during the transfer for efficiency.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @exception IoException thrown if an error occurs during the transfer.
      */
     public static void transfer(URL inputResource, OutputStream os, int bufferSize) throws IoException {
@@ -210,7 +210,7 @@ public class IoUtil {
      *
      * @param is the input stream from which the data will be read
      * @param os the output stream where the data will be written.
-     * @param bufferSize the transfer buffer size of the buffer to use during the transfer for efficiency.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @exception IOException thrown if an error occurs during the transfer.
      */
     public static void transfer(InputStream is, OutputStream os, int bufferSize) throws IoException {
@@ -246,7 +246,7 @@ public class IoUtil {
      *
      * @param sourceURL the URL from which the data will be read
      * @param os the output stream where the data will be written.
-     * @param bufferSize the transfer buffer size of the buffer to use during the transfer for efficiency.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @exception IOException thrown if an error occurs during the transfer.
      * @see #transfer(java.io.InputStream, java.io.OutputStream, int)
      */
@@ -265,7 +265,7 @@ public class IoUtil {
      *
      * @param is the input stream from which the data will be read
      * @param os the output stream where the data will be written.
-     * @param bufferSize the transfer buffer size of the buffer to use during the transfer for efficiency.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @exception IOException thrown if an error occurs during the transfer.
      * @see #transfer(java.io.InputStream, java.io.OutputStream, int)
      */
@@ -309,7 +309,7 @@ public class IoUtil {
      *
      * @param fromResource the source resource from which the data will be read
      * @param toResource the destination resource where the data will be written.
-     * @param bufferSize the transfer buffer size of the buffer to use during the transfer for efficiency.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @exception IOException thrown if an error occurs during the transfer.
      * @see #transfer(java.io.InputStream, java.io.OutputStream, int) for the method called by this method to stream the
      *      data
@@ -351,7 +351,7 @@ public class IoUtil {
      *
      * @param fromResource the source resource from which the data will be read
      * @param toResource the destination resource where the data will be written.
-     * @param bufferSize the transfer buffer size of the buffer to use during the transfer for efficiency.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @exception IOException thrown if an error occurs during the transfer.
      * @see #transferResourceStreamsAndClose(Resource, Resource, int)
      */
@@ -403,7 +403,7 @@ public class IoUtil {
      *
      * @param fromResource the source resource from which the data will be read
      * @param toResource the destination resource where the data will be written.
-     * @param bufferSize the transfer buffer size of the buffer to use during the transfer for efficiency.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @exception IoException thrown if an error occurs during the transfer.
      * @see #transfer(java.io.InputStream, java.io.OutputStream, int) for the method called by this method to stream the
      *      data
@@ -495,7 +495,7 @@ public class IoUtil {
      *
      * @param reader the reader from which the data will be read
      * @param writer the writer where the data will be written.
-     * @param bufferSize the transfer buffer size of the buffer to use during the transfer for efficiency.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @exception IoException thrown if an error occurs during the transfer.
      */
     public static void transfer(Reader reader, Writer writer, int bufferSize) throws IoException {
@@ -516,7 +516,7 @@ public class IoUtil {
      *
      * @param reader the reader from which the data will be read
      * @param writer the writer where the data will be written.
-     * @param bufferSize the transfer buffer size of the buffer to use during the transfer for efficiency.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @exception IoException thrown if an error occurs during the transfer.
      * @see #transfer(java.io.Reader, java.io.Writer, int)
      */
@@ -584,7 +584,7 @@ public class IoUtil {
      *
      * @param sourceFile the source file from which data will be read
      * @param destinationFile the destination file where the data will be written.
-     * @param bufferSize the size of th transfer buffer to use during the transfer for efficiency.
+     * @param bufferSize the length of th transfer buffer to use during the transfer for efficiency.
      * @exception IoException thrown if an error occurs during the transfer.
      * @see #transfer(java.io.InputStream, java.io.OutputStream, int)
      */

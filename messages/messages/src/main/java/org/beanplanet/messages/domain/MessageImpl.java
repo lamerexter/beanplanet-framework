@@ -67,7 +67,7 @@ public class MessageImpl implements Message {
      * @param parameterisedMessage the text of this message, without any parameterisation.
      */
     public static final MessageImpl globalMessage(String code, String parameterisedMessage) {
-        return globalMessage(code, parameterisedMessage, null);
+        return globalMessage(code, parameterisedMessage, (Object[])null);
     }
 
     /**
@@ -89,7 +89,7 @@ public class MessageImpl implements Message {
      * @param parameterisedMessage the text of this message, with placeholders for supplied parameters.
      */
     public static final MessageImpl fieldMessage(String field, String code, String parameterisedMessage) {
-        return fieldMessage(field, code, parameterisedMessage, null);
+        return fieldMessage(field, code, parameterisedMessage, (Object[])null);
     }
 
     /**

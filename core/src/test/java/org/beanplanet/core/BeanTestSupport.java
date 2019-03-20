@@ -165,16 +165,16 @@ public final class BeanTestSupport {
 
                     assertTrue(callEvent[0] != null,
                                () -> "The property change tests on bean [type=%s] failed on property [%s]. No property change event was received. Check the event source is properly throwing events?",
-                               bean.getWrappedInstance().getClass().getName(), propertyName, value);
+                               bean.getBean().getClass().getName(), propertyName, value);
                     assertTrue( Objects.equals(propertyName, callEvent[0].getPropertyName()),
                                () -> "The property name [%s] in the property change event from bean [type=%s] did not match the expected name [%s]",
-                               callEvent[0].getPropertyName(), bean.getWrappedInstance().getClass().getName(), propertyName);
+                               callEvent[0].getPropertyName(), bean.getBean().getClass().getName(), propertyName);
                     assertTrue( Objects.equals(oldValue, callEvent[0].getOldValue()),
                                () -> "The old property value [%s=%s] in the property change event from bean [type=%s] did not match the expected value [%s]",
-                                propertyName, callEvent[0].getOldValue(), bean.getWrappedInstance().getClass().getName(), oldValue);
+                                propertyName, callEvent[0].getOldValue(), bean.getBean().getClass().getName(), oldValue);
                     assertTrue( Objects.equals(value, callEvent[0].getNewValue()),
                                () -> "The new property value [%s=%s] in the property change event from bean [type=%s] did not match the expected value [%s]",
-                               propertyName, callEvent[0].getNewValue(), bean.getWrappedInstance().getClass().getName(), value);
+                               propertyName, callEvent[0].getNewValue(), bean.getBean().getClass().getName(), value);
                 }
             }
         } finally {
@@ -290,7 +290,7 @@ public final class BeanTestSupport {
     public BeanTestSupport withNoArgConstructorValuesGenerator() {
         predicatedPropertyValueGenerators.put(context -> {
             try {
-                context.getConstructor(null);
+                context.getConstructor((Class[])null);
                 return true;
             } catch (NoSuchMethodException nsmEx) {
                 return false;
@@ -382,14 +382,14 @@ public final class BeanTestSupport {
         bean.set(propertyName, value);
         Object retrievedPropertyValue = bean.get(propertyName).getValue();
         if (!Objects.equals(value, retrievedPropertyValue)) {
-            throw new AssertionError(String.format("The property get/set tests on bean [type=%s] failed on property %s. Set value [%s] did not match retrieved value [%s]", bean.getWrappedInstance().getClass().getName(), propertyName, value, retrievedPropertyValue));
+            throw new AssertionError(String.format("The property get/set tests on bean [type=%s] failed on property %s. Set value [%s] did not match retrieved value [%s]", bean.getBean().getClass().getName(), propertyName, value, retrievedPropertyValue));
         }
 
         if (testWithNullValues && !isPrimitiveType(bean.getPropertyType(propertyName))) {
             bean.set(propertyName, null);
             retrievedPropertyValue = bean.get(propertyName).getValue();
             if (retrievedPropertyValue != null) {
-                throw new AssertionError(String.format("The property get/set tests on bean [type=%s] failed on property %s. Set null value did not match retrieved value [%s]", bean.getWrappedInstance().getClass().getName(), propertyName, retrievedPropertyValue));
+                throw new AssertionError(String.format("The property get/set tests on bean [type=%s] failed on property %s. Set null value did not match retrieved value [%s]", bean.getBean().getClass().getName(), propertyName, retrievedPropertyValue));
             }
         }
     }
@@ -408,7 +408,7 @@ public final class BeanTestSupport {
         Class<?> propertyType = bean.getPropertyType(propertyName);
         ValueGenerator<?> propertyValueGenerator = determinePropertyValueGenerator(propertyType);
         if (propertyValueGenerator == null) {
-            throw new IllegalStateException(String.format("No property value generator registered for property [%s] type [%s] of bean type [%s]", propertyName, propertyType, bean.getWrappedInstance().getClass().getName()));
+            throw new IllegalStateException(String.format("No property value generator registered for property [%s] type [%s] of bean type [%s]", propertyName, propertyType, bean.getBean().getClass().getName()));
         }
         return propertyValueGenerator.generateValue(propertyType);
     }

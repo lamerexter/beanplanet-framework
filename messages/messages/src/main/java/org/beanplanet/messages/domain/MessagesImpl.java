@@ -120,7 +120,7 @@ public class MessagesImpl implements Messages {
      */
     @Override
     public MessagesImpl addInfo(String code, String parameterisedMessage) {
-        return addInfo(code, parameterisedMessage, null);
+        return addInfo(code, parameterisedMessage, (Object[])null);
     }
 
     /**
@@ -147,7 +147,7 @@ public class MessagesImpl implements Messages {
      */
     @Override
     public MessagesImpl addFieldInfo(String field, String code, String parameterisedMessage) {
-        return addFieldInfo(field, code, parameterisedMessage, null);
+        return addFieldInfo(field, code, parameterisedMessage, (Object[])null);
     }
 
     /**
@@ -216,7 +216,7 @@ public class MessagesImpl implements Messages {
      */
     @Override
     public MessagesImpl addFieldWarning(String field, String code, String parameterisedMessage) {
-        return addFieldWarning(field, code, parameterisedMessage, null);
+        return addFieldWarning(field, code, parameterisedMessage, (Object[])null);
     }
 
     /**
@@ -258,7 +258,7 @@ public class MessagesImpl implements Messages {
      */
     @Override
     public MessagesImpl addError(String code, String parameterisedMessage) {
-        return addError(code, parameterisedMessage, null);
+        return addError(code, parameterisedMessage, (Object[])null);
     }
 
     /**
@@ -285,7 +285,7 @@ public class MessagesImpl implements Messages {
      */
     @Override
     public MessagesImpl addFieldError(String field, String code, String parameterisedMessage) {
-        return addFieldError(field, code, parameterisedMessage, null);
+        return addFieldError(field, code, parameterisedMessage, (Object[])null);
     }
 
     /**

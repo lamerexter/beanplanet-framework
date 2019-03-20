@@ -78,13 +78,13 @@ public class SizeUtil
    public static int HOURS_IN_A_DAY = 24;
 
    /**
-    * Returns a short string description of the size, in bytes, specified.
+    * Returns a short string description of the length, in bytes, specified.
     * 
     * @param sizeInBytes
-    *           the number of bytes whose size if to be described.
+    *           the number of bytes whose length if to be described.
     * @param formatSpec
     *           the <code>DecimalFormal</code> format specification.
-    * @return a short-hand string description of the size in bytes.
+    * @return a short-hand string description of the length in bytes.
     * @see java.text.DateFormat
     */
    public static String getBytesSpecificationDescription(double sizeInBytes, String formatSpec)
@@ -119,11 +119,11 @@ public class SizeUtil
    }
 
    /**
-    * Returns a short string description of the size, in bytes, specified.
+    * Returns a short string description of the length, in bytes, specified.
     * 
     * @param sizeInBytes
-    *           the number of bytes whose size if to be described.
-    * @return a short-hand string description of the size in bytes.
+    *           the number of bytes whose length if to be described.
+    * @return a short-hand string description of the length in bytes.
     */
    public static String getBytesSpecificationDescription(double sizeInBytes)
    {
@@ -135,10 +135,10 @@ public class SizeUtil
     * specified.
     * 
     * @param timeInMS
-    *           the number of bytes whose size if to be described.
+    *           the number of bytes whose length if to be described.
     * @param formatSpec
     *           the <code>DecimalFormal</code> format specification.
-    * @return a short-hand string description of the size in bytes.
+    * @return a short-hand string description of the length in bytes.
     * @see java.text.DateFormat
     */
    public static String getElapsedTimeSpecificationDescription(long timeInMS, String formatSpec)
@@ -198,11 +198,11 @@ public class SizeUtil
    }
 
    /**
-    * Returns a short string description of the size, in bytes, specified.
+    * Returns a short string description of the length, in bytes, specified.
     * 
     * @param sizeInBytes
-    *           the number of bytes whose size if to be described.
-    * @return a short-hand string description of the size in bytes.
+    *           the number of bytes whose length if to be described.
+    * @return a short-hand string description of the length in bytes.
     */
    public static String getElapsedTimeSpecificationDescription(long sizeInBytes)
    {

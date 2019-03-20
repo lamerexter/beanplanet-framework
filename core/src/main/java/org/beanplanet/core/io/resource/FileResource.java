@@ -27,12 +27,21 @@
 package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.io.IoException;
+import org.beanplanet.core.io.Path;
 import org.beanplanet.core.lang.Assert;
+import org.beanplanet.core.lang.TypeUtil;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static org.beanplanet.core.io.PathUtil.emptyPath;
+import static org.beanplanet.core.util.IteratorUtil.asStream;
 
 
 /**
@@ -41,7 +50,7 @@ import java.net.URL;
  * @author Gary Watson
  *
  */
-public class FileResource extends AbstractUrlBasedResource implements ReadableResource, WritableResource, RandomAccessResource {
+public class FileResource extends AbstractResource implements ReadableResource, WritableResource, RandomAccessResource, UrlCapableResource {
     /**
      *
      */
@@ -70,8 +79,7 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
      * @param file the file backing this resource.
      */
     public FileResource(File file) {
-        super(file.toURI());
-        setFile(file);
+        this.file = file;
     }
 
     /**
@@ -83,6 +91,28 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
         return file;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FileResource)) return false;
+        FileResource that = (FileResource) o;
+        return Objects.equals(getFile(), that.getFile());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFile());
+    }
+
+    /**
+     * Returns the full path of the file resource.
+     *
+     * @return the path of the file resource.
+     */
+    public Path<Resource> getPath()  {
+        return file == null ? null : new FileResourcePath(file);
+    }
+
     /**
      * Sets the file backing this resource.
      *
@@ -90,7 +120,15 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
      */
     public final void setFile(File file) {
         this.file = file;
-        setUri(file.toURI());
+    }
+
+    /**
+     * Whether this file resource is absolute. A file resource is absolute if it's backing file is absolute.
+     *
+     * @return true if the file resource is absolute, false otherwise.
+     */
+    public boolean isAbsolute() {
+        return file.isAbsolute();
     }
 
     /**
@@ -100,8 +138,7 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
      * @return true, if and only if this resource exists in some physical form, false otherwise.
      */
     public boolean exists() {
-        Assert.notNull(file, "The file may not be null");
-        return file.exists();
+        return file != null && file.exists();
     }
 
     /**
@@ -111,7 +148,6 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
      */
     @Override
     public boolean canRead() {
-        Assert.notNull(file, "The file may not be null");
         return file.exists() && file.canRead();
     }
 
@@ -122,27 +158,18 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
      */
     @Override
     public boolean canWrite() {
-        Assert.notNull(file, "The file may not be null");
         return file.exists() && file.canWrite();
     }
 
 
     /**
-     * Attempts to return a Uniform Resource Locator (URL) for the resource, if the resource type supports URL
-     * references.
+     * Returns a Uniform Resource Identifier (URI) for the file resource.
      *
-     * @return the URL of the resource.
-     * @throws UnsupportedOperationException if the URL of the resource could not be determined or the type of the
-     *         resource is such that URL references are not supported.
+     * @return a URI of the file backing this resource, or null if the file is null.
      */
     @Override
-    public URL getUrl() throws UnsupportedOperationException {
-        try {
-            return file.toURI().toURL();
-        } catch (MalformedURLException malformedURLEx) {
-            throw new UnsupportedOperationException("The specified file [" + file.getName()
-                + "] is not suitable as a URL: ", malformedURLEx);
-        }
+    public URI getUri()  {
+        return file == null ? null : file.toURI();
     }
 
     /**
@@ -234,5 +261,166 @@ public class FileResource extends AbstractUrlBasedResource implements ReadableRe
     @Override
     public String toString() {
         return new PropertyBasedToStringBuilder(this).build();
+    }
+
+    /**
+     * Returns the canonical form of this URI-based resource, which is the canonical path to the file backing the
+     * resource.
+     *
+     * @return the absolute path of the file backing this resource.
+     */
+    public String getCanonicalForm() {
+        try {
+            return getFile() != null ? getFile().getCanonicalPath() : TypeUtil.getBaseName(getClass())+"[not file set]";
+        } catch (IOException e) {
+            throw new IoException("Unable to determine canonical form of file resource ["+file.getName()+"]");
+        }
+    }
+
+    private class FileResourcePath implements Path<Resource> {
+        private FileResourcePath(File file) {
+            FileResource.this.file = file;
+        }
+
+        @Override
+        public URI toUri() {
+            return FileResource.super.getUri();
+        }
+
+        @Override
+        public Resource getRootElement() {
+            return file != null && file.isAbsolute() ? new FileResource(file.toPath().getRoot().toFile()) : null;
+        }
+
+        @Override
+        public Resource getElement(int index) {
+            return null;
+        }
+
+        @Override
+        public List<Resource> getElements() {
+            return null;
+        }
+
+        @Override
+        public String getNameSeparator() {
+            return File.separator;
+        }
+
+        @Override
+        public boolean isAbsolute() {
+            return file != null && file.isAbsolute();
+        }
+
+        @Override
+        public Path<Resource> normalise() {
+            try {
+                return file == null ? null : new FileResource(file.getCanonicalPath()).getPath();
+            } catch (IOException e) {
+                throw new IoException(e);
+            }
+        }
+
+        @Override
+        public Path<Resource> getRoot() {
+            return file != null && file.isAbsolute() ? new FileResourcePath(file.toPath().getRoot().toFile()) : null;
+        }
+
+        @Override
+        public Path<Resource> getPathElement(int index) {
+            return null;
+        }
+
+        @Override
+        public List<Path<Resource>> getPathElements() {
+            if ( file == null ) return Collections.emptyList();
+
+            return asStream(file.toPath().iterator())
+                    .map(java.nio.file.Path::toFile)
+                    .map(FileResource::new)
+                    .map(FileResource::getPath)
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public List<String> getNameElements() {
+            if ( file == null ) return Collections.emptyList();
+
+            return asStream(file.toPath().iterator())
+                    .map(java.nio.file.Path::toFile)
+                    .map(File::getName)
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public Path<Resource> join(Path<Resource> other) {
+            if (other.getRoot() == null) {
+                return new FileResourcePath(new File(file, other.getNameElements().stream().collect(Collectors.joining(getNameSeparator()))));
+            }
+
+            throw new UnsupportedOperationException("Path join to absolute file resource is not supported at this time");
+        }
+
+        @Override
+        public Path<Resource> relativeTo(Path<Resource> other) {
+            return null;
+        }
+
+        /**
+         * Returns an iterator over elements of type {@code T}.
+         *
+         * @return an Iterator.
+         */
+        @Override
+        public Iterator<Path<Resource>> iterator() {
+            return getPathElements().iterator();
+        }
+
+        public String toCanonicalPath() {
+            try {
+                return file == null ? emptyPath().toCanonicalPath() : file.getCanonicalPath();
+            } catch (IOException e) {
+                throw new IoException(e);
+            }
+        }
+
+    }
+
+    /**
+     * Resolve the given path relative to this resource.
+     *
+     * <p>
+     * If the {@code path} is an {@link Path#isAbsolute() absolute}
+     * path then this method simply returns a new resource with the given {@code path}. If {@code path}
+     * is an <i>empty path</i> then this method simply returns this resource.
+     * Otherwise this method considers this resource to be a directory and resolves
+     * the given path against this resource's path. In the simplest case, the given path
+     * does not have a {@link Path#getRoot root} component, in which case this method
+     * <em>joins</em> the given path to the path of this resource and returns a resulting resource with path
+     * that {@link String#endsWith(String)} the given path. Where the given path has
+     * a root component then resolution is highly implementation dependent and
+     * therefore unspecified.
+     * </p>
+     *
+     * @param path the path to be resolved against this resource.
+     * @return a new resource whose path is resolved relative to the path of this resource.
+     * @throws UnsupportedOperationException if this resource is not a path-based resource or if the operation is not
+     * supported on this type of resource.
+     */
+    public Resource resolve(Path<Resource> path) {
+        Path<Resource> thisPath = getPath();
+        return thisPath == null ? null : new FileResource(thisPath.resolve(path).toCanonicalPath());
+//        if (path == null || path.isEmpty()) return this;
+//
+//        if (path.isAbsolute()) {
+//            return new FileResource(new File(path.toCanonicalPath()));
+//        }
+//
+//        return new FileResource(getPath().resolve(path).toCanonicalPath());
     }
 }

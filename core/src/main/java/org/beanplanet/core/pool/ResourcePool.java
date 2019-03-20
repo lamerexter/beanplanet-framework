@@ -58,7 +58,7 @@ package org.beanplanet.core.pool;
  */
 public interface ResourcePool<E> {
    /**
-    * Returns the total size of the pool.
+    * Returns the total length of the pool.
     * 
     * <p>This is defined to be the <u>current</u> total number of items in the pool and is the sum of the number of <u>available</u> and <u>loaned</u> items.</p>
     *

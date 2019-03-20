@@ -247,10 +247,10 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable 
     }
 
     /**
-     * Determines the size of the tree. This default implementation iterates over the entire tree in order
-     * to determine the size. Which may be very expensive.
+     * Determines the length of the tree. This default implementation iterates over the entire tree in order
+     * to determine the length. Which may be very expensive.
      *
-     * @return the total size of the tree;
+     * @return the total length of the tree;
      */
     default long size() {
         return preorderIterator().stream().count();

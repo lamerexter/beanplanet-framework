@@ -30,6 +30,7 @@ import org.beanplanet.core.io.Path;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -105,29 +106,21 @@ public abstract class AbstractResource implements Resource {
     /**
      * Returns the full path of the resource, including any filename, if the resource type supports path references.
      *
-     * @return always null in this implementation.
+     * @return always throws an {@link UnsupportedOperationException}.
+     * @throws UnsupportedOperationException
      */
-    public Path getPath() throws UnsupportedOperationException {
-        return null;
+    public  Path<Resource> getPath() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
     }
 
     /**
      * Returns a Uniform Resource Identifier (URI) for the resource, if the resource type supports URI
      * references.
      *
-     * @return always null in this implementation.
+     * @return always throws an {@link UnsupportedOperationException}.
+     * @throws UnsupportedOperationException
      */
     public URI getUri() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Attempts to return a Uniform Resource Locator (URL) for the resource, if the resource type supports URL
-     * references.
-     *
-     * @return always null in this implementation.
-     */
-    public URL getUrl() throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 

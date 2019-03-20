@@ -26,20 +26,11 @@
 
 package org.beanplanet.core.io.resource;
 
-
-import java.net.URI;
-
 /**
- * A tagging interface for resources that are URI-based or capable of being referenced by a URI.
+ * A tagging interface for resources that are URL-based or capable of being referenced by a URL.
  *
  * @author Gary Watson
+ *
  */
-public interface UriBasedResource extends PathBasedResource {
-    /**
-     * Attempts to return a Uniform Resource Locator (URI) for the resource, if the resource type supports URI
-     * references.
-     *
-     * @return the URL of the resource.
-     */
-    URI getUri();
+public interface UrlCapableResource extends UriCapableResource {
 }

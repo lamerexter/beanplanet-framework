@@ -35,14 +35,14 @@ import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 
-public class UriBasedResourceImpl extends AbstractUrlBasedResource implements UriBasedResource {
-    public UriBasedResourceImpl() {}
+public class UriResource extends AbstractUriBasedResource implements UriCapableResource {
+    public UriResource() {}
 
-    public UriBasedResourceImpl(String uri) {
+    public UriResource(String uri) {
         this(URI.create(uri));
     }
 
-    public UriBasedResourceImpl(URI uri) {
+    public UriResource(URI uri) {
         super(uri);
     }
 
@@ -59,7 +59,7 @@ public class UriBasedResourceImpl extends AbstractUrlBasedResource implements Ur
         String[] pathElements = path.split("\\/");
         if (pathElements.length <= 1) return null;
 
-        return new UriBasedResourceImpl(stream(pathElements, 0, pathElements.length-1).collect(Collectors.joining("/")));
+        return new UriResource(stream(pathElements, 0, pathElements.length-1).collect(Collectors.joining("/")));
     }
 
     /**
@@ -76,5 +76,14 @@ public class UriBasedResourceImpl extends AbstractUrlBasedResource implements Ur
         } catch (IOException e) {
             throw new IoException(e);
         }
+    }
+
+    /**
+     * Returns the canonical form of this URI-based resource, which is the URI itself.
+     *
+     * @return the URI of this resource.
+     */
+    public String getCanonicalForm() {
+        return getUri() != null ? getUri().toString() : "UriResource[not URI set]";
     }
 }
