@@ -32,10 +32,12 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.beanplanet.core.io.PathUtil.emptyPath;
 import static org.beanplanet.core.util.CollectionUtil.isEmptyOrNull;
+import static org.beanplanet.core.util.IterableUtil.asStream;
 
 /**
  * Created by gary on 10/11/17.
@@ -47,18 +49,7 @@ public interface Path<T> extends Iterable<Path<T>> {
 
     boolean isAbsolute();
 
-    default Path<T> toAbsolutePath() {
-        return null;
-    }
-
-    T getRootElement();
-    T getElement(int index);
-    List<T> getElements();
-    default Stream<T> elementsStream() {
-        return getElements().stream();
-    }
-
-    Path<T> normalise();
+    Path<T> toAbsolutePath();
 
     Path<T> getRoot();
     default Path<T> getPathElement(int index) {
@@ -69,7 +60,23 @@ public interface Path<T> extends Iterable<Path<T>> {
         return getPathElements().stream();
     }
 
-    String getName();
+    T getRootElement();
+    T getElement();
+    default T getElement(int index) {
+        return getElements().get(index);
+    }
+    default List<T> getElements() {
+        return elementsStream().collect(Collectors.toList());
+    }
+    default Stream<T> elementsStream() {
+        return asStream(this).map(Path::getElement);
+    }
+
+    String getNameSeparator();
+    default String getName() {
+        List<String> nameElements = getNameElements();
+        return nameElements.get(nameElements.size()-1);
+    }
     default String getName(int index) {
         return getNameElements().get(index);
     }
@@ -90,7 +97,15 @@ public interface Path<T> extends Iterable<Path<T>> {
         return s.toString();
     }
 
-    String getNameSeparator();
+
+
+
+
+
+
+
+    Path<T> normalise();
+
 
     default Path<T> parentPath() {
         return isEmpty() ? emptyPath() : subPath(0, length()-1);
@@ -105,7 +120,7 @@ public interface Path<T> extends Iterable<Path<T>> {
     }
 
     default Stream<Path<T>> stream() {
-        return IterableUtil.asStream(this);
+        return asStream(this);
     }
 
     default Path<T> subPath(int fromIndexInclusive, int toIndexExclusive) {
@@ -155,6 +170,11 @@ public interface Path<T> extends Iterable<Path<T>> {
         }
 
         @Override
+        public Path<T> toAbsolutePath() {
+            return this;
+        }
+
+        @Override
         public Path<T> normalise() {
             return null;
         }
@@ -171,6 +191,11 @@ public interface Path<T> extends Iterable<Path<T>> {
 
         @Override
         public T getRootElement() {
+            return null;
+        }
+
+        @Override
+        public T getElement() {
             return null;
         }
 

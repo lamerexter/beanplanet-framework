@@ -116,7 +116,7 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
      */
     @Override
     public Path<Resource> getPath() {
-        return new UriResourcePath<>(this);
+        return new UriResourcePath(this);
     }
 
     /**
@@ -219,7 +219,7 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
         }
     }
 
-    public static class UriResourcePath<Resource> implements Path<Resource> {
+    public static class UriResourcePath implements Path<Resource> {
         private AbstractUriBasedResource resource;
 
         public UriResourcePath(AbstractUriBasedResource resource) {
@@ -237,7 +237,7 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
         }
 
         @Override
-        public Path<Resource> normalise() {
+        public Path<Resource> toAbsolutePath() {
             return this;
         }
 
@@ -248,22 +248,6 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
 
             // TODO: Implement!
             return null; //(Resource)rootResource;
-        }
-
-        @Override
-        public Resource getRootElement() {
-            // TODO: Implement!
-            return null;
-        }
-
-        @Override
-        public Resource getElement(int index) {
-            return null;
-        }
-
-        @Override
-        public List<Resource> getElements() {
-            return null;
         }
 
         @Override
@@ -281,7 +265,7 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
 
                 AbstractUriBasedResource pathResource = cloneUnchecked(resource);
                 pathResource.setUri(URI.create(uriPath.substring(0, (toIdx > 0 ? toIdx : uriPath.length()))));
-                pathResources.add(new UriResourcePath<>(pathResource));
+                pathResources.add(new UriResourcePath(pathResource));
 
                 fromIdx = toIdx+1;
             }
@@ -290,18 +274,53 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
         }
 
         @Override
-        public String getName() {
-            return null;
+        public Resource getRootElement() {
+            return resource != null && resource.getUri() != null ? new UriResource(resource.getUri()) : null;
         }
-
         @Override
-        public List<String> getNameElements() {
-            return null;
+        public Resource getElement() {
+            return resource;
         }
 
         @Override
         public String getNameSeparator() {
-            return null;
+            return "/";
+        }
+
+        @Override
+        public List<String> getNameElements() {
+            if (resource.getUri() == null || resource.getUri().getPath() == null) return Collections.emptyList();
+
+            String uriPath = resource.getUri().getPath();
+            if ( isEmptyOrNull(uriPath)) return Collections.emptyList();
+
+            if (uriPath.startsWith("/")) {
+                uriPath = uriPath.substring(1);
+            }
+
+            ArrayList<String> pathNameElements = new ArrayList<>();
+            int fromIdx = 0, toIdx;
+            while (fromIdx < uriPath.length()) {
+                toIdx = uriPath.indexOf("/", fromIdx+1);
+                if (toIdx < 0) toIdx = uriPath.length();
+
+                pathNameElements.add(uriPath.substring(fromIdx, (toIdx > 0 ? toIdx : uriPath.length())));
+
+                fromIdx = toIdx+1;
+            }
+
+            return pathNameElements;
+        }
+
+
+
+
+
+
+
+        @Override
+        public Path<Resource> normalise() {
+            return this;
         }
 
         @Override

@@ -119,7 +119,7 @@ public interface Resource extends Cloneable {
      *
      * @return the full path of the resource, or null if the path is null or if this is not a path based resource.
      */
-    <R extends Resource> Path<R> getPath() throws UnsupportedOperationException;
+    Path<Resource> getPath() throws UnsupportedOperationException;
 
     /**
      * Returns a Uniform Resource Identifier (URI) for the resource, if the resource type supports URI

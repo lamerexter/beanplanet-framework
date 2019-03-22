@@ -35,10 +35,4 @@ import org.beanplanet.core.io.Path;
  *
  */
 public interface PathBasedResource extends Resource {
-    /**
-     * Returns the full path of the resource, including any filename, if the resource type supports path references.
-     *
-     * @return the full path of the resource.
-     */
-    Path<Resource> getPath();
 }

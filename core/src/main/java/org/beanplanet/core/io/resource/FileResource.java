@@ -288,47 +288,18 @@ public class FileResource extends AbstractResource implements ReadableResource, 
         }
 
         @Override
-        public Resource getRootElement() {
-            return file != null && file.isAbsolute() ? new FileResource(file.toPath().getRoot().toFile()) : null;
-        }
-
-        @Override
-        public Resource getElement(int index) {
-            return null;
-        }
-
-        @Override
-        public List<Resource> getElements() {
-            return null;
-        }
-
-        @Override
-        public String getNameSeparator() {
-            return File.separator;
-        }
-
-        @Override
         public boolean isAbsolute() {
             return file != null && file.isAbsolute();
         }
 
         @Override
-        public Path<Resource> normalise() {
-            try {
-                return file == null ? null : new FileResource(file.getCanonicalPath()).getPath();
-            } catch (IOException e) {
-                throw new IoException(e);
-            }
+        public  Path<Resource> toAbsolutePath() {
+            return file == null ? null : new FileResourcePath(file.getAbsoluteFile());
         }
 
         @Override
         public Path<Resource> getRoot() {
             return file != null && file.isAbsolute() ? new FileResourcePath(file.toPath().getRoot().toFile()) : null;
-        }
-
-        @Override
-        public Path<Resource> getPathElement(int index) {
-            return null;
         }
 
         @Override
@@ -343,8 +314,23 @@ public class FileResource extends AbstractResource implements ReadableResource, 
         }
 
         @Override
+        public Resource getRootElement() {
+            return file != null && file.isAbsolute() ? new FileResource(file.toPath().getRoot().toFile()) : null;
+        }
+
+        @Override
+        public Resource getElement() {
+            return file != null ? new FileResource(file) : null;
+        }
+
+        @Override
+        public String getNameSeparator() {
+            return File.separator;
+        }
+
+        @Override
         public String getName() {
-            return null;
+            return file != null ? file.getName() : null;
         }
 
         @Override
@@ -355,6 +341,27 @@ public class FileResource extends AbstractResource implements ReadableResource, 
                     .map(java.nio.file.Path::toFile)
                     .map(File::getName)
                     .collect(Collectors.toList());
+        }
+
+
+
+
+
+
+
+
+        @Override
+        public Path<Resource> normalise() {
+            try {
+                return file == null ? null : new FileResource(file.getCanonicalPath()).getPath();
+            } catch (IOException e) {
+                throw new IoException(e);
+            }
+        }
+
+        @Override
+        public Path<Resource> getPathElement(int index) {
+            return null;
         }
 
         @Override
