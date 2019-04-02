@@ -64,21 +64,24 @@ public class UriBuilder {
     }
 
     public UriBuilder withUri(URI uri) {
-        withScheme(uri.getScheme());
-        withUserInfo(uri.getUserInfo());
-        withHost(uri.getHost());
-        withPort(uri.getPort());
-        withPath(uri.getPath());
+        if (uri != null) {
+            withScheme(uri.getScheme());
+            withUserInfo(uri.getUserInfo());
+            withHost(uri.getHost());
+            withPort(uri.getPort());
+            withPath(uri.getPath());
 
-        if (uri.getQuery() != null) {
-            withQueryParameters(new MultiValueListMapImpl<>(
-                    Arrays.asList(uri.getQuery().split("&")).stream()
-                    .map(s -> s.split("="))
-                    .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())))
-            ));
+            if (uri.getQuery() != null) {
+                withQueryParameters(new MultiValueListMapImpl<>(
+                        Arrays.asList(uri.getQuery().split("&")).stream()
+                                .map(s -> s.split("="))
+                                .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())))
+                ));
+            }
+
+            withFragment(uri.getFragment());
         }
 
-        withFragment(uri.getFragment());
         return this;
     }
 

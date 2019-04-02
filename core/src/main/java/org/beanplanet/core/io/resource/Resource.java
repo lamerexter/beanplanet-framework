@@ -30,6 +30,7 @@ package org.beanplanet.core.io.resource;
 import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.io.IoUtil;
 import org.beanplanet.core.io.Path;
+import org.beanplanet.core.lang.TypeUtil;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -118,8 +119,15 @@ public interface Resource extends Cloneable {
      * Returns the full path of the resource, including any filename, if the resource type supports path references.
      *
      * @return the full path of the resource, or null if the path is null or if this is not a path based resource.
+     * @throws UnsupportedOperationException if this resource is not a path-based resource.
      */
-    Path<Resource> getPath() throws UnsupportedOperationException;
+    default Path<Resource> getPath() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("This resource ["+ TypeUtil.getBaseName(getClass())
+                +"] is not a path-based resource and therefore does not support path-based operations. Did you check instanceof "
+                +TypeUtil.getBaseName(PathBasedResource.class)
+                +" prior to calling getPath() ?"
+        );
+    }
 
     /**
      * Returns a Uniform Resource Identifier (URI) for the resource, if the resource type supports URI

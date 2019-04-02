@@ -36,6 +36,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.beanplanet.core.util.StringUtil.isEmptyOrNull;
 
@@ -46,7 +48,7 @@ import static org.beanplanet.core.util.StringUtil.isEmptyOrNull;
  * @author Gary Watson
  *
  */
-public abstract class AbstractUriBasedResource extends AbstractResource implements UriCapableResource, Comparable<UrlCapableResource> {
+public abstract class AbstractUriBasedResource extends AbstractResource implements UriCapableResource, Comparable<UriCapableResource> {
     /** The URI backing this resource */
     private URI uri;
 
@@ -125,7 +127,7 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
      * @param other the resource to be compared with this instance.
      * @return -1, 0 or 1 if this resource is less than, equal or greater than the specified resource.
      */
-    public int compareTo(UrlCapableResource other) {
+    public int compareTo(UriCapableResource other) {
         URI thisURI  = getUri();
         URI otherURI = (other == null || other.getUri() == null ? null : other.getUri());
         if (thisURI == null && otherURI == null) {
@@ -149,7 +151,7 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
             return false;
         }
 
-        return compareTo((UrlCapableResource)other) == 0;
+        return compareTo((UriCapableResource)other) == 0;
     }
 
     /**
@@ -163,52 +165,6 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
 
     public String toString() {
         return getCanonicalForm();
-    }
-
-    /**
-     * Resolve the given path relative to this resource.
-     *
-     * <p>
-     * If the {@code path} is an {@link Path#isAbsolute() absolute}
-     * path then this method simply returns a new resource with the given {@code path}. If {@code path}
-     * is an <i>empty path</i> then this method simply returns this resource.
-     * Otherwise this method considers this resource to be a directory and resolves
-     * the given path against this resource's path. In the simplest case, the given path
-     * does not have a {@link Path#getRoot root} component, in which case this method
-     * <em>joins</em> the given path to the path of this resource and returns a resulting resource with path
-     * that {@link java.nio.file.Path#endsWith ends} with the given path. Where the given path has
-     * a root component then resolution is highly implementation dependent and
-     * therefore unspecified.
-     * </p>
-     *
-     * @param path the path to be resolved against this resource.
-     * @return a new resource whose path is resolved relative to the path of this resource.
-     * @throws UnsupportedOperationException if this resource is not a path-based resource or if the operation is not
-     * supported on this type of resource.
-     */
-    public Resource resolve(Path<Resource> path) {
-        if (path == null || path == Path.EMPTY_PATH || path.isEmpty()) return  this;
-
-        if (path.isAbsolute()) {
-            AbstractUriBasedResource newUriResource = cloneUnchecked(this);
-            newUriResource.setUri(new UriBuilder(newUriResource.getUri()).withPath(path.toCanonicalPath()).toUri());
-            return newUriResource;
-        }
-
-//        if (path.isAbsolute()) {
-//            try {
-//                AbstractUriBasedResource resourceWithAbsolutePath = (AbstractUriBasedResource)clone();
-//                UriBuilder uriBuilder = new UriBuilder();
-//                if (resourceWithAbsolutePath.getUri() != null) {
-//                    uriBuilder.withUri(resourceWithAbsolutePath.getUri()).withPath(path.toAbsolutePath().toString());
-//                }
-//                uriBuilder.getPath(path);
-//                resourceWithAbsolutePath.;
-//            } catch (CloneNotSupportedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-        throw new UnsupportedOperationException("Path resolution is not supported by this resource");
     }
 
     protected static AbstractUriBasedResource cloneUnchecked(AbstractUriBasedResource resource) {
@@ -330,8 +286,29 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
 
         @Override
         public Path<Resource> join(Path<Resource> other) {
-            // TODO: Implement!
-            return null;
+            // Only the URI path will change, so preserve all other URI elements such as scheme, query parameters, fragment etc.
+            UriBuilder uriBuilder = new UriBuilder(resource.getUri());
+            URI otherUri = other.toUri();
+            boolean otherHasRootPath = otherUri.getPath() != null && otherUri.getPath().startsWith("/");
+            if (otherHasRootPath) {
+                uriBuilder.setPath(otherUri.getPath());
+            } else {
+                UriResource otherResource = new UriResource(otherUri);
+
+                List<String> pathNameElements = getNameElements();
+                List<String> otherPathNameElements = otherResource.getPath().getNameElements();
+                StringBuilder combinedUriPath = new StringBuilder();
+                boolean thisHasRootPath = resource.getUri().getPath() != null && resource.getUri().getPath().startsWith("/");
+                for (int n=0; n < pathNameElements.size()-1; n++) {
+                    combinedUriPath.append(combinedUriPath.length() > 0 ? "/" : "").append(pathNameElements.get(n));
+                }
+                for (int n=0; n < otherPathNameElements.size(); n++) {
+                    combinedUriPath.append(combinedUriPath.length() > 0 ? "/" : "").append(otherResource.getPath().getNameElements().get(n));
+                }
+                uriBuilder.setPath((thisHasRootPath || (pathNameElements.isEmpty() && !otherPathNameElements.isEmpty()) ? "/" : "") + combinedUriPath.toString());
+            }
+
+            return new UriResource(uriBuilder.toUri()).getPath();
         }
 
         /**
