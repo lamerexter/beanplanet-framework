@@ -1,6 +1,5 @@
 package org.beanplanet.core.io.resource;
 
-import java.net.URI;
 import java.net.URL;
 
 public class UrlResource extends UriResource {
@@ -11,6 +10,6 @@ public class UrlResource extends UriResource {
     }
 
     public UrlResource(URL url) {
-        super(URI.create(url.toExternalForm()));
+        super(url);
     }
 }

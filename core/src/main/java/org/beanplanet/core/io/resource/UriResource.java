@@ -32,6 +32,7 @@ import org.beanplanet.core.io.Path;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,10 @@ public class UriResource extends AbstractUriBasedResource implements UriCapableR
 
     public UriResource(URI uri) {
         super(uri);
+    }
+
+    public UriResource(URL url) {
+        this(url != null ? URI.create(url.toExternalForm()) : null);
     }
 
     @Override
