@@ -297,7 +297,7 @@ public final class TypeUtil {
                 .filter(c -> c.getParameterCount() == (ctorParameterValues == null ? 0 : ctorParameterValues.length))
                 .filter(c -> {
                     for (int n=0; n < c.getParameterCount(); n++) {
-                        if ( !(ctorParameterValues[n] == null || type.getDeclaredConstructors()[n].equals(ctorParameterValues[n].getClass())) ) {
+                        if ( !(ctorParameterValues[n] == null || c.getParameterTypes()[n].isAssignableFrom(ctorParameterValues[n].getClass())) ) {
                             return false;
                         }
                     }
@@ -393,12 +393,21 @@ public final class TypeUtil {
             && (aClass == bClass || PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.get(aClass) == bClass || PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.get(aClass) == bClass);
     }
 
+    public static Object invokeStaticMethod(Class<?> clazz, String methodName) {
+        try {
+            Method method = clazz.getMethod(methodName);
+            return invokeMethod(null, method);
+        } catch (NoSuchMethodException nsmEx) {
+            throw new UncheckedException("Unable to invoke method, \"" + methodName + "\" on target, class=\"" + clazz.getName()
+                    + "\" - the method was not found: ", nsmEx);
+        }
+    }
     public static Object invokeMethod(Object target, Method method, Object ... params) {
         try {
             return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, (params != null ? params : EMPTY_PARAMS));
         } catch (IllegalAccessException accessEx) {
             if (Modifier.isPublic(method.getModifiers())) {
-                // Known issue where method is declared as public but reflction is
+                // Known issue where method is declared as public but reflection is
                 // occasionally denied access. Attempt
                 // to allow access in this case.
                 try {

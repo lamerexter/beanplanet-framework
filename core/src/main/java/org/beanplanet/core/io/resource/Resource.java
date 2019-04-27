@@ -323,8 +323,27 @@ public interface Resource extends Cloneable {
      */
     RandomAccessor getRandomReadWriteAccessor() throws IoException;
 
+    /**
+     * Convenience method to read the resource as a string, using the platform default character set encoding. Obviously
+     * this assumes tbe contents of the resource to be a string of manageable size, readable in the platform's default character set
+     * encoding - so care must be taken when using this method.
+     *
+     * @return the string of the contents of the resource.
+     */
     default String readFullyAsString() {
         return IoUtil.transferAndClose(this.getReader(), new StringWriter()).toString();
+    }
+
+    /**
+     * Convenience method to read the resource as a byte array. Obviously this assumes tbe resource to be of manageable
+     * size - so care must be taken when using this method.
+     *
+     * @return a byte array of the contents of the resource.
+     */
+    default byte[] readFullyAsBytes() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IoUtil.transferAndClose(this.getInputStream(), baos);
+        return baos.toByteArray();
     }
 
     /**
