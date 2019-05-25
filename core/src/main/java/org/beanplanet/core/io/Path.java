@@ -97,13 +97,6 @@ public interface Path<T> extends Iterable<Path<T>> {
         return s.toString();
     }
 
-
-
-
-
-
-
-
     Path<T> normalise();
 
 
@@ -151,7 +144,7 @@ public interface Path<T> extends Iterable<Path<T>> {
     default String toCanonicalPath() {
         List<Path<T>> pathElements = getPathElements();
         StringBuilder s = new StringBuilder();
-        if (getRoot() != null) s.append(getRoot());
+//        if (getRoot() != null) s.append(getRoot());
         for (int n=0; n < pathElements.size()-1; n++) {
             s.append(s.length() > 0 ? getNameSeparator() : "").append(pathElements.get(n).getName());
         }

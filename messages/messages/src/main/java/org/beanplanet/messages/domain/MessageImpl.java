@@ -29,9 +29,7 @@ package org.beanplanet.messages.domain;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 /**

@@ -42,12 +42,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static org.beanplanet.core.lang.TypeUtil.isPrimitiveType;
 import static org.beanplanet.core.util.ArrayUtil.nullSafe;
 
@@ -267,12 +267,23 @@ public final class BeanTestSupport {
         return testEqualsWithProperties(instanceSupplier, new JavaBean(instanceSupplier.get()).getPropertyNames());
     }
 
-    public final BeanTestSupport testEqualsWithProperties(Supplier<?> instanceSupplier, String ... propertyNames) {
+    public final <T> BeanTestSupport testEqualsWithProperties(Supplier<T> instanceSupplier, String ... propertyNames) {
+        return testEqualsWithProperties(instanceSupplier, null, propertyNames);
+    }
+
+    public final <T> BeanTestSupport testEqualsWithProperties(Supplier<T> instanceSupplier, Consumer<T> mutator, String ... propertyNames) {
         //--------------------------------------------------------------------------------------------------------------
-        // Affirmative case: two instances are equal
+        // Affirmative case: same instance equals itself
         //--------------------------------------------------------------------------------------------------------------
-        Object instance1 = instanceSupplier.get();
-        Object instance2 = instanceSupplier.get();
+        T instance1 = instanceSupplier.get();
+        assertTrue(instance1.equals(instance1),
+                () -> "The equals() method of bean [type=%s] failed for the same instance",
+                instance1.getClass());
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Affirmative case: two instances with the same property values are equal
+        //--------------------------------------------------------------------------------------------------------------
+        T instance2 = instanceSupplier.get();
         Bean bean1 = new JavaBean(instance1);
         Bean bean2 = new JavaBean(instance2);
 
@@ -288,8 +299,23 @@ public final class BeanTestSupport {
                 instance1.getClass(), Arrays.asList(propertyNames));
 
         //--------------------------------------------------------------------------------------------------------------
+        // Negative case: not equal to another type
+        //--------------------------------------------------------------------------------------------------------------
+        assertFalse(instance1.equals(new Object()),
+                () -> "The equals() method of type [type=%s] passed unexpectedly when compared to another distinct type [Object]",
+                instance1.getClass());
+
+
+        //--------------------------------------------------------------------------------------------------------------
         // Negative case: two instances are not equal
         //--------------------------------------------------------------------------------------------------------------
+        if (mutator != null) {
+            mutator.accept(instance2);
+            assertFalse(instance1.equals(instance2),
+                    () -> "The equals() method of type [type=%s] passed unexpectedly when second instance was mutated [instance1=\n%s\n, instance2=\n%s\n]",
+                    instance1.getClass(), instance1, instance2);
+
+        }
         // GAW: 2019-01-14: Can't test the negative case until we have a way to 'toggle' a value to be different!
         // e.g. instance1.isMale=true  so instance2.isMale=false  MUST be the case!
 //        if ( propertyNames != null && propertyNames.length > 0 ) {
