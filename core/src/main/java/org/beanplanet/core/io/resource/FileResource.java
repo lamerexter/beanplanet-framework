@@ -420,6 +420,8 @@ public class FileResource extends AbstractResource implements ReadableResource, 
      * supported on this type of resource.
      */
     public Resource resolve(Path<Resource> path) {
+        if (path == null || path.isEmpty()) return this;
+
         Path<Resource> thisPath = getPath();
         return thisPath == null ? null : new FileResource(thisPath.resolve(path).toCanonicalPath());
     }
