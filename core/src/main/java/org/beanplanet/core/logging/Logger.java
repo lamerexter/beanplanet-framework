@@ -185,6 +185,17 @@ public interface Logger {
     }
 
     /**
+     * Logs an {@link Severity#ERROR} message without parameters.
+     *
+     * @param cause a cause associated with the error message to log, which may be null if there is none.
+     * @param message a message to log.
+     * @see #log(Severity, String, Object...)
+     */
+    default void error(Throwable cause, String message) {
+        log(ERROR, cause, message);
+    }
+
+    /**
      * Logs a {@link Severity#ERROR} message with the given parameters
      *
      * @param message a message to log.
@@ -192,6 +203,17 @@ public interface Logger {
      */
     default void error(String message, Object ... args) {
         log(ERROR, message, args);
+    }
+
+    /**
+     * Logs a {@link Severity#ERROR} message with the given parameters
+     *
+     * @param cause a cause associated with the error message to log, which may be null if there is none.
+     * @param message a message to log.
+     * @param args arguments to the log message.
+     */
+    default void error(Throwable cause, String message, Object ... args) {
+        log(ERROR, cause, message, args);
     }
 
     /**
@@ -217,11 +239,24 @@ public interface Logger {
     /**
      * Logs a {@link Severity#DEBUG} message with the given parameters
      *
+     * @param severity the sevrity of the message to log (see {@link Severity}).
      * @param message a message to log.
      * @param args arguments to the log message.
      */
     default void log(Severity severity, String message, Object ... args) {
         getLogger().log(severity, message, args);
+    }
+
+    /**
+     * Logs a {@link Severity#DEBUG} message with the given parameters
+     *
+     * @param severity the sevrity of the message to log (see {@link Severity}).
+     * @param cause a cause associated with the message to log, which may be null if there is none.
+     * @param message a message to log.
+     * @param args arguments to the log message.
+     */
+    default void log(Severity severity, Throwable cause, String message, Object ... args) {
+        getLogger().log(severity, cause, message, args);
     }
 
     default Logger getLogger() {
