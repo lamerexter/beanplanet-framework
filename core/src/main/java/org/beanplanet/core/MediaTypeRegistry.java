@@ -23,51 +23,28 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.pool;
 
-import org.beanplanet.core.events.BaseEvent;
+package org.beanplanet.core;
 
-public class ResourcePoolEvent<E> extends BaseEvent {
+import org.beanplanet.core.models.Registry;
 
-   public enum PoolEventType {
-      LISTENER_REGISTERED, LISTENER_UNREGISTERED,
-      ITEM_LOANED, ITEM_RETURNED,
-      ITEM_CREATED, ITEM_DESTROYED,
-      ITEM_VALID, ITEM_INVALID;
-   }
+import java.util.List;
+import java.util.Optional;
 
-   protected PoolEventType eventType;
-   protected ResourcePool<E> pool;
-   protected E resource;
+/**
+ * <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">Media Type</a>, as defined by the <a href="https://www.iana.org">Internet Assigned Numbers Authority (IANA)</a>. Represents
+ * most widely-known types of content such as text (text/plain), HTML (text/html), images (image/png amongst others) and more.
+ */
+public interface MediaTypeRegistry extends Registry<String, MediaType> {
+    List<MediaType> findMediaTypesForFileExtension(String extension);
 
-   public ResourcePoolEvent(PoolEventType eventType, ResourcePool<E> pool, E resource) {
-      super(pool);
-      this.eventType = eventType;
-      this.pool = pool;
-      this.resource = resource;
-   }
+    default Optional<MediaType> findMediaTypeForFileExtension(String extension) {
+        return findMediaTypesForFileExtension(extension).stream().findFirst();
+    }
 
-   public PoolEventType getEventType() {
-      return eventType;
-   }
+    List<String> findFileExtensionsForMediaType(String name);
 
-   public void setEventType(PoolEventType eventType) {
-      this.eventType = eventType;
-   }
-
-   public ResourcePool<E> getPool() {
-      return pool;
-   }
-
-   public void setPool(ResourcePool<E> pool) {
-      this.pool = pool;
-   }
-
-   public E getResource() {
-      return resource;
-   }
-
-   public void setResource(E resource) {
-      this.resource = resource;
-   }
+    default Optional<String> findFileExtensionForMediaType(String name) {
+        return findFileExtensionsForMediaType(name).stream().findFirst();
+    }
 }

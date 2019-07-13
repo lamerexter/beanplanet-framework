@@ -39,6 +39,10 @@ import java.util.function.Supplier;
 import static java.util.Arrays.asList;
 
 public class ObjectUtil {
+    public static final <T> T nvl(T value, T valueIfNull) {
+        return value != null ? value : valueIfNull;
+    }
+
     public static final <T> T nvl(T value, Supplier<T> supplier) {
         return value != null ? value : supplier.get();
     }

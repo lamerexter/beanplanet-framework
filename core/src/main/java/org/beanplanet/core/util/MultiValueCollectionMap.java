@@ -27,9 +27,19 @@
 package org.beanplanet.core.util;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import static org.beanplanet.core.util.CollectionUtil.nullSafe;
 
 public interface MultiValueCollectionMap<K, V, C extends Collection<V>> extends Map<K, C> {
     boolean addValue(K key, V value);
+    default boolean addAllValues(K key, List<V> values) {
+        boolean allAdded = true;
+        for (V value : nullSafe(values)) {
+            allAdded = addValue(key, value) && allAdded;
+        }
+        return allAdded;
+    }
     boolean removeValue(K key, V value);
 }

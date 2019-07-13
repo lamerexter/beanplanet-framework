@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MultiValueListMapImpl<K, V> extends MultiValueCollectionMapImpl<K, V, List<V>> {
+public class MultiValueListMapImpl<K, V> extends MultiValueCollectionMapImpl<K, V, List<V>> implements MultiValueListMap<K, V> {
     public MultiValueListMapImpl() {
         super();
     }

@@ -23,51 +23,37 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.pool;
+
+package org.beanplanet.core.cache;
 
 import org.beanplanet.core.events.BaseEvent;
 
-public class ResourcePoolEvent<E> extends BaseEvent {
+import java.util.List;
 
-   public enum PoolEventType {
-      LISTENER_REGISTERED, LISTENER_UNREGISTERED,
-      ITEM_LOANED, ITEM_RETURNED,
-      ITEM_CREATED, ITEM_DESTROYED,
-      ITEM_VALID, ITEM_INVALID;
-   }
+public abstract class CacheEvent<K, V> extends BaseEvent {
+    private List<? extends K> keysAffected;
+    private List<? extends V> valuesAffected;
 
-   protected PoolEventType eventType;
-   protected ResourcePool<E> pool;
-   protected E resource;
+    public CacheEvent(List<? extends K> keysAffected, List<? extends V> valuesAffected) {
+        this.keysAffected = keysAffected;
+        this.valuesAffected = valuesAffected;
+    }
 
-   public ResourcePoolEvent(PoolEventType eventType, ResourcePool<E> pool, E resource) {
-      super(pool);
-      this.eventType = eventType;
-      this.pool = pool;
-      this.resource = resource;
-   }
+    @SuppressWarnings("unchecked")
+    public List<K> getKeysAffected() {
+        return (List<K>)keysAffected;
+    }
 
-   public PoolEventType getEventType() {
-      return eventType;
-   }
+    public void setKeysAffected(List<? extends K> keysAffected) {
+        this.keysAffected = keysAffected;
+    }
 
-   public void setEventType(PoolEventType eventType) {
-      this.eventType = eventType;
-   }
+    @SuppressWarnings("unchecked")
+    public List< V> getValuesAffected() {
+        return (List<V>)valuesAffected;
+    }
 
-   public ResourcePool<E> getPool() {
-      return pool;
-   }
-
-   public void setPool(ResourcePool<E> pool) {
-      this.pool = pool;
-   }
-
-   public E getResource() {
-      return resource;
-   }
-
-   public void setResource(E resource) {
-      this.resource = resource;
-   }
+    public void setValuesAffected(List<? extends V> valuesAffected) {
+        this.valuesAffected = valuesAffected;
+    }
 }

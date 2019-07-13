@@ -23,51 +23,17 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.pool;
+package org.beanplanet.core.cache;
 
-import org.beanplanet.core.events.BaseEvent;
+import org.beanplanet.core.models.Named;
 
-public class ResourcePoolEvent<E> extends BaseEvent {
 
-   public enum PoolEventType {
-      LISTENER_REGISTERED, LISTENER_UNREGISTERED,
-      ITEM_LOANED, ITEM_RETURNED,
-      ITEM_CREATED, ITEM_DESTROYED,
-      ITEM_VALID, ITEM_INVALID;
-   }
-
-   protected PoolEventType eventType;
-   protected ResourcePool<E> pool;
-   protected E resource;
-
-   public ResourcePoolEvent(PoolEventType eventType, ResourcePool<E> pool, E resource) {
-      super(pool);
-      this.eventType = eventType;
-      this.pool = pool;
-      this.resource = resource;
-   }
-
-   public PoolEventType getEventType() {
-      return eventType;
-   }
-
-   public void setEventType(PoolEventType eventType) {
-      this.eventType = eventType;
-   }
-
-   public ResourcePool<E> getPool() {
-      return pool;
-   }
-
-   public void setPool(ResourcePool<E> pool) {
-      this.pool = pool;
-   }
-
-   public E getResource() {
-      return resource;
-   }
-
-   public void setResource(E resource) {
-      this.resource = resource;
-   }
+/**
+ * Represents a caching policy. By extending the <code>CacheItemListener</cod>
+ * interface, caching policies listen for events that relate to items in
+ * the cache - newly added or removed items, or if the cache is cleared.
+ * 
+ * @author Gary Watson
+ */
+public interface CachePolicy<K, V> extends CacheListener<K, V>, Named {
 }

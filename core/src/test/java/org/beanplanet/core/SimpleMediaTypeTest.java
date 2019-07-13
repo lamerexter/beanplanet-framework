@@ -23,51 +23,20 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.pool;
 
-import org.beanplanet.core.events.BaseEvent;
+package org.beanplanet.core;
 
-public class ResourcePoolEvent<E> extends BaseEvent {
+import org.junit.Test;
 
-   public enum PoolEventType {
-      LISTENER_REGISTERED, LISTENER_UNREGISTERED,
-      ITEM_LOANED, ITEM_RETURNED,
-      ITEM_CREATED, ITEM_DESTROYED,
-      ITEM_VALID, ITEM_INVALID;
-   }
+public class SimpleMediaTypeTest {
+    @Test
+    public void entiityBasics() {
+        new BeanTestSupport(new SimpleMediaType("text/html"))
+                .withTestWithNullValues(false)
+                .testProperties()
+                .testEqualsWithProperties(() -> new SimpleMediaType("text/html"), "name")
+                .testObjectsHashcodeWithProperties(() -> new SimpleMediaType("text/html"), "name")
+                .testToString();
+    }
 
-   protected PoolEventType eventType;
-   protected ResourcePool<E> pool;
-   protected E resource;
-
-   public ResourcePoolEvent(PoolEventType eventType, ResourcePool<E> pool, E resource) {
-      super(pool);
-      this.eventType = eventType;
-      this.pool = pool;
-      this.resource = resource;
-   }
-
-   public PoolEventType getEventType() {
-      return eventType;
-   }
-
-   public void setEventType(PoolEventType eventType) {
-      this.eventType = eventType;
-   }
-
-   public ResourcePool<E> getPool() {
-      return pool;
-   }
-
-   public void setPool(ResourcePool<E> pool) {
-      this.pool = pool;
-   }
-
-   public E getResource() {
-      return resource;
-   }
-
-   public void setResource(E resource) {
-      this.resource = resource;
-   }
 }

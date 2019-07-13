@@ -23,51 +23,26 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-package org.beanplanet.core.pool;
 
-import org.beanplanet.core.events.BaseEvent;
+package org.beanplanet.core.cache;
 
-public class ResourcePoolEvent<E> extends BaseEvent {
+import org.beanplanet.core.events.EventSource;
 
-   public enum PoolEventType {
-      LISTENER_REGISTERED, LISTENER_UNREGISTERED,
-      ITEM_LOANED, ITEM_RETURNED,
-      ITEM_CREATED, ITEM_DESTROYED,
-      ITEM_VALID, ITEM_INVALID;
-   }
+public interface CacheEventSource<K, V> extends EventSource {
+    /**
+     * Adds a listener of cache events to this event source.
+     *
+     * @param listener the cache listener to be added, which may not be null.
+     * @return true if the listener was added, false otherwise.
+     */
+    boolean addCacheListener(CacheListener<K, V> listener);
 
-   protected PoolEventType eventType;
-   protected ResourcePool<E> pool;
-   protected E resource;
+    /**
+     * Removes a listener of cache events from this event source.
+     *
+     * @param listener the cache listener to be removed, which may not be null.
+     * @return true if the listener was removed, false otherwise.
+     */
+    boolean removeCacheListener(CacheListener<K, V> listener);
 
-   public ResourcePoolEvent(PoolEventType eventType, ResourcePool<E> pool, E resource) {
-      super(pool);
-      this.eventType = eventType;
-      this.pool = pool;
-      this.resource = resource;
-   }
-
-   public PoolEventType getEventType() {
-      return eventType;
-   }
-
-   public void setEventType(PoolEventType eventType) {
-      this.eventType = eventType;
-   }
-
-   public ResourcePool<E> getPool() {
-      return pool;
-   }
-
-   public void setPool(ResourcePool<E> pool) {
-      this.pool = pool;
-   }
-
-   public E getResource() {
-      return resource;
-   }
-
-   public void setResource(E resource) {
-      this.resource = resource;
-   }
 }

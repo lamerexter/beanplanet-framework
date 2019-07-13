@@ -26,6 +26,8 @@
 
 package org.beanplanet.core.models;
 
+import java.util.stream.Stream;
+
 /**
  * Defines a strategy for a registry of a given type.
  * @param <K> The key type used to lookup an entry.
@@ -36,6 +38,7 @@ public interface Registry<K, T> {
     boolean removeFromRegistry(K key);
 
     T lookup(K key);
+    <E> Stream<E> findEntriesOfType(Class<E> entryType);
 
     int size();
 }
