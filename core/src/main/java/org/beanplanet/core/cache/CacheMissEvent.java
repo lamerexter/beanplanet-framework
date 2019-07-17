@@ -26,12 +26,19 @@
 
 package org.beanplanet.core.cache;
 
-import org.beanplanet.core.events.EventListener;
+import java.util.Collections;
+import java.util.List;
 
-public interface CacheListener<K, V> extends EventListener {
-    void onCacheCleared(CacheClearedEvent<K, V> event);
-    void onCacheItemsAdded(CacheItemsAddedEvent<K, V> event);
-    void onCacheItemsRemoved(CacheItemsRemovedEvent<K, V> event);
-    void onCacheMiss(CacheMissEvent<K, V> event);
-    void onCacheHit(CacheHitEvent<K, V> event);
+public class CacheMissEvent<K, V> extends CacheEvent<K, V> {
+    public CacheMissEvent(K key) {
+        super(Collections.singletonList(new ManagedCache.ManagedCacheEntry<>(key, null)));
+    }
+
+    public K getKey() {
+        return getEntriesAffected().stream().map(Cache.Entry::getKey).findFirst().orElse(null);
+    }
+
+    public List<Cache.Entry<? extends K, ? extends V>> getEntriesAdded() {
+       return getEntriesAffected();
+    }
 }

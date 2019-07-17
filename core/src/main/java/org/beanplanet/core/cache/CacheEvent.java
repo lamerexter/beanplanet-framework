@@ -31,29 +31,14 @@ import org.beanplanet.core.events.BaseEvent;
 import java.util.List;
 
 public abstract class CacheEvent<K, V> extends BaseEvent {
-    private List<? extends K> keysAffected;
-    private List<? extends V> valuesAffected;
-
-    public CacheEvent(List<? extends K> keysAffected, List<? extends V> valuesAffected) {
-        this.keysAffected = keysAffected;
-        this.valuesAffected = valuesAffected;
-    }
+    private List<Cache.Entry<? extends K, ? extends V>> entriesAffected;
 
     @SuppressWarnings("unchecked")
-    public List<K> getKeysAffected() {
-        return (List<K>)keysAffected;
+    public CacheEvent(List<Cache.Entry<? extends K, ? extends V>> entriesAffected) {
+        this.entriesAffected = entriesAffected;
     }
 
-    public void setKeysAffected(List<? extends K> keysAffected) {
-        this.keysAffected = keysAffected;
-    }
-
-    @SuppressWarnings("unchecked")
-    public List< V> getValuesAffected() {
-        return (List<V>)valuesAffected;
-    }
-
-    public void setValuesAffected(List<? extends V> valuesAffected) {
-        this.valuesAffected = valuesAffected;
+    public List<Cache.Entry<? extends K, ? extends V>> getEntriesAffected() {
+        return entriesAffected;
     }
 }

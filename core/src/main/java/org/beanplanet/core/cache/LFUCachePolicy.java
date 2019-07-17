@@ -57,7 +57,27 @@ public class LFUCachePolicy<K, V> implements CachePolicy<K, V> {
    }
 
    @Override
+   public void onCacheCleared(CacheClearedEvent<K, V> event) {
+
+   }
+
+   @Override
    public void onCacheItemsAdded(CacheItemsAddedEvent<K, V> event) {
+
+   }
+
+   @Override
+   public void onCacheItemsRemoved(CacheItemsRemovedEvent<K, V> event) {
+
+   }
+
+   @Override
+   public void onCacheMiss(CacheMissEvent<K, V> event) {
+
+   }
+
+   @Override
+   public void onCacheHit(CacheHitEvent<K, V> event) {
 
    }
 

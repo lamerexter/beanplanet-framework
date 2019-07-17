@@ -27,11 +27,11 @@
 package org.beanplanet.core.cache;
 
 import org.beanplanet.core.events.EventSupport;
+import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -69,18 +69,20 @@ public class ManagedCache<K, V> implements Cache<K, V> {
         return backingMap.containsValue(value);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public V get(Object key) {
-        return backingMap.get(key);
+        V found = backingMap.get(key);
+        eventSupport.dispatchEvent(found == null ? new CacheMissEvent<>((K)key) :  new CacheHitEvent<>((K)key, found));
+        return found;
     }
 
     @Override
     public V put(K key, V value) {
-        V previousValue = backingMap.putIfAbsent(key, value);
+        V previousValue = backingMap.put(key, value);
         eventSupport.dispatchEvent(
-                new CacheItemsAddedEvent<>(singletonList(key),
-                                           previousValue == null ? emptyList() : singletonList(previousValue),
-                                           singletonList(value))
+                new CacheItemsAddedEvent<>(previousValue == null ? emptyList() : singletonList(new ManagedCacheEntry<>(key, previousValue)),
+                                           singletonList(new ManagedCacheEntry<>(key, value)))
         );
 
         return previousValue;
@@ -88,17 +90,38 @@ public class ManagedCache<K, V> implements Cache<K, V> {
 
     @Override
     public V remove(Object key) {
-        return backingMap.remove(key);
+        V valueRemoved = backingMap.remove(key);
+        if (valueRemoved != null) {
+            eventSupport.dispatchEvent(new CacheItemsRemovedEvent<>(Collections.singletonList(
+                    new ManagedCacheEntry<>(key, valueRemoved)
+            )));
+        }
+
+        return valueRemoved;
     }
 
     @Override
     public void putAll(Map<? extends K, ? extends V> m) {
-        backingMap.putAll(m);
+        if (m == null) return;
+
+        List<Cache.Entry<? extends K, ? extends V>> entriesEvicted = new ArrayList<>();
+        List<Cache.Entry<? extends K, ? extends V>> entriesAdded = m.entrySet()
+                                .stream().map(e -> new ManagedCacheEntry<>(e.getKey(), e.getValue()))
+                                .collect(Collectors.toList());
+        for (Map.Entry<? extends K, ? extends V> entry : m.entrySet()) {
+            V previousValue = backingMap.put(entry.getKey(), entry.getValue());
+            if (previousValue != null) {
+                entriesEvicted.add(new ManagedCacheEntry<>(entry.getKey(), previousValue));
+            }
+        }
+
+        eventSupport.dispatchEvent(new CacheItemsAddedEvent<>(entriesEvicted, entriesAdded));
     }
 
     @Override
     public void clear() {
         backingMap.clear();
+        eventSupport.dispatchEvent(new CacheClearedEvent<>());
     }
 
     @Override
@@ -112,7 +135,7 @@ public class ManagedCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public Set<Entry<K, V>> entrySet() {
+    public Set<Map.Entry<K, V>> entrySet() {
         return backingMap.entrySet();
     }
 
@@ -124,5 +147,45 @@ public class ManagedCache<K, V> implements Cache<K, V> {
     @Override
     public boolean removeCacheListener(CacheListener listener) {
         return eventSupport.removeListener(CacheEvent.class, listener);
+    }
+
+    public static class ManagedCacheEntry<K, V> implements Cache.Entry<K, V> {
+        private K key;
+        private V value;
+
+        public ManagedCacheEntry(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public K getKey() {
+            return key;
+        }
+
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(key, value);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other == this) return true;
+            if (other.getClass() != ManagedCacheEntry.class) return false;
+
+            ManagedCacheEntry<?, ?> that = (ManagedCacheEntry<?, ?>)other;
+            return Objects.equals(this.getKey(), that.getKey())
+                    && Objects.equals(this.getValue(), that.getValue());
+        }
+
+        @Override
+        public String toString() {
+            return new PropertyBasedToStringBuilder(this).build();
+        }
     }
 }

@@ -32,4 +32,8 @@ import java.util.Map;
  * Definition of a cache.
  */
 public interface Cache<K, V> extends Map<K, V>, CacheEventSource {
+    interface Entry<K, V> {
+        public K getKey();
+        public V getValue();
+    }
 }

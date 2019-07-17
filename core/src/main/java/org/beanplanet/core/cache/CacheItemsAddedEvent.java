@@ -29,16 +29,19 @@ package org.beanplanet.core.cache;
 import java.util.List;
 
 public class CacheItemsAddedEvent<K, V> extends CacheEvent<K, V> {
-    private List<? extends V> valuesEvicted;
+    private List<Cache.Entry<? extends K, ? extends V>> enriesEvicted;
 
-    public CacheItemsAddedEvent(List<K> keysAffected,
-                                List<? extends V> valuesEvicted,
-                                List<? extends V> valuedAdded) {
-        super(keysAffected, valuedAdded);
-        this.valuesEvicted = valuesEvicted;
+    public CacheItemsAddedEvent(List<Cache.Entry<? extends K, ? extends V>> entriesEvicted,
+                                List<Cache.Entry<? extends K, ? extends V>> entriesAdded) {
+        super(entriesAdded);
+        this.enriesEvicted = entriesEvicted;
     }
 
-    public List<? extends V> getValuesEvicted() {
-        return valuesEvicted;
+    public List<Cache.Entry<? extends K, ? extends V>> getEntriesEvicted() {
+        return enriesEvicted;
+    }
+
+    public List<Cache.Entry<? extends K, ? extends V>> getEntriesAdded() {
+       return getEntriesAffected();
     }
 }
