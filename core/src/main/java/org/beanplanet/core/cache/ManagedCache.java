@@ -149,6 +149,27 @@ public class ManagedCache<K, V> implements Cache<K, V> {
         return eventSupport.removeListener(CacheEvent.class, listener);
     }
 
+    /**
+     * Adds a caching policy to the cache.
+     *
+     * @param policy the cache policy to be added, which may not be null.
+     * @return true if the policy was added, false otherwise.
+     */
+    public boolean addCachePolicy(CachePolicy<K, V> policy) {
+        return addCacheListener(policy);
+    }
+
+    /**
+     * Removes a caching policy from the cache.
+     *
+     * @param policy the cache policy to be removed, which may not be null.
+     * @return true if the policy was removed, false otherwise.
+     */
+    public boolean removeCachePolicy(CachePolicy<K, V> policy) {
+        return removeCacheListener(policy);
+    }
+
+
     public static class ManagedCacheEntry<K, V> implements Cache.Entry<K, V> {
         private K key;
         private V value;

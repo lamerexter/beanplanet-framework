@@ -41,7 +41,7 @@ public class OsUtil {
     private static boolean isLinux = false;
     private static boolean isMac = false;
 
-    private static final Logger log = BeanpanetLoggerFactory.getSystemloggerFor(OsUtil.class);
+    private static final Logger log = BeanpanetLoggerFactory.getSystemLoggerFor(OsUtil.class);
 
     static
     {

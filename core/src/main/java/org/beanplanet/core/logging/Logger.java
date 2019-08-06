@@ -26,7 +26,7 @@
 
 package org.beanplanet.core.logging;
 
-import static org.beanplanet.core.logging.BeanpanetLoggerFactory.getSystemloggerFor;
+import static org.beanplanet.core.logging.BeanpanetLoggerFactory.getSystemLoggerFor;
 import static org.beanplanet.core.logging.Severity.*;
 
 /**
@@ -260,6 +260,6 @@ public interface Logger {
     }
 
     default Logger getLogger() {
-        return getSystemloggerFor(this);
+        return getSystemLoggerFor(this);
     }
 }

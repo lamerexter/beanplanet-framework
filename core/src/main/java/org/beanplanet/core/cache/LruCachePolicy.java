@@ -26,16 +26,71 @@
 package org.beanplanet.core.cache;
 
 /**
- * Implementation of a Least-Recently-Used caching policy.
+ * Implementation of a Least-Recently-Used (LRU) caching policy.
  * <p>
  * Items that have been least used recently are ejected before items used recently.
  * <p>
  * When a 'cache hit' occurs on an item, the item is put to the 'back of the queue' and will then be the last of the
  * items to be expelled from the cache, at that moment in time.
- * 
- * @author Gary Watson
  */
-public class LRUCachePolicy<K, V> { // extends CachePolicy<K, V> {
+public class LruCachePolicy<K, V> implements CachePolicy<K, V> {
+    /** Maximum number of items allowed in the cache before the LRY caching is applied. */
+    private int lruCacheSize = 500;
+
+    public LruCachePolicy() {}
+
+    public LruCachePolicy(int lruCacheSize) {
+        this.lruCacheSize = lruCacheSize;
+    }
+
+    /**
+     * Gets the LRU cache size which determines the maximum number of items allowed in the cache before the LRY caching
+     * policy is applied to maintain that level.
+     *
+     * @return the LRU cache size.
+     */
+    public int getLruCacheSize() {
+        return lruCacheSize;
+    }
+
+    /**
+     * Sets the LRU cache size which determines the maximum number of items allowed in the cache before the LRY caching
+     * policy is applied to maintain that level.
+     */
+    public void setLruCacheSize(int lruCacheSize) {
+        this.lruCacheSize = lruCacheSize;
+    }
+
+    @Override
+    public void onCacheCleared(CacheClearedEvent<K, V> event) {
+
+    }
+
+    @Override
+    public void onCacheItemsAdded(CacheItemsAddedEvent<K, V> event) {
+
+    }
+
+    @Override
+    public void onCacheItemsRemoved(CacheItemsRemovedEvent<K, V> event) {
+
+    }
+
+    @Override
+    public void onCacheMiss(CacheMissEvent<K, V> event) {
+
+    }
+
+    @Override
+    public void onCacheHit(CacheHitEvent<K, V> event) {
+
+    }
+
+    @Override
+    public String getName() {
+        return "LRU Cache Policy";
+    }
+
 //   /** The LRU buffer size. */
 //   protected int lruBufferSize = 500;
 //

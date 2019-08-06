@@ -37,7 +37,7 @@ public class BeanpanetLoggerFactory implements LogFactory {
         systemLoggerFactory = loggerFactory;
     }
 
-    public static Logger getSystemloggerFor(Object context) {
+    public static Logger getSystemLoggerFor(Object context) {
         return getSystemLoggerFactory().loggerFor(context);
     }
 

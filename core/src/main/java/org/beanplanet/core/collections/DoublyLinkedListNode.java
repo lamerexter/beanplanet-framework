@@ -23,33 +23,54 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
-
-package org.beanplanet.core.cache;
-
-import java.util.Map;
+package org.beanplanet.core.collections;
 
 /**
- * Definition of a cache.
+ * Implementation of a node for a doubly linked list implementation.
+ *
+ * @author Gary Watson
  */
-public interface Cache<K, V> extends Map<K, V>, CacheEventSource {
-    interface Entry<K, V> {
-        public K getKey();
-        public V getValue();
+public class DoublyLinkedListNode<E> {
+    protected DoublyLinkedListNode<E> previousNode;
+
+    protected DoublyLinkedListNode<E> nextNode;
+
+    protected E value;
+
+    public DoublyLinkedListNode() {
     }
 
-    /**
-     * Adds a caching policy to the cache.
-     *
-     * @param policy the cache policy to be added, which may not be null.
-     * @return true if the policy was added, false otherwise.
-     */
-    boolean addCachePolicy(CachePolicy<K, V> policy);
+    public DoublyLinkedListNode(E value) {
+        setValue(value);
+    }
 
-    /**
-     * Removes a caching policy from the cache.
-     *
-     * @param policy the cache policy to be removed, which may not be null.
-     * @return true if the policy was removed, false otherwise.
-     */
-    boolean removeCachePolicy(CachePolicy<K, V> policy);
+    public DoublyLinkedListNode(E value, DoublyLinkedListNode<E> previousNode, DoublyLinkedListNode<E> nextNode) {
+        this(value);
+        setPreviousNode(previousNode);
+        setNextNode(nextNode);
+    }
+
+    public DoublyLinkedListNode<E> getPreviousNode() {
+        return previousNode;
+    }
+
+    public void setPreviousNode(DoublyLinkedListNode<E> previousNode) {
+        this.previousNode = previousNode;
+    }
+
+    public DoublyLinkedListNode<E> getNextNode() {
+        return nextNode;
+    }
+
+    public void setNextNode(DoublyLinkedListNode<E> nextNode) {
+        this.nextNode = nextNode;
+    }
+
+    public E getValue() {
+        return value;
+    }
+
+    public void setValue(E value) {
+        this.value = value;
+    }
 }
