@@ -166,8 +166,8 @@ public interface DoublyLinkedList<E> extends List<E>, Queue<E>, Deque<E> {
         return nodeIteratorHeadToTail();
     }
 
-    Iterator<DoublyLinkedListNode<E>> nodeIteratorHeadToTail();
-    Iterator<DoublyLinkedListNode<E>> nodeIteratorTailToHead();
+    ListIterator<DoublyLinkedListNode<E>> nodeIteratorHeadToTail();
+    ListIterator<DoublyLinkedListNode<E>> nodeIteratorTailToHead();
 
     DoublyLinkedListNode<E> set(int index, DoublyLinkedListNode<E> node);
 }

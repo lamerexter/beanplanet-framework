@@ -25,6 +25,8 @@
  */
 package org.beanplanet.core.collections;
 
+import java.util.Objects;
+
 /**
  * Implementation of a node for a doubly linked list implementation.
  *
@@ -72,5 +74,13 @@ public class DoublyLinkedListNode<E> {
 
     public void setValue(E value) {
         this.value = value;
+    }
+
+    public boolean equals(Object other) {
+        return Objects.equals(this.getValue(), other);
+    }
+
+    public int hashCode() {
+        return Objects.hashCode(getValue());
     }
 }

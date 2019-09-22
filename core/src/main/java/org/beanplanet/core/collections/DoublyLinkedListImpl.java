@@ -85,7 +85,7 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
         DoublyLinkedListNode<E> currentNode = head;
 
         while (currentNode != null) {
-            if ( Objects.equals(o, currentNode.getNextNode()) ) return true;
+            if ( Objects.equals(currentNode, o) ) return true;
             currentNode = currentNode.getNextNode();
         }
 
@@ -320,7 +320,7 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
      * @see #contains(Object)
      */
     public boolean containsAll(Collection<?> c) {
-        boolean containsAll = !c.isEmpty();
+        boolean containsAll = true;
         for (Iterator<?> iter = c.iterator(); iter.hasNext() & containsAll; ) {
             containsAll = contains(iter.next());
         }
@@ -374,12 +374,11 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
     }
 
     private final boolean addAllInternal(int index, Collection<? extends E> c) {
-        boolean addedAll = !c.isEmpty();
-        for (Iterator<? extends E> iter = c.iterator(); iter.hasNext() & addedAll; ) {
+        for (Iterator<? extends E> iter = c.iterator(); iter.hasNext(); ) {
             add(index++, iter.next());
         }
 
-        return addedAll;
+        return true;
     }
 
     /**
@@ -493,13 +492,15 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
      */
     public DoublyLinkedListNode<E> getNode(int index) {
         checkBounds(index, 0, size - 1);
-        DoublyLinkedListNode<E> currentNode = head;
+        DoublyLinkedListNode<E> currentNode;
 
         if (index <= size / 2) {
+            currentNode = head;
             for (int n = 0; n < index; n++) {
                 currentNode = currentNode.getNextNode();
             }
         } else {
+            currentNode = tail;
             for (int n = size - 1; n > index; n--) {
                 currentNode = currentNode.getPreviousNode();
             }
@@ -575,9 +576,12 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
         } else if (index == size) {
             addToTail(new DoublyLinkedListNode<E>(element));
         } else {
-            DoublyLinkedListNode<E> previousNode = getNode(index - 1);
-            DoublyLinkedListNode<E> newNode = new DoublyLinkedListNode<E>(element, previousNode, previousNode.getNextNode());
-            previousNode.setNextNode(newNode);
+            DoublyLinkedListNode<E> nodeBefore = getNode(index);
+            DoublyLinkedListNode<E> newNode = new DoublyLinkedListNode<E>(element, nodeBefore.getPreviousNode(), nodeBefore);
+            if (nodeBefore.getPreviousNode() != null) {
+                nodeBefore.getPreviousNode().setNextNode(newNode);
+            }
+            nodeBefore.setPreviousNode(newNode);
             size++;
         }
     }
@@ -910,14 +914,16 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
 
     class DoublyLinkedListNodeIterator implements ListIterator<DoublyLinkedListNode<E>> {
         private boolean headToTail;
-        private int currentIndex;
 
-        private DoublyLinkedListNode<E> currentNode;
+        private DoublyLinkedListNode<E> previousNode, nextNode;
+        private int previousIndex, nextIndex;
 
         public DoublyLinkedListNodeIterator(boolean headToTail) {
             this.headToTail = headToTail;
-            currentIndex = headToTail ? -1 : size;
-            currentNode = null;
+            previousIndex = headToTail ? -1 : size;
+            nextIndex = headToTail ? 0 : size;
+            previousNode = null;
+            nextNode = headToTail ? head : tail;
         }
 
         /**
@@ -928,7 +934,7 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
          * @return <tt>true</tt> if the list iterator has more elements when traversing the list in the forward direction.
          */
         public boolean hasNext() {
-            return headToTail ? (currentIndex >= -1 && currentIndex < size-1) : (currentIndex <= size && currentIndex > 0);
+            return nextNode != null;
         }
 
         /**
@@ -942,16 +948,15 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
         @SuppressWarnings("unchecked")
         public DoublyLinkedListNode<E> next() {
             if (!hasNext()) {
-                throw new NoSuchElementException("List of size " + size + " and current position, " + currentIndex + ", has no next element.");
+                throw new NoSuchElementException("List of size " + size + " and current position, " + nextIndex + ", has no next element.");
             }
 
-            if ( currentIndex < 0 || currentIndex >= size ) {
-                currentNode = headToTail ? head : tail;
-                currentIndex = headToTail ? 0 : size-1;
-            } else {
-                currentNode = headToTail ? currentNode.getNextNode() : currentNode.getPreviousNode();
-                currentIndex += headToTail ? 1 : -1;
-            }
+            DoublyLinkedListNode<E> currentNode = nextNode;
+            previousNode = nextNode;
+            nextNode = headToTail ? nextNode.getNextNode() : nextNode.getPreviousNode();
+
+            previousIndex = nextIndex;
+            nextIndex = headToTail ? nextIndex+1 : nextIndex-1;
 
             return currentNode;
         }
@@ -964,7 +969,7 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
          * @return <tt>true</tt> if the list iterator has more elements when traversing the list in the reverse direction.
          */
         public boolean hasPrevious() {
-            return headToTail ? (currentIndex <= size && currentIndex > 0) : (currentIndex >= -1 && currentIndex < size-1);
+            return previousNode != null;
         }
 
         /**
@@ -977,11 +982,15 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
          */
         public DoublyLinkedListNode<E> previous() {
             if (!hasPrevious()) {
-                throw new NoSuchElementException("List of size " + size + " and current position, " + currentIndex + ", has no previous element.");
+                throw new NoSuchElementException("List of size " + size + " and current position, " + nextIndex + ", has no previous element.");
             }
 
-            currentNode = headToTail ? currentNode.getPreviousNode() : currentNode.getNextNode();
-            currentIndex += headToTail ? -1 : 1;
+            DoublyLinkedListNode<E> currentNode = previousNode;
+            previousNode = headToTail  ? previousNode.getPreviousNode() : previousNode.getNextNode();
+            nextNode = currentNode;
+
+            previousIndex = headToTail ? previousIndex-1 : previousIndex()+1;
+            nextIndex = headToTail ? nextIndex-1 : nextIndex+1;
 
             return currentNode;
         }
@@ -994,7 +1003,8 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
          * list iterator is at end of list.
          */
         public int nextIndex() {
-            return currentIndex + (headToTail ? 1 : -1);
+            return nextIndex;
+//            return currentIndex + (headToTail ? 1 : -1);
         }
 
         /**
@@ -1005,7 +1015,8 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
          * list iterator is at beginning of list.
          */
         public int previousIndex() {
-            return currentIndex + (headToTail ? -1 : 1);
+            return previousIndex;
+//            return currentIndex + (headToTail ? 0 : 1);
         }
 
         /**
@@ -1018,16 +1029,13 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
          *                                       or <tt>add</tt> have been called after the last call to * <tt>next</tt> or <tt>previous</tt>.
          */
         public void remove() {
-            if (currentIndex < 0) {
-                throw new IllegalStateException("Illegal attempt to remove element from list before next() " + "has been called. Please call next() before attempting to remove elements via a list iterator.");
+            if (!hasPrevious()) {
+                throw new NoSuchElementException("List of size " + size + " and current position, " + nextIndex + ", has no previous element to remove.");
             }
-            if (currentIndex >= size) {
-                throw new IllegalStateException("Illegal attempt to remove element from list before previous() " + "has been called. Please call previous() before attempting to remove elements via a list iterator.");
-            }
-            DoublyLinkedListImpl.this.remove(currentNode);
 
-            currentIndex += (headToTail ? -1 : 1);
-            currentNode = (headToTail ? currentNode.getPreviousNode() : currentNode.getNextNode());
+            previousNode = headToTail ? previousNode.getPreviousNode() : previousNode.getNextNode();
+            previousIndex = previousNode != null ? previousIndex-1 : -1;
+            DoublyLinkedListImpl.this.remove(previousNode);
         }
 
         /**
@@ -1045,10 +1053,10 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
          *                                       <tt>previous</tt>.
          */
         public void set(DoublyLinkedListNode<E> o) {
-            if (currentIndex < 0 || currentIndex >= size || currentNode == null) {
-                throw new IllegalStateException("Unable to set object in list - the list is empty or you have not called next() or previous() first.");
-            }
-            DoublyLinkedListImpl.this.set(currentIndex, o);
+//            if (currentIndex < 0 || currentIndex >= size || currentNode == null) {
+//                throw new IllegalStateException("Unable to set object in list - the list is empty or you have not called next() or previous() first.");
+//            }
+//            DoublyLinkedListImpl.this.set(currentIndex, o);
         }
 
         /**
@@ -1069,13 +1077,20 @@ public class DoublyLinkedListImpl<E> implements DoublyLinkedList<E> {
         public void add(DoublyLinkedListNode<E> o) {
             if (size == 0) {
                 DoublyLinkedListImpl.this.add(o);
-            } else if (currentIndex < 0 || currentIndex >= size || currentNode == null) {
-                throw new IllegalArgumentException("Unable to set object in list - the list is empty or you have not called next() or previous() first.");
             } else if (headToTail) {
-                addAfter(currentNode, o);
+                if (nextNode != null) {
+                    addBefore(nextNode, o);
+                } else if (previousNode != null) {
+                    addAfter(previousNode, o);
+                }
             } else {
-                addBefore(currentNode, o);
+                if (nextNode != null) {
+                    addAfter(nextNode, o);
+                } else if (previousNode != null) {
+                    addBefore(previousNode, o);
+                }
             }
+            nextNode = o;
         }
     }
 

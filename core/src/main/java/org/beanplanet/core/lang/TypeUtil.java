@@ -38,7 +38,10 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Arrays.stream;
 
 /**
  * A static utility class for the everything <code>type-related</code> related.
@@ -293,7 +296,7 @@ public final class TypeUtil {
 
     @SuppressWarnings("unchecked")
     public static <T> Optional<Constructor<T>> getCallableConstructor(Class<T> type, Object[] ctorParameterValues) {
-        return Arrays.stream((Constructor<T>[])type.getDeclaredConstructors())
+        return stream((Constructor<T>[])type.getDeclaredConstructors())
                 .filter(c -> c.getParameterCount() == (ctorParameterValues == null ? 0 : ctorParameterValues.length))
                 .filter(c -> {
                     for (int n=0; n < c.getParameterCount(); n++) {
@@ -394,14 +397,49 @@ public final class TypeUtil {
     }
 
     public static Object invokeStaticMethod(Class<?> clazz, String methodName) {
-        try {
-            Method method = clazz.getMethod(methodName);
-            return invokeMethod(null, method);
-        } catch (NoSuchMethodException nsmEx) {
-            throw new UncheckedException("Unable to invoke method, \"" + methodName + "\" on target, class=\"" + clazz.getName()
-                    + "\" - the method was not found: ", nsmEx);
-        }
+        return invokeStaticMethod(clazz, methodName, (Object[])null);
     }
+
+    public static Object invokeStaticMethod(Class<?> clazz, String methodName, Object ... params) {
+        Method method = findMethod(Modifier.STATIC, methodName, clazz, Object.class, paramTypes(params))
+                .orElseThrow(() -> new UncheckedException("Unable to invoke method, \"" + methodName
+                                                          + "\" on target, class=\"" + clazz.getName()
+                                                          + "\" - the method was not found: "));
+        return invokeMethod(null, method, params);
+    }
+
+    private static Class<?>[] paramTypes(Object params[]) {
+        return params == null ? null : stream(params).map(p -> p == null ? Object.class : p.getClass()).toArray(Class[]::new);
+    }
+
+    public static Stream<Method> streamMethods(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> ... paramTypes) {
+
+        return new TypeTree(Object.class, clazz)
+                .stream()
+                .map(TreeNode::getManagedObject)
+                .flatMap(c -> Arrays.stream(c.getDeclaredMethods()))
+                .filter(m -> m.getName().equals(name))
+                .filter(m -> (m.getModifiers() & modifiers) > 0)
+                .filter(m -> returnType == null || returnType.isAssignableFrom(m.getReturnType()))
+                .filter(m -> m.getParameterCount() == (paramTypes == null ? 0 : paramTypes.length))
+                .filter(m -> {
+                    for (int n=0; n < paramTypes.length; n++) {
+                        if ( paramTypes[n] != null && !m.getParameterTypes()[n].isAssignableFrom(paramTypes[n]) ) return false;
+                    }
+                    return true;
+                });
+    }
+
+    public static List<Method> findMethods(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> ... paramTypes) {
+
+        return streamMethods(modifiers, name, clazz, returnType, paramTypes).collect(Collectors.toList());
+    }
+
+    public static Optional<Method> findMethod(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> paramTypes[]) {
+
+        return streamMethods(modifiers, name, clazz, returnType, paramTypes).findFirst();
+    }
+
     public static Object invokeMethod(Object target, Method method, Object ... params) {
         try {
             return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, (params != null ? params : EMPTY_PARAMS));
@@ -475,6 +513,6 @@ public final class TypeUtil {
         return new TypeTree(specificType)
                 .preorderStream()
                 .map(TreeNode::getManagedObject)
-                .flatMap(type -> Arrays.stream(type.getDeclaredMethods()));
+                .flatMap(type -> stream(type.getDeclaredMethods()));
     }
 }
