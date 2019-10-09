@@ -414,10 +414,7 @@ public final class TypeUtil {
 
     public static Stream<Method> streamMethods(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> ... paramTypes) {
 
-        return new TypeTree(Object.class, clazz)
-                .stream()
-                .map(TreeNode::getManagedObject)
-                .flatMap(c -> Arrays.stream(c.getDeclaredMethods()))
+        return streamMethods(clazz)
                 .filter(m -> m.getName().equals(name))
                 .filter(m -> (m.getModifiers() & modifiers) > 0)
                 .filter(m -> returnType == null || returnType.isAssignableFrom(m.getReturnType()))
@@ -428,6 +425,14 @@ public final class TypeUtil {
                     }
                     return true;
                 });
+    }
+
+    public static Stream<Method> streamMethods(Class<?> clazz) {
+
+        return new TypeTree(Object.class, clazz)
+                .stream()
+                .map(TreeNode::getManagedObject)
+                .flatMap(c -> Arrays.stream(c.getDeclaredMethods()));
     }
 
     public static List<Method> findMethods(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> ... paramTypes) {
