@@ -28,6 +28,7 @@ package org.beanplanet.core.net;
 
 import org.beanplanet.core.util.MultiValueListMapImpl;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
+import org.beanplanet.core.util.StringUtil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,6 +40,8 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.*;
 import static org.beanplanet.core.net.UriUtil.decode;
 import static org.beanplanet.core.net.UriUtil.encode;
+import static org.beanplanet.core.util.StringUtil.ensureHasPrefix;
+import static org.beanplanet.core.util.StringUtil.isEmptyOrNull;
 
 /**
  * A Uniform Resource Identifier builder.  Builds URIs, as defined by <a href="https://tools.ietf.org/html/rfc3986">RFC 3986</a>.  This implementation allows
@@ -175,6 +178,12 @@ public class UriBuilder {
         this.queryParameters = queryParameters;
     }
 
+    public boolean hasAuthority() {
+        return StringUtil.notEmptyAndNotNull(getUserInfo())
+                || StringUtil.notEmptyAndNotNull(getHost())
+                || getPort() != null;
+    }
+
     public UriBuilder withQueryParameters(MultiValueListMapImpl<String, String> queryParameters) {
         setQueryParameters(queryParameters);
         return this;
@@ -186,7 +195,7 @@ public class UriBuilder {
                            getUserInfo(),
                            getHost(),
                            port == null ? -1 : getPort(),
-                           getPath(),
+                           hasAuthority() ? ( isEmptyOrNull(getPath()) ? "" : ensureHasPrefix(getPath(), "/")) : getPath(),
                            queryParameters == null ? null : queryParameters.entrySet()
                                                                            .stream()
                                                                            .map(e -> e.getValue()

@@ -26,8 +26,6 @@
 
 package org.beanplanet.core.io.resource;
 
-import org.beanplanet.core.io.Path;
-
 /**
  * A tagging interface for resources that are path-based, including any filename part.
  *

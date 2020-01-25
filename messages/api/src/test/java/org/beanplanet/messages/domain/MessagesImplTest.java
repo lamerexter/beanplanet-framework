@@ -458,7 +458,20 @@ public class MessagesImplTest {
         MessagesImpl messages = messages();
 
         // Then
-        assertThat(messages.toString(), containsString("infos=<null>,warnings=<null>,errors=<null>"));
+        assertThat(messages.toString(), containsString("infos="));
+        assertThat(messages.toString(), containsString("warnings="));
+        assertThat(messages.toString(), containsString("errors="));
+    }
+
+    @Test
+    public void hasErrorWithCode() {
+        // Given
+        MessagesImpl messages = messages()
+                .addError("theCode", "theMessage");
+
+        // Then
+        assertThat(messages.hasErrorWithCode("theCode"), is(true));
+        assertThat(messages.hasErrorWithCode("notPresent"), is(false));
     }
 
 }

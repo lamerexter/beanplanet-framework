@@ -29,8 +29,9 @@ package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.io.IoUtil;
-import org.beanplanet.core.io.Path;
 import org.beanplanet.core.lang.TypeUtil;
+import org.beanplanet.core.models.path.NamePath;
+import org.beanplanet.core.models.path.Path;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -114,6 +115,23 @@ public interface Resource extends Cloneable {
      * @return true, if this type of resource supports random access, false otherwise.
      */
     boolean supportsRandomAccess();
+
+    /**
+     * Returns the name-path to this resource.
+     *
+     * @return nsme-path of this resource, or the empty path is this resource is not name-path based.
+     */
+    NamePath getNamePath();
+
+    /**
+     * Returns the name of this resource. Where this resource is also path-based, this will return the last name in the path.
+     * For example the resource <code>a/b/d.pdf</code> would return <code>d.pdf</code>.
+     *
+     * @return nsme of this resource.
+     */
+    default String getName() {
+        return getNamePath().getLastElement();
+    }
 
     /**
      * Returns the full path of the resource, including any filename, if the resource type supports path references.

@@ -26,6 +26,8 @@
 
 package org.beanplanet.core.util;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import java.util.LinkedHashMap;
@@ -36,6 +38,7 @@ import static org.beanplanet.core.Predicates.falsePredicate;
 import static org.beanplanet.core.Predicates.truePredicate;
 import static org.beanplanet.core.util.StringUtil.asDelimitedString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class StringUtilTest {
@@ -107,22 +110,6 @@ public class StringUtilTest {
     public void asDelimitedString_Collection_Delimiter() {
         assertThat(asDelimitedString(asList("a", "b", "c"), ",", e -> "prefix_"+e), equalTo("prefix_a,prefix_b,prefix_c"));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
     public void asDelimitedString_Map_Predicate_Delimiter_Delimiter_Function_Function() {
         Map<String, String> map = new LinkedHashMap<>();
@@ -185,4 +172,65 @@ public class StringUtilTest {
         map.put("e", "e1");
         assertThat(asDelimitedString(map,"&", "="), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
     }
+
+    @Test
+    public void initCap_NullString() {
+        assertThat(StringUtil.initCap(null), nullValue());
+    }
+
+    @Test
+    public void initCap_EmptyString() {
+        assertThat(StringUtil.initCap(""), equalTo(""));
+    }
+
+    @Test
+    public void initCap_SingleCharacter() {
+        assertThat(StringUtil.initCap("e"), equalTo("E"));
+    }
+
+    @Test
+    public void initCap_SingleWord() {
+        assertThat(StringUtil.initCap("word1"), equalTo("Word1"));
+    }
+
+    @Test
+    public void initCap_SingleWord_ForceLowercase() {
+        assertThat(StringUtil.initCap("woRD1", true), equalTo("Word1"));
+    }
+
+    @Test
+    public void initCap_TwoWords() {
+        assertThat(StringUtil.initCap("word1 word2"), equalTo("Word1 word2"));
+    }
+
+    @Test
+    public void initCap_TwoWords_ForceLowercase() {
+        assertThat(StringUtil.initCap("worD1 wOrd2", true), equalTo("Word1 word2"));
+    }
+
+    @Test
+    public void repeat_Null() {
+        assertThat(StringUtil.repeat(null, 1), nullValue());
+    }
+
+    @Test
+    public void repeat_ZeroTimes() {
+        assertThat(StringUtil.repeat("a", 0), equalTo(""));
+    }
+
+    @Test
+    public void repeat_Once() {
+        assertThat(StringUtil.repeat("a", 1), equalTo("a"));
+        assertThat(StringUtil.repeat("abc", 1), equalTo("abc"));
+    }
+
+    @Test
+    public void repeat_MultipleTimes() {
+        assertThat(StringUtil.repeat("a", 2), equalTo("aa"));
+        assertThat(StringUtil.repeat("a", 5), equalTo("aaaaa"));
+
+        assertThat(StringUtil.repeat("abc", 2), equalTo("abcabc"));
+        assertThat(StringUtil.repeat("abc", 5), equalTo("abcabcabcabcabc"));
+    }
+
 }

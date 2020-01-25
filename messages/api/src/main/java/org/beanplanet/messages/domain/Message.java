@@ -65,4 +65,73 @@ public interface Message {
      * @return the message parameters.
      */
     Object[] getMessageParameters();
+
+    static Builder builder() { return new Builder(); }
+
+    class Builder {
+        private String field;
+        private String code;
+        private String message;
+        private Object[] paremeters;
+
+        public String getField() {
+            return field;
+        }
+
+        public Builder field(String field) {
+            this.field = field;
+            return this;
+        }
+
+        public Message withField(String field) {
+            this.field = field;
+            return build();
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public Builder code(String code) {
+            this.code = code;
+            return this;
+        }
+
+        public Message withCode(String code) {
+            this.code = code;
+            return build();
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Message withMessage(String message) {
+            this.message = message;
+            return build();
+        }
+
+        public Object[] getParemeters() {
+            return paremeters;
+        }
+
+        public Builder parameters(Object ... paremeters) {
+            this.paremeters = paremeters;
+            return this;
+        }
+
+        public Message withParameters(Object ... paremeters) {
+            this.paremeters = paremeters;
+            return build();
+        }
+
+        public Message build() {
+            return new MessageImpl(field, code, message, paremeters);
+        }
+    }
 }

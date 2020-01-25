@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2018 Beanplanet Ltd
+ *  Copyright (C) 2019 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -26,7 +26,7 @@
 
 package org.beanplanet.messages.domain;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -377,6 +377,8 @@ public class MessagesImpl implements Messages {
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.reflectionToString(this);
+        {
+            return new PropertyBasedToStringBuilder(this).build();
+        }
     }
 }

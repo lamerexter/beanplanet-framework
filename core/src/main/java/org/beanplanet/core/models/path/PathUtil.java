@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2018 Beanplanet Ltd
+ *  Copyright (C) 2020 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -24,21 +24,33 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.util;
+package org.beanplanet.core.models.path;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Spliterators;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import static org.beanplanet.core.models.path.NamePath.EMPTY_NAME_PATH;
+import static org.beanplanet.core.models.path.Path.EMPTY_PATH;
 
-public class IteratorUtil {
-    public static <E> Stream<E> asStream(Iterator<E> iterator) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
+/**
+ * Path based utility class.
+ */
+public class PathUtil {
+    /**
+     * Returns the empty path.
+     *
+     * @return an empty path.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Path<T> emptyPath() {
+        return (Path<T>)EMPTY_PATH;
     }
 
-    public static <E> List<E> toList(Iterator<E> iterator) {
-        return asStream(iterator).collect(Collectors.toList());
+    /**
+     * Returns the empty name path.
+     *
+     * @return an empty name path.
+     */
+    @SuppressWarnings("unchecked")
+    public static NamePath emptyNamePath() {
+        return (NamePath)EMPTY_NAME_PATH;
     }
+
 }

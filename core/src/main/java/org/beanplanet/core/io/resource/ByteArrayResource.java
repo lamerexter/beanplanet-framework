@@ -28,6 +28,7 @@ package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.lang.Assert;
+import org.beanplanet.core.models.path.NamePath;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -160,6 +161,11 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
     @Override
     public boolean canWrite() {
         return byteArrayOutputStream != null;
+    }
+
+    @Override
+    public NamePath getNamePath() {
+        return null;
     }
 
     /**

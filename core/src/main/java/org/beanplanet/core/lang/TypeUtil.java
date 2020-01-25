@@ -313,7 +313,7 @@ public final class TypeUtil {
     public static <T> T instantiateClass(final Class<T> type, Object ctorArgVals[]) {
         try {
             return getCallableConstructor(type, ctorArgVals).orElseThrow(() -> new UncheckedException("Unable to instantiate class, type=\"" + type.getName()
-                                                                                                      + "\" - no suitable constructor found"))
+                                                                                                      + "\": no suitable constructor found"))
                                                             .newInstance(ctorArgVals);
         } catch (InstantiationException instantiateEx) {
             throw new UncheckedException("Unable to instantiate class, type=\"" + type.getName()
@@ -427,12 +427,16 @@ public final class TypeUtil {
                 });
     }
 
+    public static Stream<Constructor> streamConstructors(Class<?> clazz) {
+        return stream(clazz.getDeclaredConstructors());
+    }
+
     public static Stream<Method> streamMethods(Class<?> clazz) {
 
         return new TypeTree(Object.class, clazz)
                 .stream()
                 .map(TreeNode::getManagedObject)
-                .flatMap(c -> Arrays.stream(c.getDeclaredMethods()));
+                .flatMap(c -> stream(c.getDeclaredMethods()));
     }
 
     public static List<Method> findMethods(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> ... paramTypes) {

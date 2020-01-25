@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2018 Beanplanet Ltd
+ *  Copyright (C) 2020 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -24,14 +24,13 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.models;
+package org.beanplanet.core.io;
 
+import org.beanplanet.core.models.path.Path;
 import org.beanplanet.core.util.IterableUtil;
-import org.beanplanet.core.util.IteratorUtil;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.Iterator;
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -75,18 +74,17 @@ public class FilePath implements Path<File> {
     }
 
     @Override
-    public List<Path<File>> getPathElements() {
+    public List<File> getElements() {
         if (file == null) return emptyList();
 
         return IterableUtil.asStream(file.toPath())
                            .map(java.nio.file.Path::toFile)
-                           .map(FilePath::new)
                            .collect(Collectors.toList());
     }
 
     @Override
-    public Iterator<Path<File>> iterator() {
-        return getPathElements().iterator();
+    public org.beanplanet.core.models.path.Path<File> parentPath() {
+        return file == null || file.getParentFile() == null ? null : new FilePath(file.getParentFile());
     }
 
     @SuppressWarnings("unchecked")
@@ -113,12 +111,20 @@ public class FilePath implements Path<File> {
         return new FilePath(getFile().toPath().relativize(otherFilePath.getFile().toPath()).toFile());
     }
 
-    public static void main(String ... args) {
-        FilePath path1 = new FilePath("d:\\scratch\\daily");
-        FilePath path2 = new FilePath("a\\b");
+    @Override
+    public Path<File> resolve(Path<File> other) {
+        FilePath otherFilePath = (other instanceof  FilePath) ? (FilePath)other : new FilePath(other.toString());
+        return new FilePath(getFile().toPath().resolve(otherFilePath.getFile().toPath()).toFile());
+    }
 
-        System.out.println(path1.relativeTo(path2));
-        System.out.println(path2.relativeTo(path1));
+    @Override
+    public Path<File> join(Path<File> other) {
+        if (other == null || other.isEmpty()) return this;
+        return new FilePath(getFile().toPath().resolve(other.getElement().toPath()).toFile());
+    }
 
+    @Override
+    public URI toUri() {
+        return file == null ? null : file.toURI();
     }
 }

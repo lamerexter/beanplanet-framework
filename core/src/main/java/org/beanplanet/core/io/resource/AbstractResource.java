@@ -26,17 +26,17 @@
 package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.io.IoException;
-import org.beanplanet.core.io.Path;
+import org.beanplanet.core.models.path.NamePath;
+import org.beanplanet.core.models.path.Path;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
+import static org.beanplanet.core.models.path.PathUtil.emptyNamePath;
 
 /**
  * A base class for resource implementations, providing much of the basic common functionality between resource types.
@@ -109,7 +109,7 @@ public abstract class AbstractResource implements Resource {
      * @return always throws an {@link UnsupportedOperationException}.
      * @throws UnsupportedOperationException
      */
-    public  Path<Resource> getPath() throws UnsupportedOperationException {
+    public Path<Resource> getPath() throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
@@ -328,6 +328,16 @@ public abstract class AbstractResource implements Resource {
     @Override
     public Resource getParentResource() {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns the name-path to this resource. This implementation assumes this resource is not name-based and
+     * always returns the empty path.
+     *
+     * @return Always the empty resource in this default abstract implementation.
+     */
+    public NamePath getNamePath() {
+        return emptyNamePath();
     }
 
     /**

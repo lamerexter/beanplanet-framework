@@ -27,14 +27,20 @@
 package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.io.IoException;
-import org.beanplanet.core.io.Path;
+import org.beanplanet.core.models.path.NamePath;
+import org.beanplanet.core.models.path.Path;
+import org.beanplanet.core.net.UriBuilder;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.stream;
 
@@ -123,7 +129,7 @@ public class UriResource extends AbstractUriBasedResource implements UriCapableR
      *
      * <p>
      * If the {@code path} is an {@link Path#isAbsolute() absolute}
-     * path then this method simply returns a new resource with the given {@code path}. If {@code path}
+     * path then this method simply returns a the resource with the given {@code path}. If {@code path}
      * is an <i>empty path</i> then this method simply returns this resource.
      * Otherwise this method considers this resource to be a directory and resolves
      * the given path against this resource's path. In the simplest case, the given path
@@ -140,8 +146,47 @@ public class UriResource extends AbstractUriBasedResource implements UriCapableR
      * supported on this type of resource.
      */
     public Resource resolve(Path<Resource> path) {
+        if (path == null || path.isEmpty()) return this;
+
+        if (path.isAbsolute() || path.hasRoot()) {
+            return path.getElement();
+        }
+
+        // Assume this path represents a directory and join
+        final Path<String> parentNamePath = getNamePath().parentPath();
+        final Path<String> parentOrEmptyNamePath = parentNamePath == null ? NamePath.EMPTY_NAME_PATH : parentNamePath;
+        final List<String> parentPathElements = parentOrEmptyNamePath.stream().collect(Collectors.toList());
+        final List<String> otherPathElements = path.getElement().getNamePath().stream().collect(Collectors.toList());
+        final List<String> joinPath = new ArrayList<>(parentPathElements);
+        joinPath.addAll(otherPathElements);
+        return new UriResource(new UriBuilder(getUri())
+                                       .withPath(joinPath.stream().collect(Collectors.joining("/"))).toUri());
+    }
+
+    /**
+     * Resolve the given path relative to this resource.
+     *
+     * <p>
+     * If the {@code path} is an {@link org.beanplanet.core.models.path.Path#isAbsolute() absolute}
+     * path then this method simply returns a new resource with the given {@code path}. If {@code path}
+     * is an <i>empty path</i> then this method simply returns this resource.
+     * Otherwise this method considers this resource to be a directory and resolves
+     * the given path against this resource's path. In the simplest case, the given path
+     * does not have a {@link org.beanplanet.core.models.path.Path#getRoot root} component, in which case this method
+     * <em>joins</em> the given path to the path of this resource and returns a resulting resource with path
+     * that {@link String#endsWith(String)} the given path. Where the given path has
+     * a root component then resolution is highly implementation dependent and
+     * therefore unspecified.
+     * </p>
+     *
+     * @param path the path to be resolved against this resource.
+     * @return a new resource whose path is resolved relative to the path of this resource.
+     * @throws UnsupportedOperationException if this resource is not a path-based resource or if the operation is not
+     * supported on this type of resource.
+     */
+    public Path<Resource> relativeTo(Path<Resource> path) {
         Path<Resource> thisPath = getPath();
-        return thisPath == null ? null : thisPath.resolve(path).getElement();
+        return thisPath == null ? null : thisPath.relativeTo(path);
     }
 
 

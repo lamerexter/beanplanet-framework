@@ -38,4 +38,12 @@
     <name>Beanplanet -   Messages - Api</name>
     <description>Beanplanet Messages API Project</description>
     <artifactId>beanplanet-messages-api</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.beanplanet</groupId>
+            <artifactId>beanplanet-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

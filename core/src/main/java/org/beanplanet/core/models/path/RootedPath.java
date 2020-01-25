@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2018 Beanplanet Ltd
+ *  Copyright (C) 2019 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -24,21 +24,10 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.util;
+package org.beanplanet.core.models.path;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Spliterators;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-public class IteratorUtil {
-    public static <E> Stream<E> asStream(Iterator<E> iterator) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
-    }
-
-    public static <E> List<E> toList(Iterator<E> iterator) {
-        return asStream(iterator).collect(Collectors.toList());
-    }
+/**
+ * Represents a path of element of type T.
+ */
+public interface RootedPath<T> extends Path<T> {
 }

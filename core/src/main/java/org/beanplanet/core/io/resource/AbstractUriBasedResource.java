@@ -28,16 +28,19 @@ package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.UncheckedException;
 import org.beanplanet.core.io.IoException;
-import org.beanplanet.core.io.Path;
+import org.beanplanet.core.models.path.DelimitedNamePath;
+import org.beanplanet.core.models.path.NamePath;
+import org.beanplanet.core.models.path.Path;
 import org.beanplanet.core.net.UriBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import static org.beanplanet.core.util.StringUtil.isEmptyOrNull;
 
@@ -198,22 +201,31 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
         }
 
         @Override
-        public Path<Resource> getRoot() {
+        public Resource getRoot() {
             AbstractUriBasedResource rootResource = cloneUnchecked(resource);
             rootResource.setUri(URI.create("/"));
 
-            // TODO: Implement!
-            return null; //(Resource)rootResource;
+            return rootResource;
         }
 
         @Override
-        public List<Path<Resource>> getPathElements() {
+        public boolean hasRoot() {
+            return resource != null && resource.isAbsolute();
+        }
+
+        @Override
+        public Resource getElement() {
+            return resource;
+        }
+
+        @Override
+        public List<Resource> getElements() {
             if (resource.getUri() == null || resource.getUri().getPath() == null) return Collections.emptyList();
 
             String uriPath = resource.getUri().getPath();
             if ( isEmptyOrNull(uriPath)) return Collections.emptyList();
 
-            ArrayList<Path<Resource>> pathResources = new ArrayList<>();
+            List<Resource> pathResources = new ArrayList<>();
             int fromIdx = 0, toIdx;
             while (fromIdx < uriPath.length()) {
                 toIdx = uriPath.indexOf("/", fromIdx+1);
@@ -221,7 +233,7 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
 
                 AbstractUriBasedResource pathResource = cloneUnchecked(resource);
                 pathResource.setUri(URI.create(uriPath.substring(0, (toIdx > 0 ? toIdx : uriPath.length()))));
-                pathResources.add(new UriResourcePath(pathResource));
+                pathResources.add(pathResource);
 
                 fromIdx = toIdx+1;
             }
@@ -230,49 +242,9 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
         }
 
         @Override
-        public Resource getRootElement() {
-            return resource != null && resource.getUri() != null ? new UriResource(resource.getUri()) : null;
+        public Path<Resource> parentPath() {
+            return null;
         }
-        @Override
-        public Resource getElement() {
-            return resource;
-        }
-
-        @Override
-        public String getNameSeparator() {
-            return "/";
-        }
-
-        @Override
-        public List<String> getNameElements() {
-            if (resource.getUri() == null || resource.getUri().getPath() == null) return Collections.emptyList();
-
-            String uriPath = resource.getUri().getPath();
-            if ( isEmptyOrNull(uriPath)) return Collections.emptyList();
-
-            if (uriPath.startsWith("/")) {
-                uriPath = uriPath.substring(1);
-            }
-
-            ArrayList<String> pathNameElements = new ArrayList<>();
-            int fromIdx = 0, toIdx;
-            while (fromIdx < uriPath.length()) {
-                toIdx = uriPath.indexOf("/", fromIdx+1);
-                if (toIdx < 0) toIdx = uriPath.length();
-
-                pathNameElements.add(uriPath.substring(fromIdx, (toIdx > 0 ? toIdx : uriPath.length())));
-
-                fromIdx = toIdx+1;
-            }
-
-            return pathNameElements;
-        }
-
-
-
-
-
-
 
         @Override
         public Path<Resource> normalise() {
@@ -281,6 +253,11 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
 
         @Override
         public Path<Resource> relativeTo(Path<Resource> other) {
+            return null;
+        }
+
+        @Override
+        public Path<Resource> resolve(Path<Resource> other) {
             return null;
         }
 
@@ -295,30 +272,29 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
             } else {
                 UriResource otherResource = new UriResource(otherUri);
 
-                List<String> pathNameElements = getNameElements();
-                List<String> otherPathNameElements = otherResource.getPath().getNameElements();
+                List<String> pathNameElements = resource.getNamePath().getElements();
+                List<String> otherPathNameElements = otherResource.getNamePath().getElements();
                 StringBuilder combinedUriPath = new StringBuilder();
                 boolean thisHasRootPath = resource.getUri().getPath() != null && resource.getUri().getPath().startsWith("/");
                 for (int n=0; n < pathNameElements.size()-1; n++) {
                     combinedUriPath.append(combinedUriPath.length() > 0 ? "/" : "").append(pathNameElements.get(n));
                 }
                 for (int n=0; n < otherPathNameElements.size(); n++) {
-                    combinedUriPath.append(combinedUriPath.length() > 0 ? "/" : "").append(otherResource.getPath().getNameElements().get(n));
+                    combinedUriPath.append(combinedUriPath.length() > 0 ? "/" : "").append(otherResource.getNamePath().getElements().get(n));
                 }
                 uriBuilder.setPath((thisHasRootPath || (pathNameElements.isEmpty() && !otherPathNameElements.isEmpty()) ? "/" : "") + combinedUriPath.toString());
             }
 
             return new UriResource(uriBuilder.toUri()).getPath();
         }
+    }
 
-        /**
-         * Returns an iterator over elements of type {@code T}.
-         *
-         * @return an Iterator.
-         */
-        @Override
-        public Iterator<Path<Resource>> iterator() {
-            return getPathElements().iterator();
-        }
+    /**
+     * Returns the name-path to this URI resource. For a URI, the name-path is simple the URI path, if present.
+     *
+     * @return Always the empty resource in this default abstract implementation.
+     */
+    public NamePath getNamePath() {
+        return new DelimitedNamePath(() -> getUri().getPath(), () -> "/");
     }
 }

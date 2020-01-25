@@ -46,6 +46,39 @@ import static org.beanplanet.core.Predicates.truePredicate;
  * A static utility class containing string-based operations.
  */
 public class StringUtil {
+    /**
+     * Returns the specified string with the first letter capitalised.
+     *
+     * @param str the string whose first character is to be converted to upper case
+     * @return the string specified, but with th first character capitalised, or null if the string specified was null.
+     */
+    public static String initCap(String str) {
+        return initCap(str, false);
+    }
+
+    /**
+     * Returns the specified string with the first letter capitalised.
+     *
+     * @param str the string whose first character is to be converted to upper case
+     * @param forceLowercase true if the rest of the string is to be converted to lowercase, or false to leave the rest
+     *        as is
+     * @return the string specified, but with th first character capitalised, or null if the string specified was null.
+     */
+    public static String initCap(String str, boolean forceLowercase) {
+        if (str == null) {
+            return null;
+        }
+        if (str.length() == 0) {
+            return str;
+        }
+        if (str.length() == 1) {
+            return str.toUpperCase();
+        }
+
+        return str.substring(0, 1).toUpperCase()
+               + (forceLowercase ? str.substring(1).toLowerCase() : str.substring(1));
+    }
+
     public static final boolean isEmptyOrNull(String str) {
         return str == null || str.trim().isEmpty();
     }
@@ -62,6 +95,27 @@ public class StringUtil {
      */
     public static final String emptyString() {
         return "";
+    }
+
+    /**
+     * Repeats a character sequence a specified number of times.
+     *
+     * @param characterSequence the character sequence to be repeated.
+     * @param times the number of times the character sequence is to be repeated or concatenated.
+     * @return a string containing the given character sequence repeated the specified number of times or null
+     * if the character sequence was null.
+     */
+    public static final String repeat(CharSequence characterSequence, int times) {
+        if (characterSequence == null) {
+            return null;
+        }
+
+        StringBuilder s = new StringBuilder();
+        for (int n=0; n < times; n++) {
+            s.append(characterSequence);
+        }
+
+        return s.toString();
     }
 
     /**

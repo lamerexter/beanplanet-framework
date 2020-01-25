@@ -25,10 +25,12 @@
  */
 package org.beanplanet.core.lang.conversion;
 
+import java.util.Optional;
+
 public interface TypeConverterRegistry {
    void addConverter(Class<?> fromType, Class<?> toType, TypeConverter converter);
    void addConverter(TypeConverter converter);
-   TypeConverter lookup(Class<?> fromType, Class<?> toType);
+   Optional<TypeConverter> lookup(Class<?> fromType, Class<?> toType);
    
    int size();
    void clear();

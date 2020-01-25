@@ -26,6 +26,7 @@
 package org.beanplanet.core.lang.conversion;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -64,7 +65,7 @@ public abstract class AbstractTypeConverterRegistry implements TypeConverterRegi
       addConverter(Object.class, Object.class, converter);
    }
 
-   public TypeConverter lookup(Class<?> fromType, Class<?> toType) {
+   public Optional<TypeConverter> lookup(Class<?> fromType, Class<?> toType) {
       TypeConverter matchingConverter = null;
 
       Map<Class<?>, CompositeTypeConverter> sourceConvertersForTarget = converters.get(toType);
@@ -72,7 +73,7 @@ public abstract class AbstractTypeConverterRegistry implements TypeConverterRegi
          matchingConverter = sourceConvertersForTarget.get(fromType);
       }
 
-      return matchingConverter;
+      return Optional.ofNullable(matchingConverter);
    }
 
    public int size() {

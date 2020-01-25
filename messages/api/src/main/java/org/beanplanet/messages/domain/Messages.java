@@ -162,7 +162,7 @@ public interface Messages {
 
 
     /**
-     * Whether there is an error similar to the one specified.  Inoring thr rendered message, matching occurs against any
+     * Whether there is an error similar to the one specified.  Ignoring thr rendered message, matching occurs against any
      * non-null value in the message specified for field mame, code, parameterised message and message parameters.
      *
      * @param prototype the message whose properties are to be used to determine if this message container has a similar
@@ -179,6 +179,18 @@ public interface Messages {
                 && (prototype.getParameterisedMessage() == null || Objects.equals(prototype.getParameterisedMessage(), error.getParameterisedMessage()))
                 && (prototype.getMessageParameters() == null
                     || Arrays.equals(prototype.getMessageParameters(), error.getMessageParameters())));
+    }
+
+    /**
+     * Whether there is an error present with the code specified.
+     *
+     * @param code the code of the error message to find.
+     * @return true if there exists an error message with the given code, false otherwise.
+     */
+    default boolean hasErrorWithCode(String code) {
+        if ( !hasErrors() ) return false;
+
+        return getErrors().stream().anyMatch(error -> Objects.equals(code, error.getCode()));
     }
 
     /**

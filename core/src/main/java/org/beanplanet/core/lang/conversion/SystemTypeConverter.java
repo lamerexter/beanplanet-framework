@@ -214,11 +214,21 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
     @Override
     public <T> T convert(Object value, Class<T> targetType) throws UnsupportedTypeConversionException {
         checkLoaded();
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Pass through null values
+        //--------------------------------------------------------------------------------------------------------------
         if (value == null) return null;
 
+        //--------------------------------------------------------------------------------------------------------------
+        // If source type is already of the target type then return it immediately
+        //--------------------------------------------------------------------------------------------------------------
         if (targetType.isAssignableFrom(value.getClass())) return (T)value;
 
-        throw new UnsupportedTypeConversionException();
+        //--------------------------------------------------------------------------------------------------------------
+        // Attempt to find a corresponding converter in the registry
+        //--------------------------------------------------------------------------------------------------------------
+        return lookup(value.getClass(), targetType).orElseThrow(() -> new UnsupportedTypeConversionException()).convert(value, targetType);
     }
 
     public static void main(String ... args) {
