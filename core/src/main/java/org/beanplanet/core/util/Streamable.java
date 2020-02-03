@@ -24,14 +24,13 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.models.path;
+package org.beanplanet.core.util;
 
-import org.beanplanet.core.util.StringUtil;
+import java.util.stream.Stream;
 
-public interface NamePath extends Path<String> {
-    NamePath EMPTY_NAME_PATH = new DelimitedNamePath("", "");
-
-    default String join(String delimiter) {
-        return StringUtil.asDelimitedString(getElements(), delimiter);
-    }
+/**
+ * Something which can be streamed as a number of elements.
+ */
+public interface Streamable<T> {
+    Stream<T> stream();
 }

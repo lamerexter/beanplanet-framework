@@ -27,6 +27,7 @@
 package org.beanplanet.core.models.path;
 
 import org.beanplanet.core.util.IterableUtil;
+import org.beanplanet.core.util.Streamable;
 
 import java.net.URI;
 import java.util.Collections;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
 /**
  * Represents a simple path of element of type T.
  */
-public interface Path<T> extends Iterable<T> {
+public interface Path<T> extends Iterable<T>, Streamable<T> {
     Path<?> EMPTY_PATH = new Path<Object>() {
         @Override
         public Iterator<Object> iterator() {
@@ -176,7 +177,7 @@ public interface Path<T> extends Iterable<T> {
      * @return a stream of the elements which comprise this path.
      */
     default Stream<T> stream() {
-        return IterableUtil.asStream(this);
+        return getElements().stream();
     }
 
     /**

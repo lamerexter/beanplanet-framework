@@ -26,52 +26,37 @@
 
 package org.beanplanet.core.models.path;
 
-import org.beanplanet.core.util.StringUtil;
-
 import java.net.URI;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static org.beanplanet.core.util.StringUtil.asDsvList;
-import static org.beanplanet.core.util.StringUtil.isEmptyOrNull;
 
 /**
- * A simple name-path implementation where the name elements are string delimited. By default
+ * A simple name-path implementation where the name elements are supplied. By default
  * this path implementation is never absolute and does not have any root.
   */
-public class DelimitedNamePath implements NamePath {
-    private final Supplier<String> path;
-    private final Supplier<String> delimiter;
+public class SimpleNamePath implements NamePath {
+    private final Supplier<List<String>> elementsSupplier;
 
-    public DelimitedNamePath(String path, String delimiter) {
-        this(() -> path, () -> delimiter);
+    public SimpleNamePath(List<String> elements) {
+        this(() -> elements);
     }
 
-    public DelimitedNamePath(Supplier<String> path, Supplier<String> delimiter) {
-        this.path = path;
-        this.delimiter = delimiter;
+    public SimpleNamePath(Supplier<List<String>> elementsSupplier) {
+        this.elementsSupplier = elementsSupplier;
     }
 
     @Override
     public List<String> getElements() {
-        String pathString = path.get();
-        String delimiterString = delimiter.get();
-        if (StringUtil.isEmptyOrNull(pathString) || isEmptyOrNull(delimiterString)) return Collections.emptyList();
-
-        return asDsvList(path.get(), delimiter.get());
+        return elementsSupplier.get();
     }
 
     @Override
     public Path<String> parentPath() {
-        String pathString = path.get();
-        String delimiterString = delimiter.get();
-        if (StringUtil.isEmptyOrNull(pathString) || isEmptyOrNull(delimiterString)) return null;
+        final List<String> elements = getElements();
 
-        int lastDelimIndex = pathString.lastIndexOf(delimiterString);
-        return lastDelimIndex < 0 ? null : new DelimitedNamePath(() -> pathString.substring(0, lastDelimIndex), delimiter);
+        return elements.size() < 2  ? null : new SimpleNamePath(() -> elements.subList(0, elements.size()-1));
     }
 
     @Override
@@ -117,18 +102,16 @@ public class DelimitedNamePath implements NamePath {
     public Path<String> join(Path<String> other) {
         if ( other == null ) return this;
 
-        return new DelimitedNamePath(() -> {
-            final StringBuilder s = new StringBuilder();
-            final String thisPathString = path.get();
-            final String delimiterString = delimiter.get();
-            final String otherPathString = path.get() + other.getElements().stream().collect(Collectors.joining(delimiter.get()));
-            if (thisPathString != null)
-                s.append(thisPathString);
-            if (otherPathString != null)
-                s.append(delimiterString).append(otherPathString);
+        return new SimpleNamePath(() -> {
+            final List<String> thisElements = getElements();
+            final List<String> otherElements = other.getElements();
 
-            return s.toString();
-        }, delimiter);
+            final List<String> allElements = new ArrayList<>(thisElements.size()+otherElements.size());
+            allElements.addAll(thisElements);
+            allElements.addAll(otherElements);
+
+            return allElements;
+        });
     }
 
     @Override

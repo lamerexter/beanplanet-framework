@@ -26,8 +26,6 @@
 
 package org.beanplanet.core.util;
 
-import org.beanplanet.core.lang.Assert;
-
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -41,6 +39,7 @@ import java.util.stream.Stream;
 import static org.beanplanet.core.Functions.toStringFunction;
 import static org.beanplanet.core.Predicates.trueBiPredicate;
 import static org.beanplanet.core.Predicates.truePredicate;
+import static org.beanplanet.core.util.IterableUtil.asStream;
 
 /**
  * A static utility class containing string-based operations.
@@ -521,6 +520,68 @@ public class StringUtil {
         if (collection == null) return null;
 
         return asDelimitedString(collection.stream(), delimiter);
+    }
+
+    /**
+     * Returns a string consisting of the elements of a {@link Streamable} delimited with a given delimiter.
+     *
+     * @param streamable the streamable of objects to be delimited, which may be null.
+     * @param delimiter the delimiter to apply between adjacent elements from the stream.
+     * @return null if the given stream is null, otherwise a string of the stream elements, filtered and transformed.
+     */
+    public static <T> String asDelimitedString(Streamable<T> streamable, String delimiter) {
+        if (streamable == null) return null;
+
+        return asDelimitedString(streamable.stream(), delimiter);
+    }
+
+    /**
+     * Returns a string consisting of the elements of a {@link Streamable} delimited with a given delimiter.  Before being included,
+     * elements are optionally filtered by a given predicate.  Once the decision to include an element has been made, the
+     * element may be optionally transformed by a given transformation function.
+     *
+     * @param streamable the iterable of objects to be delimited, which may be null.
+     * @param filter a predicate to determine whether an element should be included, which may be null.
+     * @param delimiter the delimiter to apply between adjacent elements from the stream.
+     * @param transformer a transformation function to apply to an stream element before its inclusion in the delimited
+     *                    string, which may be null.
+     * @return null if the given stream is null, otherwise a string of the stream elements, filtered and transformed.
+     */
+    public static <T> String asDelimitedString(Streamable<T> streamable, Predicate<T> filter, String delimiter, Function<T, String> transformer) {
+        if (streamable == null) return null;
+
+        return asDelimitedString(streamable.stream(), filter, delimiter, transformer);
+    }
+
+    /**
+     * Returns a string consisting of the elements of an iterable delimited with a given delimiter.
+     *
+     * @param iterable the iterable of objects to be delimited, which may be null.
+     * @param delimiter the delimiter to apply between adjacent elements from the stream.
+     * @return null if the given stream is null, otherwise a string of the stream elements, filtered and transformed.
+     */
+    public static <T> String asDelimitedString(Iterable<T> iterable, String delimiter) {
+        if (iterable == null) return null;
+
+        return asDelimitedString(asStream(iterable), delimiter);
+    }
+
+    /**
+     * Returns a string consisting of the elements of an iterable delimited with a given delimiter.  Before being included,
+     * elements are optionally filtered by a given predicate.  Once the decision to include an element has been made, the
+     * element may be optionally transformed by a given transformation function.
+     *
+     * @param iterable the iterable of objects to be delimited, which may be null.
+     * @param filter a predicate to determine whether an element should be included, which may be null.
+     * @param delimiter the delimiter to apply between adjacent elements from the stream.
+     * @param transformer a transformation function to apply to an stream element before its inclusion in the delimited
+     *                    string, which may be null.
+     * @return null if the given stream is null, otherwise a string of the stream elements, filtered and transformed.
+     */
+    public static <T> String asDelimitedString(Iterable<T> iterable, Predicate<T> filter, String delimiter, Function<T, String> transformer) {
+        if (iterable == null) return null;
+
+        return asDelimitedString(asStream(iterable), filter, delimiter, transformer);
     }
 
     /**
