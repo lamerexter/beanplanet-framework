@@ -28,12 +28,10 @@ package org.beanplanet.core.util;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.CombinableMatcher.both;
+import static org.junit.Assert.assertThat;
 
 /**
  * Unit tests for {@link ArrayUtil}.
@@ -55,8 +53,18 @@ public class ArrayUtilTest {
 
     @Test
     public void emptyArray() {
-        String[] emptyArray = ArrayUtil.emptyArray(String.class);
+        String[] emptyArray = (String[])ArrayUtil.emptyArray(String.class);
         assertThat(emptyArray, notNullValue());
         assertThat(emptyArray.length, equalTo(0));
+    }
+
+    @Test
+    public void emptyArrayDimensions() {
+        Object emptyArray = ArrayUtil.emptyArray(String.class, 2);
+        assertThat(emptyArray, notNullValue());
+        assertThat(emptyArray, instanceOf(String[][].class));
+
+        String[][] empty2Array = (String[][])emptyArray;
+        assertThat(empty2Array.length, equalTo(0));
     }
 }

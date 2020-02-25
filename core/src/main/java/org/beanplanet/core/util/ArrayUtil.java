@@ -26,27 +26,12 @@
 
 package org.beanplanet.core.util;
 
-import org.beanplanet.core.lang.TypeUtil;
-
 import java.lang.reflect.Array;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ArrayUtil {
-    private static final Map<Class<?>, Object[]> TYPE_TO_EMPTY_ARRAY = Collections.synchronizedMap(new TreeMap<>(
-            (Comparator<Class<?>>) (o1, o2) -> {
-                if (o1 == o2) return 0;
-                if (o1 == null) return -1;
-                if (o2 == null) return 1;
-
-                return TypeUtil.getBaseName(o1).compareTo(TypeUtil.getBaseName(o2));
-            }
-    ));
-
-    public static final Object[] EMPTY_ARRAY = new Object[0];
-
     /**
      * Determines whether a given array is null or empty.
      *
@@ -67,17 +52,37 @@ public class ArrayUtil {
      */
     @SuppressWarnings("unchecked")
     public static final <T> T[] nullSafe(Class<T> componentType, T[] array) {
-        return array != null ? array : ArrayUtil.emptyArray(componentType);
+        return array != null ? array : (T[])ArrayUtil.emptyArray(componentType);
     }
 
     /**
      * Returns an empty array of the component type inferred from the LHS context.
      *
-     * @param <T> the component type of the empty array to be returned.
+     * @param componentType the component type of the empty array to be returned.
      * @return an empty array of the component type inferred.
      */
     @SuppressWarnings("unchecked")
-    public static final <T> T[] emptyArray(Class<T> componentType) {
-        return (T[])TYPE_TO_EMPTY_ARRAY.computeIfAbsent(componentType, ct -> (T[])Array.newInstance(ct, 0));
+    public static final Object emptyArray(Class<?> componentType) {
+        return Array.newInstance(componentType, 0);
+    }
+
+    /**
+     * Returns an empty array of a given number of dimensions of the component type inferred from the LHS context.
+     *
+     * @param componentType the component type of the empty array to be returned.
+     * @return an empty array of the component type inferred.
+     */
+    @SuppressWarnings("unchecked")
+    public static final Object emptyArray(Class<?> componentType, int dimensions) {
+        Object targetArray = emptyArray(componentType);
+        for (int n=1; n < dimensions; n++) {
+            targetArray = emptyArray(targetArray.getClass());
+        }
+
+        return targetArray;
+    }
+
+    public static <T> List<T> asListOfNotNull(T ... notNullItem ) {
+        return Arrays.asList(notNullItem).stream().filter(e -> e != null).collect(Collectors.toList());
     }
 }

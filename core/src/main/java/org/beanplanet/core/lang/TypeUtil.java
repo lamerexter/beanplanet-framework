@@ -244,13 +244,13 @@ public final class TypeUtil {
 
         try {
             clazz = Class.forName(className, initialiseClass, classLoader);
-        } catch (java.lang.ClassNotFoundException cnfEx) {
+        } catch (java.lang.ClassNotFoundException | NoClassDefFoundError cnfEx) {
             // XClass not found under calling context, try the current threads
             // classloader, if any
             if (Thread.currentThread().getContextClassLoader() != null && Thread.currentThread().getContextClassLoader() != classLoader) {
                 try {
                     clazz = Class.forName(className, initialiseClass, Thread.currentThread().getContextClassLoader());
-                } catch (java.lang.ClassNotFoundException cnfThreadEx) {
+                } catch (java.lang.ClassNotFoundException | NoClassDefFoundError cnfThreadEx) {
                     throw new TypeNotFoundException("The given class ["+className+"] was not found: ", cnfEx);
                 }
             }
@@ -323,6 +323,10 @@ public final class TypeUtil {
         } catch (InvocationTargetException invocationEx) {
             throw new UncheckedException("Unable to instantiate class, \"" + type.getName() + "\" - the constructor threw an exception: ", invocationEx);
         }
+    }
+
+    public static boolean isPrimitiveType(String typeName) {
+        return NAME_TO_PRIMITIVE_CLASS.containsKey(typeName);
     }
 
     public static boolean isPrimitiveType(Class<?> clazz) {
@@ -421,7 +425,11 @@ public final class TypeUtil {
                 .filter(m -> m.getParameterCount() == (paramTypes == null ? 0 : paramTypes.length))
                 .filter(m -> {
                     for (int n=0; n < paramTypes.length; n++) {
-                        if ( paramTypes[n] != null && !m.getParameterTypes()[n].isAssignableFrom(paramTypes[n]) ) return false;
+                        if ( paramTypes[n] != null
+                             && !(m.getParameterTypes()[n].isAssignableFrom(paramTypes[n])
+                                   || (m.getParameterTypes()[n] instanceof Class && paramTypes[n] instanceof Class)) ) {
+                            return false;
+                        }
                     }
                     return true;
                 });
@@ -444,7 +452,7 @@ public final class TypeUtil {
         return streamMethods(modifiers, name, clazz, returnType, paramTypes).collect(Collectors.toList());
     }
 
-    public static Optional<Method> findMethod(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> paramTypes[]) {
+    public static Optional<Method> findMethod(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> ... paramTypes) {
 
         return streamMethods(modifiers, name, clazz, returnType, paramTypes).findFirst();
     }
