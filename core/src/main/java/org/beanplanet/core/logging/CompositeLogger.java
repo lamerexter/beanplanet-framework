@@ -100,15 +100,17 @@ public class CompositeLogger implements Logger {
    /**
     * Logs a {@link Severity#DEBUG} message with the given parameters
     *
+    * @param severity the sevrity of the message to log (see {@link Severity}).
+    * @param cause a cause associated with the message to log, which may be null if there is none.
     * @param message a message to log.
     * @param args arguments to the log message.
     */
-   public void log(Severity severity, String message, Object ... args) {
+   public void log(Severity severity, Throwable cause, String message, Object ... args) {
       if (loggers == null) return;
 
       synchronized (loggers) {
          for (Logger logger : loggers) {
-            logger.log(severity, message, args);
+            logger.log(severity, cause, message, args);
          }
       }
    }

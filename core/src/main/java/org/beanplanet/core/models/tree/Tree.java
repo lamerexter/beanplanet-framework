@@ -26,6 +26,7 @@
 package org.beanplanet.core.models.tree;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.Stream;
@@ -226,6 +227,18 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable 
 
     default TreeIterator<E> postorderIterator() {
         return new PostorderIterator<E>(this);
+    }
+
+    default Iterable<E> preorderIterable() {
+        return this::preorderIterator;
+    }
+
+    default Iterable<E> inorderIterable() {
+        return this::inorderIterator;
+    }
+
+    default Iterable<E> postorderIterable() {
+        return this::postorderIterator;
     }
 
     /**

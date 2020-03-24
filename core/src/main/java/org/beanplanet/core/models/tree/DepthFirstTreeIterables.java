@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2018 Beanplanet Ltd
+ *  Copyright (C) 2020 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -26,19 +26,8 @@
 
 package org.beanplanet.core.models.tree;
 
-import java.util.ListIterator;
-
-/**
- * Defines all of the iterator operations over a tree model.
- */
-public interface TreeIterators<E> extends Iterable<E>, DepthFirstTreeIterators<E>, DepthFirstTreeIterables<E> {
-    /**
-     * Returns an iterator over the children of the specified parent node. Optionally, the iterator backs the
-     * children and modifications to the iterator, such as <code>{@link ListIterator#add(Object)}</code> or
-     * <code>{@link ListIterator#set(Object)}</code>, affect the children of the given node.
-     *
-     * @param parent the parent whose child iterator is to be returned.
-     * @return an iterator over the children of the specified parent node; empty if the parent has no children.
-     */
-    TreeIterator<E> childIterator(E parent);
+public interface DepthFirstTreeIterables<E> {
+    Iterable<E> preorderIterable();
+    Iterable<E> inorderIterable();
+    Iterable<E> postorderIterable();
 }

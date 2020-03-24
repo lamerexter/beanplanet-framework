@@ -244,7 +244,7 @@ public interface Logger {
      * @param args arguments to the log message.
      */
     default void log(Severity severity, String message, Object ... args) {
-        getLogger().log(severity, message, args);
+        log(severity, null, message, args);;
     }
 
     /**

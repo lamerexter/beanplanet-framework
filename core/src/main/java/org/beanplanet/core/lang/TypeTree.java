@@ -62,6 +62,16 @@ public class TypeTree extends TreeNodeTree<Class<?>> {
         Class<?> modelRoot = generalType;
         TreeNode<Class<?>> fromTreeNode = createTreeNodeForType(fromNode);
 
+        // Cater for specific case where Object is required in tree (generalType == null) and the specific type
+        // is an interface.
+        if (generalType == null && specificType != null && specificType.isInterface()) {
+            fromNode = Object.class;
+            TreeNode<Class<?>> parentTreeNode = createTreeNodeForType(fromNode);
+            fromTreeNode.setParent(parentTreeNode);
+            parentTreeNode.setChildren(singletonList(fromTreeNode));
+            fromTreeNode = parentTreeNode;
+        }
+
         while (fromNode.getSuperclass() != null && fromNode != modelRoot){
             fromNode = fromNode.getSuperclass();
             TreeNode<Class<?>> parentTreeNode = createTreeNodeForType(fromNode);
