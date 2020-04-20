@@ -26,18 +26,13 @@
 
 package org.beanplanet.core.lang;
 
-import org.beanplanet.core.models.tree.SwingTreeModelAdapter;
 import org.beanplanet.core.models.tree.TreeNode;
 import org.beanplanet.core.models.tree.TreeNodeTree;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.IntFunction;
+import java.util.List;
 
-import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 
 public class TypeTree extends TreeNodeTree<Class<?>> {
@@ -66,51 +61,39 @@ public class TypeTree extends TreeNodeTree<Class<?>> {
         // is an interface.
         if (generalType == null && specificType != null && specificType.isInterface()) {
             fromNode = Object.class;
-            TreeNode<Class<?>> parentTreeNode = createTreeNodeForType(fromNode);
+            TreeNode<Class<?>> parentTreeNode = createTreeNodeForType(fromTreeNode, fromNode);
             fromTreeNode.setParent(parentTreeNode);
-            parentTreeNode.setChildren(singletonList(fromTreeNode));
             fromTreeNode = parentTreeNode;
         }
 
         while (fromNode.getSuperclass() != null && fromNode != modelRoot){
             fromNode = fromNode.getSuperclass();
-            TreeNode<Class<?>> parentTreeNode = createTreeNodeForType(fromNode);
+            TreeNode<Class<?>> parentTreeNode = createTreeNodeForType(fromTreeNode, fromNode);
             fromTreeNode.setParent(parentTreeNode);
-            parentTreeNode.setChildren(singletonList(fromTreeNode));
             fromTreeNode = parentTreeNode;
         }
 
         return fromTreeNode;
     }
 
-    private static final TreeNode<Class<?>> createTreeNodeForType(Class<?> type) {
+    @SuppressWarnings("unchecked")
+    private static final TreeNode<Class<?>> createTreeNodeForType(final TreeNode<Class<?>> concreteChildNode, final Class<?> type) {
+        List<TreeNode<Class<?>>> concreteAndAbstractChildren = new ArrayList<>();
+        if (concreteChildNode != null) {
+            concreteAndAbstractChildren.add(concreteChildNode);
+        }
+
         //--------------------------------------------------------------------------------------------------------------
         // Add interfaces directly implemented by this type
         //--------------------------------------------------------------------------------------------------------------
-        TreeNode<Class<?>> interfaceChildrenNodes[] =
-                Arrays.stream(type.getInterfaces())
-                      .map(TypeTree::createTreeNodeForType)
-                      .toArray((IntFunction<TreeNode<Class<?>>[]>) TreeNode[]::new);
+        Arrays.stream(type.getInterfaces())
+              .map(TypeTree::createTreeNodeForType)
+              .forEach(concreteAndAbstractChildren::add);
 
-        return new TreeNode<>(type, interfaceChildrenNodes);
+        return new TreeNode<>(type, (TreeNode[])concreteAndAbstractChildren.toArray(new TreeNode[concreteAndAbstractChildren.size()]));
     }
 
-    public static void main(String args[]) throws Exception
-    {
-        JFrame frame = new JFrame("Type Tree");
-        frame.addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent e)
-            {
-                System.exit(0);
-            }
-        });
-
-        JTree tree = new JTree(new SwingTreeModelAdapter(TypeTree.typeTreeFor(TypeUtil.loadClass(args[0]))));
-        JScrollPane scroller = new JScrollPane(tree);
-        frame.getContentPane().add(scroller, BorderLayout.CENTER);
-        frame.setSize(800, 600);
-        frame.setVisible(true);
+    private static final TreeNode<Class<?>> createTreeNodeForType(Class<?> type) {
+        return createTreeNodeForType(null, type);
     }
-
 }

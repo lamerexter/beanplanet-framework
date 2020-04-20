@@ -276,6 +276,21 @@ public class MessagesImpl implements Messages {
     }
 
     /**
+     * Add an error with the supplied cause, code and message text, and arguments that will be injected into
+     * the message text in accordance with {@link java.text.MessageFormat} usage.
+     *
+     * @param cause                the cause of the message.
+     * @param code                 the code of the message.
+     * @param parameterisedMessage the text of the message.
+     * @param messageParameters    parameters to be interpolated in the message text.
+     * @return this container, to allow method chaining.
+     */
+    @Override
+    public Messages addError(Throwable cause, String code, String parameterisedMessage, Object... messageParameters) {
+        return addError(globalMessage(cause, null, code, parameterisedMessage, messageParameters));
+    }
+
+    /**
      * Add an error for a field, with the supplied code and message text.
      *
      * @param field                the field to which the error applies.

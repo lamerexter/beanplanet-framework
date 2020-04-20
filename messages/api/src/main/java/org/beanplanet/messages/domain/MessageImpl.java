@@ -38,6 +38,17 @@ import java.util.Objects;
 public class MessageImpl implements Message {
 
     /**
+     * The object associated with the message, which may be null.
+     */
+    private Object relatedObject;
+
+    /**
+     * A possible cause of this message.
+     */
+    private Throwable cause;
+
+
+    /**
      * The field to which this message applies.  May be left unset for a general message.
      */
     private String field;
@@ -76,7 +87,32 @@ public class MessageImpl implements Message {
      * @param messageParameters    arguments to be injected into any placeholders in the message text.
      */
     public static final MessageImpl globalMessage(String code, String parameterisedMessage, Object... messageParameters) {
-        return new MessageImpl(null, code, parameterisedMessage, messageParameters);
+        return globalMessage(null, code, parameterisedMessage, messageParameters);
+    }
+
+    /**
+     * Static factory method to conveniently create a global message.
+     *
+     * @param relatedObject        the object associated with the message, which may be null.
+     * @param code                 the canonical code of this message.
+     * @param parameterisedMessage the text of this message, with placeholders for supplied parameters.
+     * @param messageParameters    arguments to be injected into any placeholders in the message text.
+     */
+    public static final MessageImpl globalMessage(Object relatedObject, String code, String parameterisedMessage, Object... messageParameters) {
+        return globalMessage(null, relatedObject, code, parameterisedMessage, messageParameters);
+    }
+
+    /**
+     * Static factory method to conveniently create a global message.
+     *
+     * @param cause                a related cause of this message, which may be null.
+     * @param relatedObject        the object associated with the message, which may be null.
+     * @param code                 the canonical code of this message.
+     * @param parameterisedMessage the text of this message, with placeholders for supplied parameters.
+     * @param messageParameters    arguments to be injected into any placeholders in the message text.
+     */
+    public static final MessageImpl globalMessage(Throwable cause, Object relatedObject, String code, String parameterisedMessage, Object... messageParameters) {
+        return new MessageImpl(cause, relatedObject, null, code, parameterisedMessage, messageParameters);
     }
 
     /**
@@ -99,7 +135,34 @@ public class MessageImpl implements Message {
      * @param messageParameters    arguments to be injected into any placeholders in the message text.
      */
     public static final MessageImpl fieldMessage(String field, String code, String parameterisedMessage, Object... messageParameters) {
-        return new MessageImpl(field, code, parameterisedMessage, messageParameters);
+        return fieldMessage(null, null, field, code, parameterisedMessage, messageParameters);
+    }
+
+    /**
+     * Static factory method to conveniently create a field-related message.
+     *
+     * @param relatedObject        the object associated with the message, which may be null.
+     * @param field                the field to which the message applies.
+     * @param code                 the canonical code of this message.
+     * @param parameterisedMessage the text of this message, with placeholders for supplied parameters.
+     * @param messageParameters    arguments to be injected into any placeholders in the message text.
+     */
+    public static final MessageImpl fieldMessage(Object relatedObject, String field, String code, String parameterisedMessage, Object... messageParameters) {
+        return fieldMessage(null, relatedObject, field, code, parameterisedMessage, messageParameters);
+    }
+
+    /**
+     * Static factory method to conveniently create a field-related message.
+     *
+     * @param cause                a related cause of this message, which may be null.
+     * @param field                the field to which the message applies.
+     * @param field                the field to which the message applies.
+     * @param code                 the canonical code of this message.
+     * @param parameterisedMessage the text of this message, with placeholders for supplied parameters.
+     * @param messageParameters    arguments to be injected into any placeholders in the message text.
+     */
+    public static final MessageImpl fieldMessage(Throwable cause, Object relatedObject, String field, String code, String parameterisedMessage, Object... messageParameters) {
+        return new MessageImpl(cause, relatedObject, field, code, parameterisedMessage, messageParameters);
     }
 
     /**
@@ -112,10 +175,65 @@ public class MessageImpl implements Message {
      * @param messageParameters    arguments to be injected into any placeholders in the message text.
      */
     public MessageImpl(String field, String code, String parameterisedMessage, Object... messageParameters) {
+        this(null, field, code, parameterisedMessage, messageParameters);
+    }
+
+    /**
+     * Construct a new parameterised message for a field, with parameters that will be injected into
+     * the message text in accordance with {@link MessageFormat} usage.
+     *
+     * @param relatedObject        the object associated with the message, which may be null.
+     * @param field                the field to which the message applies.
+     * @param code                 the canonical code of this message.
+     * @param parameterisedMessage the text of this message, with placeholders for supplied parameters.
+     * @param messageParameters    arguments to be injected into any placeholders in the message text.
+     */
+    public MessageImpl(Object relatedObject, String field, String code, String parameterisedMessage, Object... messageParameters) {
+        this.relatedObject = relatedObject;
         this.field = field;
         this.code = code;
         this.parameterisedMessage = parameterisedMessage;
         this.messageParameters = messageParameters;
+    }
+
+    /**
+     * Construct a new parameterised message for a field, with parameters that will be injected into
+     * the message text in accordance with {@link MessageFormat} usage.
+     *
+     * @param cause                a related cause of the message.
+     * @param relatedObject        the object associated with the message, which may be null.
+     * @param field                the field to which the message applies.
+     * @param code                 the canonical code of this message.
+     * @param parameterisedMessage the text of this message, with placeholders for supplied parameters.
+     * @param messageParameters    arguments to be injected into any placeholders in the message text.
+     */
+    public MessageImpl(Throwable cause, Object relatedObject, String field, String code, String parameterisedMessage, Object... messageParameters) {
+        this.cause = cause;
+        this.relatedObject = relatedObject;
+        this.field = field;
+        this.code = code;
+        this.parameterisedMessage = parameterisedMessage;
+        this.messageParameters = messageParameters;
+    }
+
+    /**
+     * The object associated with the message.
+     *
+     * @return the object referred to by this message, which may be null.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getRelatedObject() {
+        return (T)relatedObject;
+    }
+
+    /**
+     * The cause of this message.
+     *
+     * @return the exception related to this message, which may be null indicating none.
+     */
+    public Throwable getCause() {
+        return cause;
     }
 
     /**
@@ -172,7 +290,9 @@ public class MessageImpl implements Message {
         return Objects.equals(field, message1.field) &&
                Objects.equals(code, message1.code) &&
                Objects.equals(parameterisedMessage, message1.parameterisedMessage) &&
-               Arrays.equals(messageParameters, message1.messageParameters);
+               Arrays.equals(messageParameters, message1.messageParameters) &&
+               Objects.equals(relatedObject, message1.relatedObject) &&
+               Objects.equals(cause, message1.cause);
     }
 
     @Override

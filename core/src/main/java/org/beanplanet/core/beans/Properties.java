@@ -60,7 +60,7 @@ import org.beanplanet.core.models.Value;
  */
 public interface Properties {
    /**
-    * Returns the number of known properties exibited by the bean.
+    * Returns the number of known properties exhibited by the bean.
     * 
     * @return the number of properties of the bean.
     */
@@ -94,7 +94,7 @@ public interface Properties {
 
    /**
     * Gets the value of the specified property.
-    * 
+    *
     * @param name the name of the property whose value is to be read
     * @return the value of the property.
     * @throws PropertyNotFoundException if no such property exists on the bean
@@ -103,7 +103,7 @@ public interface Properties {
 
    /**
     * Gets the value of the specified property.
-    * 
+    *
     * @param name the name of the property whose value is to be read
     * @param defaultValue a default value to use as the property value, if the property does not exist.
     * @return the resulting value of the property.
@@ -113,7 +113,7 @@ public interface Properties {
 
    /**
     * Sets the value of the specified property.
-    * 
+    *
     * @param name the name of the property whose value is to be set
     * @param value the value of the property to set.
     * @throws PropertyNotFoundException if no such writable property exists on the bean

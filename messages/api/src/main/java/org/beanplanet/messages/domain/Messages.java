@@ -28,6 +28,8 @@ package org.beanplanet.messages.domain;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Definition of standard messages container.
@@ -73,6 +75,18 @@ public interface Messages {
      * @return this container, to allow method chaining.
      */
     Messages addError(String code, String parameterisedMessage, Object... messageParameters);
+
+    /**
+     * Add an error with the supplied cause, code and message text, and arguments that will be injected into
+     * the message text in accordance with {@link java.text.MessageFormat} usage.
+     *
+     * @param cause                the cause of the message.
+     * @param code                 the code of the message.
+     * @param parameterisedMessage the text of the message.
+     * @param messageParameters    parameters to be interpolated in the message text.
+     * @return this container, to allow method chaining.
+     */
+    Messages addError(Throwable cause, String code, String parameterisedMessage, Object... messageParameters);
 
     /**
      * Add a pre-defined error.
@@ -160,6 +174,17 @@ public interface Messages {
      */
     Messages addFieldError(String field, String code, String parameterisedMessage, Object ... messageParameters);
 
+    /**
+     * Whether there is an error matching the specified test.
+     *
+     * @param test the test to apply to each error in turn.
+     * @return the first error matching the specified test.
+     */
+    default Optional<Message> findError(Predicate<Message> test) {
+        if ( !hasErrors() ) return Optional.empty();
+
+        return getErrors().stream().filter(test).findFirst();
+    }
 
     /**
      * Whether there is an error similar to the one specified.  Ignoring thr rendered message, matching occurs against any
@@ -169,16 +194,12 @@ public interface Messages {
      *                  error message.
      * @return true if there exists an error with properties the same as the one specified, false otherwise.
      */
-    default boolean hasErrorLike(Message prototype) {
-        if ( !hasErrors() ) return false;
-
-        return getErrors().stream().anyMatch(
-                error ->
-                        (prototype.getField() == null || Objects.equals(prototype.getField(), error.getField()))
-                && (prototype.getCode() == null || Objects.equals(prototype.getCode(), error.getCode()))
-                && (prototype.getParameterisedMessage() == null || Objects.equals(prototype.getParameterisedMessage(), error.getParameterisedMessage()))
-                && (prototype.getMessageParameters() == null
-                    || Arrays.equals(prototype.getMessageParameters(), error.getMessageParameters())));
+    default boolean hasErrorLike(final Message prototype) {
+        return findError(error -> (prototype.getField() == null || Objects.equals(prototype.getField(), error.getField()))
+                                  && (prototype.getCode() == null || Objects.equals(prototype.getCode(), error.getCode()))
+                                  && (prototype.getParameterisedMessage() == null || Objects.equals(prototype.getParameterisedMessage(), error.getParameterisedMessage()))
+                                  && (prototype.getMessageParameters() == null
+                                      || Arrays.equals(prototype.getMessageParameters(), error.getMessageParameters()))).isPresent();
     }
 
     /**
@@ -188,9 +209,7 @@ public interface Messages {
      * @return true if there exists an error message with the given code, false otherwise.
      */
     default boolean hasErrorWithCode(String code) {
-        if ( !hasErrors() ) return false;
-
-        return getErrors().stream().anyMatch(error -> Objects.equals(code, error.getCode()));
+       return findError(error -> Objects.equals(code, error.getCode())).isPresent();
     }
 
     /**

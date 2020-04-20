@@ -256,18 +256,18 @@ public class FilteringPackageClassScanner implements PackageResourceScanner<Clas
          if ( filter.test(clazz) && !resources.contains(clazz) ) {
             resources.add(clazz);
             if ( isDebugEnabled() ) {
-               debug("Found and added class [class="+clazz.getName()+", classLoader="+classLoader+"] which matches filter [filter="+filter+"]");
+               debug("Found and added class [class="+clazz.getName()+", classLoader="+classLoader.getClass().getName()+"] matching filter");
             }
          }
       }
       catch (ClassNotFoundException cnfEx) {
          if ( isDebugEnabled() ) {
-            debug("Ignoring class which could not be loaded through classloader [class="+packageAndClassName+", classLoader="+classLoader+"]: ", cnfEx);
+            debug("Ignoring class which could not be loaded through classloader [class="+packageAndClassName+", classLoader="+classLoader.getClass().getName()+"]: ", cnfEx);
          }
       }
       catch (NoClassDefFoundError ncdEx) {
          if ( isDebugEnabled() ) {
-            debug("Ignoring class which could not be loaded through classloader [class="+packageAndClassName+", classLoader="+classLoader+"]: ", ncdEx);
+            debug("Ignoring class which could not be loaded through classloader [class="+packageAndClassName+", classLoader="+classLoader.getClass().getName()+"]: ", ncdEx);
          }
       }
    }

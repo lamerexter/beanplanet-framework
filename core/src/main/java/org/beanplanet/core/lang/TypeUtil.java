@@ -41,6 +41,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.*;
 import static java.util.Arrays.stream;
 
 /**
@@ -132,6 +133,52 @@ public final class TypeUtil {
     }
 
     private TypeUtil(){}
+
+    /**
+     * Determines the common superclass (not superinterfaces or any other type hierarchy) of a number of classes. This
+     * implementation handles mixed primitive and reference types by autoboxing primitives. In such eventualities, the
+     * equivalent primitive wrappers are used.
+     *
+     * @param classes the classes whose common superclass is to be determined.
+     * @return the common superclass of all of the given classes, which may be a primitive type (where they are all the
+     * same primitive type), a primitive wrapper type (where there are mixed primitive and non-primitive types), the
+     * <code>Object</code> type or <code>null</code> where the common superclass could not be determined.
+     */
+    public static Class<?> determineCommonSuperclass(Class<?> ... classes) {
+        return determineCommonSuperclass(true, classes);
+    }
+
+    /**
+     * Determines the common superclass (not superinterfaces or any other type hierarchy) of a number of classes,
+     * autoboxing primitives where there are mixed primitives ans non-primitives specified. In such eventualities, the
+     * equivalent primitive wrappers are used.
+     *
+     * @param classes the classes whose common superclass is to be determined.
+     * @param autoboxMixed autobox primitives, where mixed primitive and non-primitives were specified.
+     * @return the common superclass of all of the given classes, which may be a primitive type (where they are all the
+     * same primitive type), a primitive wrapper type (where there are mixed primitive and non-primitive types), the
+     * <code>Object</code> type or <code>null</code> where the common superclass could not be determined (only possible
+     * in this implementation when all classes specified are mixed primitive types).
+     */
+    public static Class<?> determineCommonSuperclass(boolean autoboxMixed, Class<?> ... classes) {
+        if ( classes == null || classes.length == 0 ) return null;
+
+        final Class<?>[] commonSuperclass = { classes[0] };
+        boolean allPrimitives = stream(classes).allMatch(Class::isPrimitive);
+        if ( allPrimitives ) {
+            return stream(classes).allMatch(c -> commonSuperclass[0] == c) ? commonSuperclass[0] : null;
+        }
+
+        boolean somePrimitives = stream(classes).anyMatch(Class::isPrimitive);
+        if ( somePrimitives && !autoboxMixed) return null;
+
+        commonSuperclass[0] = ensureNonPrimitiveType(commonSuperclass[0]);
+        while ( !stream(classes).map(TypeUtil::ensureNonPrimitiveType).allMatch(c -> commonSuperclass[0].isAssignableFrom(c)) ) {
+            commonSuperclass[0] = commonSuperclass[0].getSuperclass();
+        }
+
+        return commonSuperclass[0];
+    }
 
     /**
      * Given a class, this method return the class name element, or base name, of
@@ -402,6 +449,10 @@ public final class TypeUtil {
 
     public static Object invokeStaticMethod(Class<?> clazz, String methodName) {
         return invokeStaticMethod(clazz, methodName, (Object[])null);
+    }
+
+    public static Object invokeStaticMethod(Method method, Object ... params) {
+        return invokeStaticMethod(method.getDeclaringClass(), method.getName(), params);
     }
 
     public static Object invokeStaticMethod(Class<?> clazz, String methodName, Object ... params) {

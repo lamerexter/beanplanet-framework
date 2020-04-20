@@ -31,6 +31,20 @@ package org.beanplanet.messages.domain;
  */
 public interface Message {
     /**
+     * The object associated with the message.
+     *
+     * @return the object referred to by this message, which may be null.
+     */
+    <T> T getRelatedObject();
+
+    /**
+     * The related cause of the message.
+     *
+     * @return the cause of the message, which may be null.
+     */
+    Throwable getCause();
+
+    /**
      * Get the field to which the message applies, if a field has been set.
      *
      * @return the name of field field, which may be null if this message is a global message not associated with any field.
@@ -69,10 +83,36 @@ public interface Message {
     static Builder builder() { return new Builder(); }
 
     class Builder {
+        private Object relatedObject;
+        private Throwable cause;
         private String field;
         private String code;
         private String message;
         private Object[] paremeters;
+
+        @SuppressWarnings("unchecked")
+        public <T> T getRelatedObject() {
+            return (T)relatedObject;
+        }
+
+        public Throwable getCause() {
+            return cause;
+        }
+
+        public Builder cause(Throwable cause) {
+            this.cause = cause;
+            return this;
+        }
+
+        public Builder relatedObject(Object relatedObject) {
+            this.relatedObject = relatedObject;
+            return this;
+        }
+
+        public Message withRelatedObject(Object relatedObject) {
+            this.relatedObject = relatedObject;
+            return build();
+        }
 
         public String getField() {
             return field;
@@ -131,7 +171,7 @@ public interface Message {
         }
 
         public Message build() {
-            return new MessageImpl(field, code, message, paremeters);
+            return new MessageImpl(cause, relatedObject, field, code, message, paremeters);
         }
     }
 }
