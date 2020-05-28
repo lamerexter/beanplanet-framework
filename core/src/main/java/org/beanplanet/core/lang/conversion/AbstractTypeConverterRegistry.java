@@ -65,12 +65,22 @@ public abstract class AbstractTypeConverterRegistry implements TypeConverterRegi
       addConverter(Object.class, Object.class, converter);
    }
 
-   public Optional<TypeConverter> lookup(Class<?> fromType, Class<?> toType) {
+   public Optional<TypeConverter> lookup(final Class<?> fromType, final Class<?> toType) {
       TypeConverter matchingConverter = null;
 
       Map<Class<?>, CompositeTypeConverter> sourceConvertersForTarget = converters.get(toType);
       if (sourceConvertersForTarget != null) {
+         // Attempt direct lookup
          matchingConverter = sourceConvertersForTarget.get(fromType);
+
+         if (matchingConverter == null) {
+            // Fall back to assignable converter check. This will handle array types, for example (Object[] <-- T[])
+            matchingConverter = sourceConvertersForTarget.entrySet().stream()
+                                                         .filter(e -> e.getKey().isAssignableFrom(fromType))
+                                                         .map(Map.Entry::getValue)
+                                                         .findFirst().orElse(null);
+
+         }
       }
 
       return Optional.ofNullable(matchingConverter);

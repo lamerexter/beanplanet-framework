@@ -187,6 +187,16 @@ public interface Messages {
     }
 
     /**
+     * Whether there is an error with the code apecified.
+     *
+     * @param code the code of the error message to find.
+     * @return the first error with the specified code.
+     */
+    default Optional<Message> findErrorWithCode(final String code) {
+        return findError(error -> Objects.equals(error.getCode(), code));
+    }
+
+    /**
      * Whether there is an error similar to the one specified.  Ignoring thr rendered message, matching occurs against any
      * non-null value in the message specified for field mame, code, parameterised message and message parameters.
      *

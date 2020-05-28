@@ -27,10 +27,12 @@
 package org.beanplanet.core.models.tree;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 public class TreeNode<E> implements Serializable {
     private TreeNode<E> parent;
@@ -77,7 +79,7 @@ public class TreeNode<E> implements Serializable {
     }
 
     List<TreeNode<E>> getChildren() {
-        return children;
+        return children == null ? emptyList() : children;
     }
 
     public void setChildren(List<TreeNode<E>> children) {

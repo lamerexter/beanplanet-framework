@@ -24,33 +24,23 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.models.path;
+package org.beanplanet.core.models;
 
-import org.beanplanet.core.util.StringUtil;
-
-import static java.util.Collections.singletonList;
-
-public interface NamePath extends Path<String> {
-    NamePath EMPTY_NAME_PATH = new DelimitedNamePath("", "");
-
-    default String join(String delimiter) {
-        return StringUtil.asDelimitedString(getElements(), delimiter);
-    }
+/**
+ * A name/value holder.
+ */
+public interface NameValue<V> {
+    /**
+     * Gets the name of this name/value pair.
+     *
+     * @return the name/value pair name part.
+     */
+    String getName();
 
     /**
-     * <p>
-     * Joins the given path to a singleton element.
-     * </p>
+     * Gets the value of this name/value pair.
      *
-     * @param element the singleton element to be joined to this path.
-     * @return a new Namepath, consisting of all the elememts of this path plus the singleton element specified as the last element.
-     * @see #singletonPath(String)
+     * @return the name/value value part.
      */
-    default NamePath joinSingleton(String element) {
-        return new SimpleNamePath(getElements()).join(singletonPath(element));
-    }
-
-    static NamePath singletonPath(String element) {
-        return new SimpleNamePath(singletonList(element));
-    }
+    V getValue();
 }

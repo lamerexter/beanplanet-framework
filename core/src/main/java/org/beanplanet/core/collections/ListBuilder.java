@@ -29,6 +29,7 @@ package org.beanplanet.core.collections;
 import org.beanplanet.core.models.Builder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -63,12 +64,12 @@ public class ListBuilder<T> implements Builder<List<T>> {
         return this;
     }
 
-    public final <E extends T> ListBuilder<T> addAll(List<E> elements) {
+    public final <E extends T> ListBuilder<T> addAll(Collection<E> elements) {
         building.addAll(elements);
         return this;
     }
 
-    public final <E extends T> ListBuilder<T> addAllNotNull(List<E> elements) {
+    public final <E extends T> ListBuilder<T> addAllNotNull(Collection<E> elements) {
         if ( elements != null ) {
             for (E element : elements) {
                 if ( element != null ) {

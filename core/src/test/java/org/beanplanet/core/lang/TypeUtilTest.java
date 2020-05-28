@@ -28,6 +28,7 @@ package org.beanplanet.core.lang;
 
 import org.junit.Test;
 
+import static org.beanplanet.core.lang.TypeUtil.determineArrayDimensions;
 import static org.beanplanet.core.lang.TypeUtil.determineCommonSuperclass;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -103,5 +104,31 @@ public class TypeUtilTest {
     @Test
     public void determineCommonSuperclass_noboxing_withMixedPrimitiveAndPrimitiveWrapperClasses_returnsCannotBeDetermined() {
         assertThat(determineCommonSuperclass(false, Integer.class, int.class), nullValue());
+    }
+
+    @Test
+    public void determineArrayDimensions_nullType() {
+        assertThat(determineArrayDimensions(null), is(0));
+    }
+
+    @Test
+    public void determineArrayDimensions_nonArrayType() {
+        assertThat(determineArrayDimensions(boolean.class), is(0));
+        assertThat(determineArrayDimensions(Object.class), is(0));
+    }
+
+    @Test
+    public void determineArrayDimensions_singleDimensionType() {
+        assertThat(determineArrayDimensions(boolean[].class), is(1));
+        assertThat(determineArrayDimensions(Object[].class), is(1));
+    }
+
+    @Test
+    public void determineArrayDimensions_multipleDimensionTypes() {
+        assertThat(determineArrayDimensions(int[][].class), is(2));
+        assertThat(determineArrayDimensions(Long[][].class), is(2));
+
+        assertThat(determineArrayDimensions(float[][][][][].class), is(5));
+        assertThat(determineArrayDimensions(Double[][][][][].class), is(5));
     }
 }

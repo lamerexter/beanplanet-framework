@@ -31,19 +31,21 @@ import java.util.Deque;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-class PreorderIterator<E> implements TreeIterator<E> {
+class ParentAwarePreorderIterator<E> implements TreeIterator<E> {
     private Tree<E> tree;
+
+    private Deque<E> parentStack = new ArrayDeque<>();
 
     private E fromNode;
     private E nextNode;
     private E previousNode;
 
-    public PreorderIterator(Tree<E> tree) {
+    public ParentAwarePreorderIterator(Tree<E> tree) {
         this.tree = tree;
         this.fromNode = tree.getRoot();
     }
 
-    public PreorderIterator(Tree<E> tree, E fromNode) {
+    public ParentAwarePreorderIterator(Tree<E> tree, E fromNode) {
         this.tree = tree;
         this.fromNode = fromNode;
     }

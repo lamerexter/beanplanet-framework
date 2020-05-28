@@ -28,6 +28,7 @@ package org.beanplanet.core.models.tree;
 
 public interface DepthFirstTreeIterators<E> {
     TreeIterator<E> preorderIterator();
+    TreeIterator<E> preorderParentUnawareIterator();
     TreeIterator<E> inorderIterator();
     TreeIterator<E> postorderIterator();
 }

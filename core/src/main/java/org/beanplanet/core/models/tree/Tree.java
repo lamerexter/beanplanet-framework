@@ -26,7 +26,6 @@
 package org.beanplanet.core.models.tree;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.Stream;
@@ -218,7 +217,11 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable 
     }
 
     default TreeIterator<E> preorderIterator() {
-        return new PreorderTreeIterator<>(this);
+        return new PreorderIterator<>(this);
+    }
+
+    default TreeIterator<E> preorderParentUnawareIterator() {
+        return new PreorderParentUnawareIterator<>(this);
     }
 
     default TreeIterator<E> inorderIterator() {
@@ -233,6 +236,10 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable 
         return this::preorderIterator;
     }
 
+    default Iterable<E> preorderParentUnawareIterable() {
+        return this::preorderParentUnawareIterator;
+    }
+
     default Iterable<E> inorderIterable() {
         return this::inorderIterator;
     }
@@ -242,12 +249,25 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable 
     }
 
     /**
-     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in pre-order.
-
+     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in pre-order. The tree
+     * model must support child and parent awareness. If the underlying model only supports child awareness then use
+     * the {@link #preorderParentUnawareStream()} method to return a stream of nodes of the tree requiring that nodes
+     * only need know about their children.
+     *
      * @return a stream over every node in the tree by traversal of the tree in a depth-first pre-order.
      */
     default Stream<E> preorderStream() {
         return preorderIterator().stream();
+    }
+
+    /**
+     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in pre-order. The tree
+     * model must support child awareness.
+     *
+     * @return a stream over every node in the tree by traversal of the tree in a depth-first pre-order.
+     */
+    default Stream<E> preorderParentUnawareStream() {
+        return preorderParentUnawareIterator().stream();
     }
 
     /**

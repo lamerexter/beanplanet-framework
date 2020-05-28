@@ -43,11 +43,22 @@ public interface TreeStreams<E> {
     }
 
     /**
-     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in pre-order.
+     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in pre-order. The tree
+     * model must support child and parent awareness. If the underlying model only supports child awareness then use
+     * the {@link #preorderParentUnawareStream()} method to return a stream of nodes of the tree requiring that nodes
+     * only need know about their children.
 
      * @return a stream over every node in the tree by traversal of the tree in a depth-first pre-order.
      */
     Stream<E> preorderStream();
+
+    /**
+     * Creates a stream over the elements of the tree. All nodes will be visited depth-first in pre-order. The tree
+     * model must support child awareness.
+
+     * @return a stream over every node in the tree by traversal of the tree in a depth-first pre-order.
+     */
+    Stream<E> preorderParentUnawareStream();
 
     /**
      * Creates a stream over the elements of the tree. All nodes will be visited depth-first in post-order.

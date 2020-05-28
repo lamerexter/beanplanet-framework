@@ -28,6 +28,8 @@ package org.beanplanet.core.models.tree;
 
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.*;
@@ -147,7 +149,7 @@ public class TreeNodeTreeTest {
 
         // Then
         assertThat(tree.getChildren(root), equalTo(asList(child1, child2)));
-        assertThat(tree.getChildren(child1), nullValue());
+        assertThat(tree.getChildren(child1), equalTo(Collections.emptyList()));
         assertThat(tree.getChildren(child2), equalTo(asList(child21)));
     }
 

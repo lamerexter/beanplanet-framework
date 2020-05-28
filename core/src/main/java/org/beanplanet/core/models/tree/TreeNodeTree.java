@@ -81,7 +81,7 @@ public class TreeNodeTree<E> extends AbstractTree<TreeNode<E>> {
 
     @Override
     public TreeIterator<TreeNode<E>> preorderIterator() {
-        return new PreorderTreeIterator<>(this);
+        return new PreorderIterator<>(this);
     }
 
     @Override

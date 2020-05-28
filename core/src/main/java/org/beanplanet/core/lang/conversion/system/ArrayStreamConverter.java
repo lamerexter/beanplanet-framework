@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2020 Beanplanet Ltd
+ *  Copyright (C) 2018 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -23,34 +23,26 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
+package org.beanplanet.core.lang.conversion.system;
 
-package org.beanplanet.core.models.path;
+import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
-import org.beanplanet.core.util.StringUtil;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
-import static java.util.Collections.singletonList;
+/**
+ * Converts an array to a {@link java.util.stream.Stream}.
+ */
+@TypeConverter
+public final class ArrayStreamConverter {
 
-public interface NamePath extends Path<String> {
-    NamePath EMPTY_NAME_PATH = new DelimitedNamePath("", "");
-
-    default String join(String delimiter) {
-        return StringUtil.asDelimitedString(getElements(), delimiter);
-    }
-
-    /**
-     * <p>
-     * Joins the given path to a singleton element.
-     * </p>
-     *
-     * @param element the singleton element to be joined to this path.
-     * @return a new Namepath, consisting of all the elememts of this path plus the singleton element specified as the last element.
-     * @see #singletonPath(String)
-     */
-    default NamePath joinSingleton(String element) {
-        return new SimpleNamePath(getElements()).join(singletonPath(element));
-    }
-
-    static NamePath singletonPath(String element) {
-        return new SimpleNamePath(singletonList(element));
-    }
+   /**
+    * Converts the specified array to a {@link java.util.stream.Stream}.
+    * 
+    * @param value the array to be streamed.
+    */
+   @TypeConverter
+   public static <T> Stream<T> toString(T[] value) {
+      return (value == null ? null : Arrays.stream(value));
+   }
 }

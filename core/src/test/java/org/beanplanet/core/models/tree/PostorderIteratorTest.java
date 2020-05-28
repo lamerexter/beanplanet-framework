@@ -36,14 +36,14 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 /**
- * Unit tests for {@link PreorderTreeIterator}.
+ * Unit tests for {@link PostorderIterator}.
  */
-public class PreorderTreeIteratorTest {
+public class PostorderIteratorTest {
     @Test
     public void ctor_Tree() {
         // Given
         TreeNodeTree<String> tree = new TreeNodeTree<>("root");
-        PreorderTreeIterator<TreeNode<String>> iterator = new PreorderTreeIterator<>(tree);
+        PostorderIterator<TreeNode<String>> iterator = new PostorderIterator<>(tree);
 
         // Then
         assertThat(iterator.getTree(), sameInstance(tree));
@@ -56,7 +56,7 @@ public class PreorderTreeIteratorTest {
         TreeNode<String> child1 = new TreeNode<>("child1");
         TreeNode<String> rootNode = new TreeNode<>("root", child1);
         TreeNodeTree<String> tree = new TreeNodeTree<>(rootNode);
-        PreorderTreeIterator<TreeNode<String>> iterator = new PreorderTreeIterator<>(tree, child1);
+        PostorderIterator<TreeNode<String>> iterator = new PostorderIterator<>(tree, child1);
 
         // Then
         assertThat(iterator.getTree(), sameInstance(tree));
@@ -70,39 +70,39 @@ public class PreorderTreeIteratorTest {
         TreeNode<String> child1 = new TreeNode<>("child1", child11);
         TreeNode<String> child221 = new TreeNode<>("child221");
         TreeNode<String> child22 = new TreeNode<>("child22", child221);
-        TreeNode<String> rootNode = new TreeNode<>("root",
-                                                   child1,
-                                                   new TreeNode<>("child2",
-                                                                  new TreeNode<>("child21"), child22
-                                                   ));
-        TreeNodeTree<String> tree = new TreeNodeTree<>(rootNode);
+        TreeNode<String> child21 = new TreeNode<>("child21");
+        TreeNode<String> child2 = new TreeNode<>("child2", child21, child22);
+        TreeNode<String> root = new TreeNode<>("root",
+                                                   child1, child2
+        );
+        TreeNodeTree<String> tree = new TreeNodeTree<>(root);
 
         // Then a full traversal from root is as expected
-        assertThat(new PreorderTreeIterator<>(tree).stream()
+        assertThat(new PostorderIterator<>(tree).stream()
                            .map(TreeNode::getManagedObject)
-                           .collect(Collectors.toList()), equalTo(asList("root", "child1", "child11", "child2", "child21", "child22", "child221")));
+                           .collect(Collectors.toList()), equalTo(asList("child11", "child1", "child21", "child221", "child22", "child2", "root")));
 
-        // And a full traversal from child11 is as expected, containing only nodes from that point onwards
-        assertThat(new PreorderTreeIterator<>(tree, child11).stream()
+        // And a full traversal from child21 is as expected, containing only nodes from that point onwards
+        assertThat(new PostorderIterator<>(tree, child21).stream()
                                                    .map(TreeNode::getManagedObject)
-                                                   .collect(Collectors.toList()), equalTo(asList("child11", "child2", "child21", "child22", "child221")));
+                                                   .collect(Collectors.toList()), equalTo(asList("child21", "child221", "child22", "child2", "root")));
 
         // And a full traversal from child22 is as expected, containing only nodes from that point onwards
-        assertThat(new PreorderTreeIterator<>(tree, child22).stream()
+        assertThat(new PostorderIterator<>(tree, child22).stream()
                                                             .map(TreeNode::getManagedObject)
-                                                            .collect(Collectors.toList()), equalTo(asList("child22", "child221")));
+                                                            .collect(Collectors.toList()), equalTo(asList("child221", "child22", "child2", "root")));
 
         // And traversal on sub-tree is as expected (just the sub-tree)
-        assertThat(new PreorderTreeIterator<>(new TreeNodeTree<>(child1), child11).stream()
+        assertThat(new PostorderIterator<>(new TreeNodeTree<>(child1), child11).stream()
                                                             .map(TreeNode::getManagedObject)
-                                                            .collect(Collectors.toList()), equalTo(asList("child11")));
+                                                            .collect(Collectors.toList()), equalTo(asList("child11", "child1")));
     }
 
     @Test(expected = NoSuchElementException.class)
     public void next_exhausted() {
         // Given
         TreeNodeTree<String> tree = new TreeNodeTree<>("root");
-        PreorderTreeIterator<TreeNode<String>> iterator = new PreorderTreeIterator<>(tree);
+        PostorderIterator<TreeNode<String>> iterator = new PostorderIterator<>(tree);
 
         // Then
         assertThat(iterator.hasNext(), is(true));
@@ -121,9 +121,10 @@ public class PreorderTreeIteratorTest {
     public void previous_exhausted() {
         // Given
         TreeNodeTree<String> tree = new TreeNodeTree<>("root");
-        PreorderTreeIterator<TreeNode<String>> iterator = new PreorderTreeIterator<>(tree);
+        PostorderIterator<TreeNode<String>> iterator = new PostorderIterator<>(tree);
 
         // When
+        iterator.previous();
         iterator.previous();
     }
 
@@ -131,63 +132,67 @@ public class PreorderTreeIteratorTest {
     public void reverse() {
         // Given
         TreeNode<String> child11 = new TreeNode<>("child11");
+        TreeNode<String> child1 = new TreeNode<>("child1", child11);
         TreeNode<String> child221 = new TreeNode<>("child221");
         TreeNode<String> child22 = new TreeNode<>("child22", child221);
-        TreeNode<String> child2 = new TreeNode<>("child2", new TreeNode<>("child21"), child22);
-        TreeNode<String> rootNode = new TreeNode<>("root",
-                                                   new TreeNode<>("child1", child11), child2
+        TreeNode<String> child21 = new TreeNode<>("child21");
+        TreeNode<String> child2 = new TreeNode<>("child2", child21, child22);
+        TreeNode<String> root = new TreeNode<>("root",
+                                                   child1, child2
         );
-        TreeNodeTree<String> tree = new TreeNodeTree<>(rootNode);
+        TreeNodeTree<String> tree = new TreeNodeTree<>(root);
 
-//        // Then a full reverse traversal from root is empty
-//        assertThat(new PreorderTreeIterator<>(tree).reverse().stream()
-//                                                   .map(TreeNode::getManagedObject)
-//                                                   .collect(Collectors.toList()), equalTo(emptyList()));
-//
-//        // And a full traversal from child221 is as expected, containing all nodes in reverse order
-//        assertThat(new PreorderTreeIterator<>(tree, child221).reverse().stream()
-//                                                            .map(TreeNode::getManagedObject)
-//                                                            .collect(Collectors.toList()), equalTo(asList("child22", "child21", "child2", "child11", "child1", "root")));
+        // Then a full reverse traversal from root is as expected
+        assertThat(new PostorderIterator<>(tree).reverse().stream()
+                                                .map(TreeNode::getManagedObject)
+                                                .collect(Collectors.toList()), equalTo(asList("root", "child2", "child22", "child221", "child21", "child1", "child11")));
+
+        // And a full traversal from child21 is as expected, containing all nodes in reverse order
+        assertThat(new PostorderIterator<>(tree, child221).reverse().stream()
+                                                            .map(TreeNode::getManagedObject)
+                                                            .collect(Collectors.toList()), equalTo(asList("child221", "child21", "child1", "child11")));
 
         // And traversal on sub-tree is as expected (just the sub-tree)
-        assertThat(new PreorderTreeIterator<>(new TreeNodeTree<>(child2), child22).reverse().stream()
+        assertThat(new PostorderIterator<>(new TreeNodeTree<>(child2), child22).reverse().stream()
                                                                                   .map(TreeNode::getManagedObject)
-                                                                                  .collect(Collectors.toList()), equalTo(asList("child21", "child2")));
+                                                                                  .collect(Collectors.toList()), equalTo(asList("child22", "child221", "child21")));
     }
 
     @Test
     public void next_previous_successiveCalls() {
         // Given
         TreeNode<String> child11 = new TreeNode<>("child11");
+        TreeNode<String> child1 = new TreeNode<>("child1", child11);
         TreeNode<String> child221 = new TreeNode<>("child221");
         TreeNode<String> child22 = new TreeNode<>("child22", child221);
         TreeNode<String> child21 = new TreeNode<>("child21");
         TreeNode<String> child2 = new TreeNode<>("child2", child21, child22);
-        TreeNode<String> child1 = new TreeNode<>("child1", child11);
         TreeNode<String> root = new TreeNode<>("root", child1, child2);
         TreeNodeTree<String> tree = new TreeNodeTree<>(root);
-        PreorderTreeIterator<TreeNode<String>> iterator = new PreorderTreeIterator<>(tree, child11);
+        PostorderIterator<TreeNode<String>> iterator = new PostorderIterator<>(tree, child11);
 
         // Then next() returns correct node
         assertThat(iterator.next(), equalTo(child11));
-        assertThat(iterator.next(), equalTo(child2));
+        assertThat(iterator.next(), equalTo(child1));
+        assertThat(iterator.next(), equalTo(child21));
+        assertThat(iterator.next(), equalTo(child221));
 
         // And previous returns the correct node
-        assertThat(iterator.previous(), equalTo(child2));
-        assertThat(iterator.previous(), equalTo(child11));
+        assertThat(iterator.previous(), equalTo(child221));
+        assertThat(iterator.previous(), equalTo(child21));
         assertThat(iterator.previous(), equalTo(child1));
-        assertThat(iterator.previous(), equalTo(root));
+        assertThat(iterator.previous(), equalTo(child11));
         assertThat(iterator.hasPrevious(), is(false));
 
         // And next() returns correct node
         assertThat(iterator.hasNext(), is(true));
-        assertThat(iterator.next(), equalTo(root));
-        assertThat(iterator.next(), equalTo(child1));
         assertThat(iterator.next(), equalTo(child11));
-        assertThat(iterator.next(), equalTo(child2));
+        assertThat(iterator.next(), equalTo(child1));
         assertThat(iterator.next(), equalTo(child21));
-        assertThat(iterator.next(), equalTo(child22));
         assertThat(iterator.next(), equalTo(child221));
+        assertThat(iterator.next(), equalTo(child22));
+        assertThat(iterator.next(), equalTo(child2));
+        assertThat(iterator.next(), equalTo(root));
         assertThat(iterator.hasNext(), is(false));
     }
 }

@@ -456,7 +456,7 @@ public final class TypeUtil {
     }
 
     public static Object invokeStaticMethod(Class<?> clazz, String methodName, Object ... params) {
-        Method method = findMethod(Modifier.STATIC, methodName, clazz, Object.class, paramTypes(params))
+        Method method = findMethod(Modifier.STATIC, methodName, clazz, null, paramTypes(params))
                 .orElseThrow(() -> new UncheckedException("Unable to invoke method, \"" + methodName
                                                           + "\" on target, class=\"" + clazz.getName()
                                                           + "\" - the method was not found: "));
@@ -475,11 +475,13 @@ public final class TypeUtil {
                 .filter(m -> returnType == null || returnType.isAssignableFrom(m.getReturnType()))
                 .filter(m -> m.getParameterCount() == (paramTypes == null ? 0 : paramTypes.length))
                 .filter(m -> {
-                    for (int n=0; n < paramTypes.length; n++) {
-                        if ( paramTypes[n] != null
-                             && !(m.getParameterTypes()[n].isAssignableFrom(paramTypes[n])
-                                   || (m.getParameterTypes()[n] instanceof Class && paramTypes[n] instanceof Class)) ) {
-                            return false;
+                    if ( paramTypes != null) {
+                        for (int n = 0; n < paramTypes.length; n++) {
+                            if (paramTypes[n] != null
+                                && !(m.getParameterTypes()[n].isAssignableFrom(paramTypes[n])
+                                     || (m.getParameterTypes()[n] instanceof Class && paramTypes[n] instanceof Class))) {
+                                return false;
+                            }
                         }
                     }
                     return true;
@@ -577,10 +579,28 @@ public final class TypeUtil {
         return allInterfaces;
     }
 
-    public static Stream<Method> getMethodsInClassHierarchy(Class<?> specificType) {
+    public static Stream<Method> getMethodsInClassHierarchy(final Class<?> specificType) {
         return new TypeTree(specificType)
                 .preorderStream()
                 .map(TreeNode::getManagedObject)
                 .flatMap(type -> stream(type.getDeclaredMethods()));
+    }
+
+    /**
+     * Given a possible array type, determines the number of dimensions of the array.
+     *
+     * @param fromType the possible array type whose dimensions are to be determined.
+     * @return the number of dimensions of the array type or zero if the type is not an array or was null.
+     */
+    public static int determineArrayDimensions(Class<?> fromType) {
+        if (fromType == null) return 0;
+
+        int dimensions = 0;
+        while ( fromType.isArray() ) {
+            dimensions++;
+            fromType = fromType.getComponentType();
+        }
+
+        return dimensions;
     }
 }

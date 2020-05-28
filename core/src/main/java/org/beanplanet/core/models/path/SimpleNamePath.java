@@ -28,9 +28,12 @@ package org.beanplanet.core.models.path;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+
+import static java.util.Collections.singletonList;
 
 /**
  * A simple name-path implementation where the name elements are supplied. By default
@@ -38,6 +41,10 @@ import java.util.function.Supplier;
   */
 public class SimpleNamePath implements NamePath {
     private final Supplier<List<String>> elementsSupplier;
+
+    public SimpleNamePath(String name) {
+        this(singletonList(name));
+    }
 
     public SimpleNamePath(List<String> elements) {
         this(() -> elements);
@@ -53,7 +60,7 @@ public class SimpleNamePath implements NamePath {
     }
 
     @Override
-    public Path<String> parentPath() {
+    public SimpleNamePath parentPath() {
         final List<String> elements = getElements();
 
         return elements.size() < 2  ? null : new SimpleNamePath(() -> elements.subList(0, elements.size()-1));
@@ -99,7 +106,7 @@ public class SimpleNamePath implements NamePath {
     }
 
     @Override
-    public Path<String> join(Path<String> other) {
+    public NamePath join(Path<String> other) {
         if ( other == null ) return this;
 
         return new SimpleNamePath(() -> {
