@@ -603,4 +603,67 @@ public final class TypeUtil {
 
         return dimensions;
     }
+
+    /**
+     * Returns the class type descriptor of a given class type. Optionally, if the class type represents
+     * an array component type, the number of array dimensions may be specified. The type descriptions
+     * returned adhere to the type returned from a call to <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#getName%28%29">Class#getName()</a>.
+     *
+     * @param clazz the type or component type, if an array type description is to be returned.
+     * @param arrayDimensions in the event the type specified is an array component, the number of dimensions of the
+     * array type description to be returned (minimum 1) or zero if the type is not an array.
+     * @return the class type description for the given type or array of component type.
+     */
+    public static String getForNameTypeDescription(Class<?> clazz, int arrayDimensions) {
+        StringBuilder buf = new StringBuilder();
+        buf.append(StringUtil.repeat("[", arrayDimensions));
+        Class<?> currentClass = clazz;
+        while (true) {
+            if (isPrimitiveType(currentClass)) {
+                char car;
+                if (currentClass == int.class) {
+                    car = 'I';
+                } else if (currentClass == void.class) {
+                    car = 'V';
+                } else if (currentClass == boolean.class) {
+                    car = 'Z';
+                } else if (currentClass == byte.class) {
+                    car = 'B';
+                } else if (currentClass == char.class) {
+                    car = 'C';
+                } else if (currentClass == short.class) {
+                    car = 'S';
+                } else if (currentClass == double.class) {
+                    car = 'D';
+                } else if (currentClass == float.class) {
+                    car = 'F';
+                } else /* long */{
+                    car = 'J';
+                }
+                return buf.append(car).toString();
+            } else if (currentClass.isArray()) {
+                buf.append('[');
+                currentClass = currentClass.getComponentType();
+            } else {
+                return buf.append('L').append(currentClass.getName()).append(";").toString();
+            }
+        }
+    }
+
+    /**
+     * Returns the class type of a array class whose component type is specified.
+     *
+     * @param clazz the type or component type, if an array type description is to be returned.
+     * @param arrayDimensions in the event the type specified is an array component, the number of dimensions of the
+     * array type description to be returned (minimum 1) or zero if the type is not an array.
+     * @return the class type description for the given type or array of component type.
+     * @see #getForNameTypeDescription(Class, int)
+     */
+    public static Class<?> forName(Class<?> clazz, int arrayDimensions) {
+        if (arrayDimensions <=0) {
+            return clazz;
+        }
+        String classDescriptor = getForNameTypeDescription(clazz, arrayDimensions);
+        return loadClass(classDescriptor);
+    }
 }

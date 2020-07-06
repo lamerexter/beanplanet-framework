@@ -26,7 +26,6 @@
 
 package org.beanplanet.core.models.path;
 
-import org.beanplanet.core.util.IterableUtil;
 import org.beanplanet.core.util.Streamable;
 
 import java.net.URI;

@@ -28,6 +28,7 @@ package org.beanplanet.core.util;
 
 import org.junit.Test;
 
+import static org.beanplanet.core.util.ArrayUtil.determineArraySize;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.CombinableMatcher.both;
@@ -66,5 +67,42 @@ public class ArrayUtilTest {
 
         String[][] empty2Array = (String[][])emptyArray;
         assertThat(empty2Array.length, equalTo(0));
+    }
+
+    @Test
+    public void determineArraySize_null() {
+        assertThat(determineArraySize(null), equalTo(0));
+    }
+
+    @Test
+    public void determineArraySize_notAnArray() {
+        assertThat(determineArraySize("This is not an array!"), equalTo(0));
+    }
+
+    @Test
+    public void determineArraySize_primitiveComponentType() {
+        assertThat(determineArraySize(new boolean[111]), equalTo(111));
+        assertThat(determineArraySize(new byte[222]), equalTo(222));
+        assertThat(determineArraySize(new char[333]), equalTo(333));
+        assertThat(determineArraySize(new double[444]), equalTo(444));
+        assertThat(determineArraySize(new float[555]), equalTo(555));
+        assertThat(determineArraySize(new int[666]), equalTo(666));
+        assertThat(determineArraySize(new long[777]), equalTo(777));
+        assertThat(determineArraySize(new short[888]), equalTo(888));
+    }
+
+    @Test
+    public void determineArraySize_referenceTypeComponent() {
+        assertThat(determineArraySize(new Boolean[111]), equalTo(111));
+    }
+
+    @Test
+    public void determineArraySize_fromMultiDimension_referenceTypeComponent() {
+        final Boolean[][][] array = new Boolean[2][22][222];
+
+        assertThat(determineArraySize(array), equalTo(2));
+        assertThat(determineArraySize(array, 1), equalTo(2));
+        assertThat(determineArraySize(array, 2), equalTo(22));
+        assertThat(determineArraySize(array, 3), equalTo(222));
     }
 }
