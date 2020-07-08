@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 /**
@@ -48,6 +49,10 @@ public class SimpleNamePath implements NamePath {
 
     public SimpleNamePath(List<String> elements) {
         this(() -> elements);
+    }
+
+    public SimpleNamePath(String ... elements) {
+        this(asList(elements));
     }
 
     public SimpleNamePath(Supplier<List<String>> elementsSupplier) {
