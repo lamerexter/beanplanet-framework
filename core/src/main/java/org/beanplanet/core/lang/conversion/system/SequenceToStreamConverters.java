@@ -28,13 +28,16 @@ package org.beanplanet.core.lang.conversion.system;
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Converts an array to a {@link java.util.stream.Stream}.
+ * Conversion functions from various sequence types (arrays, collections etc) to a {@link java.util.stream.Stream} of elements.
  */
 @TypeConverter
-public final class ArrayStreamConverter {
+public final class SequenceToStreamConverters {
 
    /**
     * Converts the specified array to a {@link java.util.stream.Stream}.
@@ -42,7 +45,37 @@ public final class ArrayStreamConverter {
     * @param value the array to be streamed.
     */
    @TypeConverter
-   public static <T> Stream<T> toString(T[] value) {
+   public static <T> Stream<T> arrayToStream(T[] value) {
       return (value == null ? null : Arrays.stream(value));
+   }
+
+   /**
+    * Converts the specified list to a {@link java.util.stream.Stream}.
+    *
+    * @param value the list to be streamed.
+    */
+   @TypeConverter
+   public static <T> Stream<T> listToStream(List<T> value) {
+      return (value == null ? null : value.stream());
+   }
+
+   /**
+    * Converts the specified set to a {@link java.util.stream.Stream}.
+    *
+    * @param value the set to be streamed.
+    */
+   @TypeConverter
+   public static <T> Stream<T> setToStream(Set<T> value) {
+      return (value == null ? null : value.stream());
+   }
+
+   /**
+    * Converts the specified map to a {@link java.util.stream.Stream} of its entries.
+    *
+    * @param value the map to be streamed.
+    */
+   @TypeConverter
+   public static <K, V> Stream<Map.Entry<K, V>> mapToStream(Map<K, V> value) {
+      return (value == null ? null : value.entrySet().stream());
    }
 }

@@ -134,6 +134,32 @@ public class TypeUtilTest {
     }
 
     @Test
+    public void determineArrayBaseComponentType_nullType() {
+        assertThat(determineArrayBaseComponentType(null), nullValue());
+    }
+
+    @Test
+    public void determineArrayBaseComponentType_nonArrayType() {
+        assertThat(determineArrayBaseComponentType(boolean.class), equalTo(boolean.class));
+        assertThat(determineArrayBaseComponentType(Object.class), equalTo(Object.class));
+    }
+
+    @Test
+    public void determineArrayBaseComponentType_singleDimensionType() {
+        assertThat(determineArrayBaseComponentType(boolean[].class), equalTo(boolean.class));
+        assertThat(determineArrayBaseComponentType(Object[].class), equalTo(Object.class));
+    }
+
+    @Test
+    public void determineArrayBaseComponentType_multipleDimensionTypes() {
+        assertThat(determineArrayBaseComponentType(int[][].class), equalTo(int.class));
+        assertThat(determineArrayBaseComponentType(Long[][].class), equalTo(Long.class));
+
+        assertThat(determineArrayBaseComponentType(float[][][][][].class), equalTo(float.class));
+        assertThat(determineArrayBaseComponentType(Double[][][][][].class), equalTo(Double.class));
+    }
+
+    @Test
     public void getForNameTypeDescription_forPrimitive() {
         assertThat(getForNameTypeDescription(byte.class, 0), equalTo("B"));
         assertThat(getForNameTypeDescription(boolean.class, 0), equalTo("Z"));

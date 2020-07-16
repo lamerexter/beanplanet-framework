@@ -605,6 +605,24 @@ public final class TypeUtil {
     }
 
     /**
+     * Given a possible array type, determined the base component type of the array. That is, the innermost type of the
+     * array that is not am array type.
+     *
+     * @param fromType the possible array type whose base component type is to be determined.
+     * @return the base component type of the given array, or the type specified if it is not an array type.
+     */
+    public static Class<?> determineArrayBaseComponentType(final Class<?> fromType) {
+        if (fromType == null) return null;
+
+        Class<?> componentType = fromType;
+        while ( componentType.isArray() ) {
+            componentType = componentType.getComponentType();
+        }
+
+        return componentType;
+    }
+
+    /**
      * Returns the class type descriptor of a given class type. Optionally, if the class type represents
      * an array component type, the number of array dimensions may be specified. The type descriptions
      * returned adhere to the type returned from a call to <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#getName%28%29">Class#getName()</a>.
