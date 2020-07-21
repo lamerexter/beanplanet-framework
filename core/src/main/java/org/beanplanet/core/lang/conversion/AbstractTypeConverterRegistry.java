@@ -102,25 +102,4 @@ public abstract class AbstractTypeConverterRegistry implements TypeConverterRegi
          converters.clear();
       }
    }
-
-   @Override
-   public String toString() {
-//      StringBuilder s = new StringBuilder();
-//      s.append(TypeUtil.getClassBaseName(getClass())).append("[\n");
-//      s.append("Type Converter Registry Entries\n");
-//      s.append("------------------------------------------------------------\n");
-//      for (Map.Entry<Class<?>, ConcurrentHashMap<Class<?>, CompositeTypeConverter>> targetEntry : converters.entrySet()) {
-//         for (Map.Entry<Class<?>, CompositeTypeConverter> sourceTypeConverterEntry : targetEntry.getValue().entrySet()) {
-//            for (TypeConverter converter : sourceTypeConverterEntry.getValue()) {
-//               s.append(ClassUtil.getDisplayNameForType(sourceTypeConverterEntry.getKey()));
-//               s.append("=>").append(ClassUtil.getDisplayNameForType(targetEntry.getKey()));
-//               s.append(" = ").append(converter).append("\n");
-//            }
-//         }
-//      }
-//      s.append("]");
-//      return s.toString();
-      throw new UnsupportedOperationException();
-   }
-
 }
