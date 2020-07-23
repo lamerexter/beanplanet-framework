@@ -54,6 +54,7 @@ public final class TypeUtil {
     private static final Set<Class<?>> PRIMITIVE_TYPES = new HashSet<>();
     private static final Set<Class<?>> PRIMITIVE_TYPE_WRAPPERS = new HashSet<>();
 
+    private static final Set<Class<?>> INTEGER_NUMERIC_TYPES = new HashSet<>();
     private static final Set<Class<?>> NUMERIC_TYPES = new HashSet<>();
 
     private static final Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE = new HashMap<>();
@@ -115,6 +116,16 @@ public final class TypeUtil {
         NAME_TO_PRIMITIVE_CLASS.put("long", long.class);
         NAME_TO_PRIMITIVE_CLASS.put("short", short.class);
         NAME_TO_PRIMITIVE_CLASS.put("void", void.class);
+
+        INTEGER_NUMERIC_TYPES.add(BigInteger.class);
+        INTEGER_NUMERIC_TYPES.add(byte.class);
+        INTEGER_NUMERIC_TYPES.add(Byte.class);
+        INTEGER_NUMERIC_TYPES.add(int.class);
+        INTEGER_NUMERIC_TYPES.add(Integer.class);
+        INTEGER_NUMERIC_TYPES.add(long.class);
+        INTEGER_NUMERIC_TYPES.add(Long.class);
+        INTEGER_NUMERIC_TYPES.add(short.class);
+        INTEGER_NUMERIC_TYPES.add(Short.class);
 
         NUMERIC_TYPES.add(BigDecimal.class);
         NUMERIC_TYPES.add(BigInteger.class);
@@ -388,8 +399,49 @@ public final class TypeUtil {
         return PRIMITIVE_TYPES.contains(clazz) || PRIMITIVE_TYPE_WRAPPERS.contains(clazz);
     }
 
-    public static boolean isNumericType(Class<?> clazz) {
-        return NUMERIC_TYPES.contains(clazz);
+    /**
+     * Determines whether the given type is a known numeric type, which must be one of:
+     * <ul>
+     * <li>BigDecimal</li>
+     * <li>BigInteger</li>
+     * <li>byte</li>
+     * <li>Byte</li>
+     * <li>double</li>
+     * <li>Double</li>
+     * <li>float</li>
+     * <li>Float</li>
+     * <li>int</li>
+     * <li>Integer</li>
+     * <li>long</li>
+     * <li>Long</li>
+     * <li>short</li>
+     * <li>Short</li>
+     * </ul>
+     * @param type the type whose numeric status is to be determined.
+     * @return true if the given type is numeric, false otherwise.
+     */
+    public static boolean isNumericType(Class<?> type) {
+        return NUMERIC_TYPES.contains(type);
+    }
+
+    /**
+     * Determines whether the given type is a known integer numeric type, which must be one of:
+     * <ul>
+     * <li>BigInteger</li>
+     * <li>byte</li>
+     * <li>Byte</li>
+     * <li>int</li>
+     * <li>Integer</li>
+     * <li>long</li>
+     * <li>Long</li>
+     * <li>short</li>
+     * <li>Short</li>
+     * </ul>
+     * @param type the type whose numeric status is to be determined.
+     * @return true if the given type is an integer type, false otherwise.
+     */
+    public static boolean isIntegerNumericType(Class<?> type) {
+        return INTEGER_NUMERIC_TYPES.contains(type);
     }
 
     /**

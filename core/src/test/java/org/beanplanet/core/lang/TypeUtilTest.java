@@ -29,6 +29,9 @@ package org.beanplanet.core.lang;
 import org.beanplanet.core.lang.conversion.TypeConverter;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import static org.beanplanet.core.lang.TypeUtil.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.equalTo;
@@ -270,5 +273,47 @@ public class TypeUtilTest {
     public void forName_forNameForPrimitiveObjectArray() {
         assertThat(forName(Object.class, 3), equalTo((Class) Object[][][].class));
         assertThat(forName(TypeConverter.class, 3), equalTo((Class) TypeConverter[][][].class));
+    }
+
+    @Test
+    public void isNumericType_all() {
+        assertThat(isNumericType(BigDecimal.class), is(true));
+        assertThat(isNumericType(BigInteger.class), is(true));
+        assertThat(isNumericType(byte.class), is(true));
+        assertThat(isNumericType(Byte.class), is(true));
+        assertThat(isNumericType(double.class), is(true));
+        assertThat(isNumericType(Double.class), is(true));
+        assertThat(isNumericType(float.class), is(true));
+        assertThat(isNumericType(Float.class), is(true));
+        assertThat(isNumericType(int.class), is(true));
+        assertThat(isNumericType(Integer.class), is(true));
+        assertThat(isNumericType(long.class), is(true));
+        assertThat(isNumericType(Long.class), is(true));
+        assertThat(isNumericType(short.class), is(true));
+        assertThat(isNumericType(Short.class), is(true));
+
+        assertThat(isNumericType(null), is(false));
+        assertThat(isNumericType(String.class), is(false));
+    }
+
+    @Test
+    public void isIntegerNumericType_all() {
+        assertThat(isIntegerNumericType(BigInteger.class), is(true));
+        assertThat(isIntegerNumericType(byte.class), is(true));
+        assertThat(isIntegerNumericType(Byte.class), is(true));
+        assertThat(isIntegerNumericType(int.class), is(true));
+        assertThat(isIntegerNumericType(Integer.class), is(true));
+        assertThat(isIntegerNumericType(long.class), is(true));
+        assertThat(isIntegerNumericType(Long.class), is(true));
+        assertThat(isIntegerNumericType(short.class), is(true));
+        assertThat(isIntegerNumericType(Short.class), is(true));
+
+        assertThat(isIntegerNumericType(null), is(false));
+        assertThat(isIntegerNumericType(BigDecimal.class), is(false));
+        assertThat(isIntegerNumericType(double.class), is(false));
+        assertThat(isIntegerNumericType(Double.class), is(false));
+        assertThat(isIntegerNumericType(float.class), is(false));
+        assertThat(isIntegerNumericType(Float.class), is(false));
+        assertThat(isIntegerNumericType(String.class), is(false));
     }
 }
