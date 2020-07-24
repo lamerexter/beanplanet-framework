@@ -525,7 +525,7 @@ public final class TypeUtil {
                 .filter(m -> m.getName().equals(name))
                 .filter(m -> (m.getModifiers() & modifiers) > 0)
                 .filter(m -> returnType == null || returnType.isAssignableFrom(m.getReturnType()))
-                .filter(m -> m.getParameterCount() == (paramTypes == null ? 0 : paramTypes.length))
+                .filter(m -> paramTypes == null || m.getParameterCount() == paramTypes.length)
                 .filter(m -> {
                     if ( paramTypes != null) {
                         for (int n = 0; n < paramTypes.length; n++) {
