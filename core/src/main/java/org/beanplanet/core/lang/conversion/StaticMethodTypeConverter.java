@@ -31,6 +31,8 @@ import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.lang.reflect.Method;
 
+import static org.beanplanet.core.lang.TypeUtil.invokeMethod;
+
 /**
  * Implementation of a type converter that is pinned to a static method of a class.
  * 
@@ -59,15 +61,17 @@ import java.lang.reflect.Method;
  * 
  */
 public class StaticMethodTypeConverter implements TypeConverter {
-   protected Method typeConverterMethod;
+   private final Method typeConverterMethod;
+   private final boolean arrayConversion;
 
    /**
     * Creates a new static type converter method wrapper with the specified method.
     * 
     * @param typeConverterMethod the type converter method.
     */
-   public StaticMethodTypeConverter(Method typeConverterMethod) {
+   public StaticMethodTypeConverter(final Method typeConverterMethod) {
       this.typeConverterMethod = typeConverterMethod;
+      arrayConversion = typeConverterMethod.getParameterCount() == 2 && typeConverterMethod.getParameterTypes()[1] == Class.class;
    }
 
    /**
@@ -80,9 +84,10 @@ public class StaticMethodTypeConverter implements TypeConverter {
    }
 
    @SuppressWarnings("unchecked")
-   public <T> T convert(Object value, Class<T> targetType) throws UnsupportedTypeConversionException {
+   public <T> T convert(final Object value, final Class<T> targetType) throws UnsupportedTypeConversionException {
       Assert.notNull(typeConverterMethod, "The type converter method may not be null");
-      return (T) TypeUtil.invokeMethod(null, typeConverterMethod, new Object[] {value});
+      return arrayConversion ? (T) invokeMethod(null, typeConverterMethod, value, targetType)
+                             : (T) invokeMethod(null, typeConverterMethod, value);
    }
 
    /**

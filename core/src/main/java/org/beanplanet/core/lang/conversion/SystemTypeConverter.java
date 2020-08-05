@@ -28,6 +28,8 @@ package org.beanplanet.core.lang.conversion;
 
 import org.beanplanet.core.logging.Logger;
 
+import static java.lang.String.format;
+
 public class SystemTypeConverter extends AbstractTypeConverterRegistry implements TypeConverter, Logger {
     private static SystemTypeConverter INSTANCE = new SystemTypeConverter();
 
@@ -39,18 +41,14 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
 
     private boolean isLoaded = false;
 
-    private static SystemTypeConverter instance;
+    private static SystemTypeConverter instance = INSTANCE;
 
     /**
      * Returns the system default type converter.
      *
      * @return a system-wide type converter for general use.
      */
-    public synchronized static TypeConverter getInstance() {
-        if (instance == null) {
-            instance = new SystemTypeConverter();
-        }
-
+    public static TypeConverter getInstance() {
         return instance;
     }
 
@@ -102,9 +100,13 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
             return (T) value;
 
         //--------------------------------------------------------------------------------------------------------------
-        // Attempt to find a corresponding converter in the registry
+        // Attempt to find a corresponding converter in the registry.
         //--------------------------------------------------------------------------------------------------------------
-        return lookup(value.getClass(), targetType).orElseThrow(() -> new UnsupportedTypeConversionException()).convert(value, targetType);
+        Class<?> targetClass = targetType.isArray() ? Object[].class : targetType;
+        return lookup(value.getClass(), targetClass)
+                   .orElseThrow(() -> new UnsupportedTypeConversionException(format("Type converter from type \"%s\" to type \"%s\" not found",
+                                                                                    (value == null ? null : value.getClass().getName()), targetType.getName()))
+                   ).convert(value, targetType);
     }
 
     public static void main(String... args) {

@@ -163,6 +163,18 @@ public class TypeUtilTest {
     }
 
     @Test
+    public void getPrimitiveWrapperType_returnsWrapperWhenProvided() {
+        assertThat(TypeUtil.getPrimitiveWrapperType(Boolean.class), equalTo(Boolean.class));
+        assertThat(TypeUtil.getPrimitiveWrapperType(Byte.class), equalTo(Byte.class));
+        assertThat(TypeUtil.getPrimitiveWrapperType(Character.class), equalTo(Character.class));
+        assertThat(TypeUtil.getPrimitiveWrapperType(Float.class), equalTo(Float.class));
+        assertThat(TypeUtil.getPrimitiveWrapperType(Double.class), equalTo(Double.class));
+        assertThat(TypeUtil.getPrimitiveWrapperType(Integer.class), equalTo(Integer.class));
+        assertThat(TypeUtil.getPrimitiveWrapperType(Long.class), equalTo(Long.class));
+        assertThat(TypeUtil.getPrimitiveWrapperType(Short.class), equalTo(Short.class));
+    }
+
+    @Test
     public void getForNameTypeDescription_forPrimitive() {
         assertThat(getForNameTypeDescription(byte.class, 0), equalTo("B"));
         assertThat(getForNameTypeDescription(boolean.class, 0), equalTo("Z"));

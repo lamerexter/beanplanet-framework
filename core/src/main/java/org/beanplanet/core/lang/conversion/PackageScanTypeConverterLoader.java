@@ -86,9 +86,10 @@ public class PackageScanTypeConverterLoader implements TypeConverterLoader, Logg
                 && !Modifier.isAbstract(method.getModifiers())
                 && method.isAnnotationPresent(org.beanplanet.core.lang.conversion.annotations.TypeConverter.class)
                 && paramTypes != null
-                && paramTypes.length == 1
+                && paramTypes.length <= 2
                 && paramTypes[0] != Void.class
-                && paramTypes[0] != void.class;
+                && paramTypes[0] != void.class
+                && (paramTypes.length == 1 || (paramTypes[1] == Class.class));
       }
    };
 //

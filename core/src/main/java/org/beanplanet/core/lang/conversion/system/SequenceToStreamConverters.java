@@ -39,43 +39,43 @@ import java.util.stream.Stream;
 @TypeConverter
 public final class SequenceToStreamConverters {
 
-   /**
-    * Converts the specified array to a {@link java.util.stream.Stream}.
-    * 
-    * @param value the array to be streamed.
-    */
-   @TypeConverter
-   public static <T> Stream<T> arrayToStream(T[] value) {
-      return (value == null ? null : Arrays.stream(value));
-   }
+    /**
+     * Converts the specified array to a {@link java.util.stream.Stream}.
+     *
+     * @param value the array to be streamed.
+     */
+    @TypeConverter
+    public static <T> Stream<T> arrayToStream(T[] value) {
+        return (value == null ? null : Arrays.stream(value));
+    }
 
-   /**
-    * Converts the specified list to a {@link java.util.stream.Stream}.
-    *
-    * @param value the list to be streamed.
-    */
-   @TypeConverter
-   public static <T> Stream<T> listToStream(List<T> value) {
-      return (value == null ? null : value.stream());
-   }
+    /**
+     * Converts the specified list to a {@link java.util.stream.Stream}.
+     *
+     * @param value the list to be streamed.
+     */
+    @TypeConverter
+    public static <T> Stream<T> listToStream(List<T> value) {
+        return (value == null ? null : value.stream());
+    }
 
-   /**
-    * Converts the specified set to a {@link java.util.stream.Stream}.
-    *
-    * @param value the set to be streamed.
-    */
-   @TypeConverter
-   public static <T> Stream<T> setToStream(Set<T> value) {
-      return (value == null ? null : value.stream());
-   }
+    /**
+     * Converts the specified set to a {@link java.util.stream.Stream}.
+     *
+     * @param value the set to be streamed.
+     */
+    @TypeConverter
+    public static <T> Stream<T> setToStream(Set<T> value) {
+        return (value == null ? null : value.stream());
+    }
 
-   /**
-    * Converts the specified map to a {@link java.util.stream.Stream} of its entries.
-    *
-    * @param value the map to be streamed.
-    */
-   @TypeConverter
-   public static <K, V> Stream<Map.Entry<K, V>> mapToStream(Map<K, V> value) {
-      return (value == null ? null : value.entrySet().stream());
-   }
+    /**
+     * Converts the specified map to a {@link java.util.stream.Stream} of its entries.
+     *
+     * @param value the map to be streamed.
+     */
+    @TypeConverter
+    public static <K, V> Stream<Map.Entry<K, V>> mapToStream(Map<K, V> value) {
+        return (value == null ? null : value.entrySet().stream());
+    }
 }

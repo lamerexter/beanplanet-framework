@@ -471,12 +471,14 @@ public final class TypeUtil {
     /**
      * Returns the primitive wrapper type for a given primitive type.
      *
-     * @param primiveType the primitive type whose wrapper type is to be returned.
+     * @param primitiveType the primitive type whose wrapper type is to be returned.
      * @return the primitive wrapper type for the primitive type, or null if the type specified
      * was not a primitive type.
      */
-    public static Class<?> getPrimitiveWrapperType(Class<?> primiveType) {
-        return PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.get(primiveType);
+    public static Class<?> getPrimitiveWrapperType(Class<?> primitiveType) {
+        if ( isPrimitiveTypeWrapperClass(primitiveType) ) return primitiveType;
+
+        return PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.get(primitiveType);
     }
 
     public static Class<?>[] ensureNonPrimitiveTypes(Class<?> primitiveOrNonPrimitiveTypes[]) {

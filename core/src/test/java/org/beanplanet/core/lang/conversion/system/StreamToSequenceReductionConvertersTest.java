@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2018 Beanplanet Ltd
+ *  Copyright (C) 2020 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -23,25 +23,33 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
+
 package org.beanplanet.core.lang.conversion.system;
 
-import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
+import org.junit.Test;
 
-/**
- * A type converter which simply calls the <code>toString()</code> method on an object to convert its value to a string.
- *
- * @author Gary Watson
- */
-@TypeConverter
-public final class ObjectToStringTypeConverter {
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
-    /**
-     * Converts the specified value to a string, using the objects <code>toString()</code> method.
-     *
-     * @param value the value to be stringified.
-     */
-    @TypeConverter
-    public static String toString(Object value) {
-        return (value == null ? null : value.toString());
+import static java.util.Arrays.asList;
+import static org.beanplanet.core.lang.conversion.SystemTypeConverter.systemTypeConverter;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+public class StreamToSequenceReductionConvertersTest {
+    @Test
+    public void streamToArray_TypeConversion() {
+        assertThat(systemTypeConverter().convert(asList(1, 2, 3).stream(), Integer[].class), equalTo(new Integer[] { 1, 2, 3}));
+    }
+
+    @Test
+    public void streamToList_TypeConversion() {
+        assertThat(systemTypeConverter().convert(asList(1, 2, 3).stream(), List.class), equalTo(asList(1, 2, 3)));
+    }
+
+    @Test
+    public void streamToSet_TypeConversion() {
+        assertThat(systemTypeConverter().convert(asList(1, 2, 3).stream(), Set.class), equalTo(new LinkedHashSet<>(asList(1, 2, 3))));
     }
 }
