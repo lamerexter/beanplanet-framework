@@ -31,10 +31,7 @@ import org.beanplanet.core.models.tree.TreeNode;
 import org.beanplanet.core.util.ExceptionUtil;
 import org.beanplanet.core.util.StringUtil;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -63,8 +60,8 @@ public final class TypeUtil {
 
     private static final Map<String, Class<?>> NAME_TO_PRIMITIVE_CLASS = new HashMap<>();
 
-    private static final Object[] EMPTY_PARAMS = new Object[] {};
-    private static final Class<?>[] EMPTY_ARG_TYPES = new Class<?>[] {};
+    private static final Object[] EMPTY_PARAMS = new Object[]{};
+    private static final Class<?>[] EMPTY_ARG_TYPES = new Class<?>[]{};
 
     static {
         PRIMITIVE_TYPES.add(boolean.class);
@@ -143,7 +140,7 @@ public final class TypeUtil {
         NUMERIC_TYPES.add(Short.class);
     }
 
-    private TypeUtil(){}
+    private TypeUtil() {}
 
     /**
      * Determines the common superclass (not superinterfaces or any other type hierarchy) of a number of classes. This
@@ -155,7 +152,7 @@ public final class TypeUtil {
      * same primitive type), a primitive wrapper type (where there are mixed primitive and non-primitive types), the
      * <code>Object</code> type or <code>null</code> where the common superclass could not be determined.
      */
-    public static Class<?> determineCommonSuperclass(Class<?> ... classes) {
+    public static Class<?> determineCommonSuperclass(Class<?>... classes) {
         return determineCommonSuperclass(true, classes);
     }
 
@@ -164,27 +161,27 @@ public final class TypeUtil {
      * autoboxing primitives where there are mixed primitives ans non-primitives specified. In such eventualities, the
      * equivalent primitive wrappers are used.
      *
-     * @param classes the classes whose common superclass is to be determined.
+     * @param classes      the classes whose common superclass is to be determined.
      * @param autoboxMixed autobox primitives, where mixed primitive and non-primitives were specified.
      * @return the common superclass of all of the given classes, which may be a primitive type (where they are all the
      * same primitive type), a primitive wrapper type (where there are mixed primitive and non-primitive types), the
      * <code>Object</code> type or <code>null</code> where the common superclass could not be determined (only possible
      * in this implementation when all classes specified are mixed primitive types).
      */
-    public static Class<?> determineCommonSuperclass(boolean autoboxMixed, Class<?> ... classes) {
-        if ( classes == null || classes.length == 0 ) return null;
+    public static Class<?> determineCommonSuperclass(boolean autoboxMixed, Class<?>... classes) {
+        if (classes == null || classes.length == 0) return null;
 
-        final Class<?>[] commonSuperclass = { classes[0] };
+        final Class<?>[] commonSuperclass = {classes[0]};
         boolean allPrimitives = stream(classes).allMatch(Class::isPrimitive);
-        if ( allPrimitives ) {
+        if (allPrimitives) {
             return stream(classes).allMatch(c -> commonSuperclass[0] == c) ? commonSuperclass[0] : null;
         }
 
         boolean somePrimitives = stream(classes).anyMatch(Class::isPrimitive);
-        if ( somePrimitives && !autoboxMixed) return null;
+        if (somePrimitives && !autoboxMixed) return null;
 
         commonSuperclass[0] = ensureNonPrimitiveType(commonSuperclass[0]);
-        while ( !stream(classes).map(TypeUtil::ensureNonPrimitiveType).allMatch(c -> commonSuperclass[0].isAssignableFrom(c)) ) {
+        while (!stream(classes).map(TypeUtil::ensureNonPrimitiveType).allMatch(c -> commonSuperclass[0].isAssignableFrom(c))) {
             commonSuperclass[0] = commonSuperclass[0].getSuperclass();
         }
 
@@ -215,66 +212,66 @@ public final class TypeUtil {
      * @return the class package name or null if the class does not have an associated package.
      */
     public static String getPackageName(java.lang.Class<?> type) {
-        Package pkg  = type.getPackage();
+        Package pkg = type.getPackage();
         return pkg == null ? null : pkg.getName();
     }
 
     public static Class<?> loadClassOrNull(String className) {
-        Class<?> clazz = NAME_TO_PRIMITIVE_CLASS.get(className);
-        if (clazz != null) {
-            return clazz;
+        Class<?> type = NAME_TO_PRIMITIVE_CLASS.get(className);
+        if (type != null) {
+            return type;
         }
 
         try {
-            clazz = Class.forName(className);
+            type = Class.forName(className);
         } catch (java.lang.ClassNotFoundException cnfEx) {
             if (Thread.currentThread().getContextClassLoader() != null) {
                 try {
-                    clazz = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
+                    type = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
                 } catch (java.lang.ClassNotFoundException cnfThreadEx) {
                 }
             }
         }
 
         int lastDotPos = className.lastIndexOf('.');
-        if (clazz == null && lastDotPos >= 0) {
-            String memberClassName = className.substring(0, lastDotPos)+"$"+className.substring(lastDotPos+1);
+        if (type == null && lastDotPos >= 0) {
+            String memberClassName = className.substring(0, lastDotPos) + "$" + className.substring(lastDotPos + 1);
             try {
-                clazz = Class.forName(memberClassName);
+                type = Class.forName(memberClassName);
             } catch (java.lang.ClassNotFoundException cnfEx) {
                 if (Thread.currentThread().getContextClassLoader() != null) {
                     try {
-                        clazz = Class.forName(memberClassName, true, Thread.currentThread().getContextClassLoader());
+                        type = Class.forName(memberClassName, true, Thread.currentThread().getContextClassLoader());
                     } catch (java.lang.ClassNotFoundException cnfThreadEx) {
                     }
                 }
             }
         }
 
-        return clazz;
+        return type;
     }
 
     public static java.lang.Class<?> loadClass(String className) throws TypeNotFoundException {
-        Class<?> clazz = NAME_TO_PRIMITIVE_CLASS.get(className);
-        if (clazz != null) {
-            return clazz;
+        Class<?> type = NAME_TO_PRIMITIVE_CLASS.get(className);
+        if (type != null) {
+            return type;
         }
 
         try {
-            clazz = Class.forName(className);
+            type = Class.forName(className);
         } catch (java.lang.ClassNotFoundException cnfEx) {
             // XClass not found under calling context, try the current threads
             // classloader, if any
             if (Thread.currentThread().getContextClassLoader() != null) {
                 try {
-                    clazz = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
+                    type = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
                 } catch (java.lang.ClassNotFoundException cnfThreadEx) {
-                    throw new TypeNotFoundException("The given class ["+className+"] was not found: ", cnfThreadEx);
+                    throw new TypeNotFoundException("The given class [" + className + "] was not found: ", cnfThreadEx);
                 }
             }
         }
 
-        return clazz;
+        return type;
     }
 
     public static java.lang.Class<?> loadClass(String className, ClassLoader classLoader) {
@@ -286,35 +283,35 @@ public final class TypeUtil {
         return getClassLoaderInContext(obj.getClass());
     }
 
-    public static ClassLoader getClassLoaderInContext(Class<?> clazz) {
+    public static ClassLoader getClassLoaderInContext(Class<?> type) {
         if (Thread.currentThread().getContextClassLoader() != null) {
             return Thread.currentThread().getContextClassLoader();
         } else {
-            return clazz.getClassLoader();
+            return type.getClassLoader();
         }
     }
 
     public static java.lang.Class<?> loadClass(String className, boolean initialiseClass, ClassLoader classLoader) {
-        Class<?> clazz = NAME_TO_PRIMITIVE_CLASS.get(className);
-        if (clazz != null) {
-            return clazz;
+        Class<?> type = NAME_TO_PRIMITIVE_CLASS.get(className);
+        if (type != null) {
+            return type;
         }
 
         try {
-            clazz = Class.forName(className, initialiseClass, classLoader);
+            type = Class.forName(className, initialiseClass, classLoader);
         } catch (java.lang.ClassNotFoundException | NoClassDefFoundError cnfEx) {
             // XClass not found under calling context, try the current threads
             // classloader, if any
             if (Thread.currentThread().getContextClassLoader() != null && Thread.currentThread().getContextClassLoader() != classLoader) {
                 try {
-                    clazz = Class.forName(className, initialiseClass, Thread.currentThread().getContextClassLoader());
+                    type = Class.forName(className, initialiseClass, Thread.currentThread().getContextClassLoader());
                 } catch (java.lang.ClassNotFoundException | NoClassDefFoundError cnfThreadEx) {
-                    throw new TypeNotFoundException("The given class ["+className+"] was not found: ", cnfEx);
+                    throw new TypeNotFoundException("The given class [" + className + "] was not found: ", cnfEx);
                 }
             }
         }
 
-        return clazz;
+        return type;
     }
 
     public static Class<?>[] loadClasses(ClassLoader classLoader, String classNames[]) {
@@ -328,14 +325,14 @@ public final class TypeUtil {
 
     // GAW TODO: Sort out exceptions raised by these methods!
     public static Object instantiateClass(String typeName) {
-        return instantiateClass(typeName, new Object[] {});
+        return instantiateClass(typeName, new Object[]{});
     }
 
-    public static Object instantiateClass(String typeName, Class<?> ctorArgTypes[], Object ctorArgVals[])  {
-        Class<?> clazz = null;
+    public static Object instantiateClass(String typeName, Class<?> ctorArgTypes[], Object ctorArgVals[]) {
+        Class<?> type = null;
         try {
-            clazz = loadClass(typeName);
-            Constructor<?> ctor = clazz.getConstructor(ctorArgTypes);
+            type = loadClass(typeName);
+            Constructor<?> ctor = type.getConstructor(ctorArgTypes);
             return ctor.newInstance(ctorArgVals);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new UncheckedException(e);
@@ -343,28 +340,28 @@ public final class TypeUtil {
     }
 
     public static Object instantiateClass(String typeName, Object ctorArgVals[]) {
-        Class<?> clazz = loadClass(typeName);
-        return instantiateClass(clazz, ctorArgVals);
+        Class<?> type = loadClass(typeName);
+        return instantiateClass(type, ctorArgVals);
     }
 
     public static <T> T instantiateClass(Class<T> type) throws TypeNotFoundException {
-        final Object NO_ARGS[] = new Object[] {};
+        final Object NO_ARGS[] = new Object[]{};
         return instantiateClass(type, NO_ARGS);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> Optional<Constructor<T>> getCallableConstructor(Class<T> type, Object[] ctorParameterValues) {
-        return stream((Constructor<T>[])type.getDeclaredConstructors())
-                .filter(c -> c.getParameterCount() == (ctorParameterValues == null ? 0 : ctorParameterValues.length))
-                .filter(c -> {
-                    for (int n=0; n < c.getParameterCount(); n++) {
-                        if ( !(ctorParameterValues[n] == null || c.getParameterTypes()[n].isAssignableFrom(ctorParameterValues[n].getClass())) ) {
-                            return false;
-                        }
-                    }
-                    return true;
-                })
-                .findFirst();
+        return stream((Constructor<T>[]) type.getDeclaredConstructors())
+                   .filter(c -> c.getParameterCount() == (ctorParameterValues == null ? 0 : ctorParameterValues.length))
+                   .filter(c -> {
+                       for (int n = 0; n < c.getParameterCount(); n++) {
+                           if (!(ctorParameterValues[n] == null || c.getParameterTypes()[n].isAssignableFrom(ctorParameterValues[n].getClass()))) {
+                               return false;
+                           }
+                       }
+                       return true;
+                   })
+                   .findFirst();
     }
 
     @SuppressWarnings("unchecked")
@@ -375,7 +372,7 @@ public final class TypeUtil {
                                                             .newInstance(ctorArgVals);
         } catch (InstantiationException instantiateEx) {
             throw new UncheckedException("Unable to instantiate class, type=\"" + type.getName()
-                + "\" - it is likely the type does not have a no-arg constructor or invalid arguments have been specified: ", instantiateEx);
+                                         + "\" - it is likely the type does not have a no-arg constructor or invalid arguments have been specified: ", instantiateEx);
         } catch (IllegalAccessException accessEx) {
             throw new UncheckedException("Unable to instantiate class, \"" + type.getName() + "\" - the constructor/method is not accessible: ", accessEx);
         } catch (InvocationTargetException invocationEx) {
@@ -387,16 +384,16 @@ public final class TypeUtil {
         return NAME_TO_PRIMITIVE_CLASS.containsKey(typeName);
     }
 
-    public static boolean isPrimitiveType(Class<?> clazz) {
-        return PRIMITIVE_TYPES.contains(clazz);
+    public static boolean isPrimitiveType(Class<?> type) {
+        return PRIMITIVE_TYPES.contains(type);
     }
 
-    public static boolean isPrimitiveTypeWrapperClass(Class<?> clazz) {
-        return PRIMITIVE_TYPE_WRAPPERS.contains(clazz);
+    public static boolean isPrimitiveTypeWrapperClass(Class<?> type) {
+        return PRIMITIVE_TYPE_WRAPPERS.contains(type);
     }
 
-    public static boolean isPrimitiveTypeOrWrapperClass(Class<?> clazz) {
-        return PRIMITIVE_TYPES.contains(clazz) || PRIMITIVE_TYPE_WRAPPERS.contains(clazz);
+    public static boolean isPrimitiveTypeOrWrapperClass(Class<?> type) {
+        return PRIMITIVE_TYPES.contains(type) || PRIMITIVE_TYPE_WRAPPERS.contains(type);
     }
 
     /**
@@ -417,6 +414,7 @@ public final class TypeUtil {
      * <li>short</li>
      * <li>Short</li>
      * </ul>
+     *
      * @param type the type whose numeric status is to be determined.
      * @return true if the given type is numeric, false otherwise.
      */
@@ -437,6 +435,7 @@ public final class TypeUtil {
      * <li>short</li>
      * <li>Short</li>
      * </ul>
+     *
      * @param type the type whose numeric status is to be determined.
      * @return true if the given type is an integer type, false otherwise.
      */
@@ -447,12 +446,12 @@ public final class TypeUtil {
     /**
      * Returns the primitive type for a given primitive wrapper type.
      *
-     * @param clazz the primitive wrapper type or some other type.
+     * @param type the primitive wrapper type or some other type.
      * @return the equivalent primitive type or the original type if not a primnitive wrapper type.
      */
-    public static Class<?> primitiveTypeFor(Class<?> clazz) {
-        Class<?> result = PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.get(clazz);
-        return result == null ? clazz : result;
+    public static Class<?> primitiveTypeFor(Class<?> type) {
+        Class<?> result = PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.get(type);
+        return result == null ? type : result;
     }
 
     public static Class<?> ensureNonPrimitiveType(Class<?> primitiveOrNonPrimitiveType) {
@@ -476,7 +475,7 @@ public final class TypeUtil {
      * was not a primitive type.
      */
     public static Class<?> getPrimitiveWrapperType(Class<?> primitiveType) {
-        if ( isPrimitiveTypeWrapperClass(primitiveType) ) return primitiveType;
+        if (isPrimitiveTypeWrapperClass(primitiveType)) return primitiveType;
 
         return PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.get(primitiveType);
     }
@@ -497,23 +496,23 @@ public final class TypeUtil {
 
     public static boolean areEquivalentPrimitiveOrPrimitiveWrappers(Class<?> aClass, Class<?> bClass) {
         return isPrimitiveTypeOrWrapperClass(aClass)
-            && isPrimitiveTypeOrWrapperClass(bClass)
-            && (aClass == bClass || PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.get(aClass) == bClass || PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.get(aClass) == bClass);
+               && isPrimitiveTypeOrWrapperClass(bClass)
+               && (aClass == bClass || PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.get(aClass) == bClass || PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.get(aClass) == bClass);
     }
 
-    public static Object invokeStaticMethod(Class<?> clazz, String methodName) {
-        return invokeStaticMethod(clazz, methodName, (Object[])null);
+    public static Object invokeStaticMethod(Class<?> type, String methodName) {
+        return invokeStaticMethod(type, methodName, (Object[]) null);
     }
 
-    public static Object invokeStaticMethod(Method method, Object ... params) {
+    public static Object invokeStaticMethod(Method method, Object... params) {
         return invokeStaticMethod(method.getDeclaringClass(), method.getName(), params);
     }
 
-    public static Object invokeStaticMethod(Class<?> clazz, String methodName, Object ... params) {
-        Method method = findMethod(Modifier.STATIC, methodName, clazz, null, paramTypes(params))
-                .orElseThrow(() -> new UncheckedException("Unable to invoke method, \"" + methodName
-                                                          + "\" on target, class=\"" + clazz.getName()
-                                                          + "\" - the method was not found: "));
+    public static Object invokeStaticMethod(Class<?> type, String methodName, Object... params) {
+        Method method = findMethod(type, Modifier.STATIC, methodName, null, paramTypes(params))
+                            .orElseThrow(() -> new UncheckedException("Unable to invoke method, \"" + methodName
+                                                                      + "\" on target, class=\"" + type.getName()
+                                                                      + "\" - the method was not found: "));
         return invokeMethod(null, method, params);
     }
 
@@ -521,50 +520,51 @@ public final class TypeUtil {
         return params == null ? null : stream(params).map(p -> p == null ? Object.class : p.getClass()).toArray(Class[]::new);
     }
 
-    public static Stream<Method> streamMethods(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> ... paramTypes) {
+    public static Stream<Method> streamMethods(Class<?> type, int modifiers, String name, Class<?> returnType, Class<?>... paramTypes) {
 
-        return streamMethods(clazz)
-                .filter(m -> m.getName().equals(name))
-                .filter(m -> (m.getModifiers() & modifiers) > 0)
-                .filter(m -> returnType == null || returnType.isAssignableFrom(m.getReturnType()))
-                .filter(m -> paramTypes == null || m.getParameterCount() == paramTypes.length)
-                .filter(m -> {
-                    if ( paramTypes != null) {
-                        for (int n = 0; n < paramTypes.length; n++) {
-                            if (paramTypes[n] != null
-                                && !(m.getParameterTypes()[n].isAssignableFrom(paramTypes[n])
-                                     || (m.getParameterTypes()[n] instanceof Class && paramTypes[n] instanceof Class))) {
-                                return false;
-                            }
-                        }
-                    }
-                    return true;
-                });
+        return streamMethods(type)
+                   .filter(m -> m.getName().equals(name))
+                   .filter(m -> (m.getModifiers() & modifiers) > 0)
+                   .filter(m -> returnType == null || returnType.isAssignableFrom(m.getReturnType()))
+                   .filter(m -> paramTypes == null || m.getParameterCount() == paramTypes.length)
+                   .filter(m -> {
+                       if (paramTypes != null) {
+                           for (int n = 0; n < paramTypes.length; n++) {
+                               if (paramTypes[n] != null
+                                   && !(m.getParameterTypes()[n].isAssignableFrom(paramTypes[n])
+                                        || (m.getParameterTypes()[n] instanceof Class && paramTypes[n] instanceof Class)
+                               )) {
+                                   return false;
+                               }
+                           }
+                       }
+                       return true;
+                   });
     }
 
-    public static Stream<Constructor> streamConstructors(Class<?> clazz) {
-        return stream(clazz.getDeclaredConstructors());
+    public static Stream<Constructor> streamConstructors(Class<?> type) {
+        return stream(type.getDeclaredConstructors());
     }
 
-    public static Stream<Method> streamMethods(Class<?> clazz) {
+    public static Stream<Method> streamMethods(Class<?> type) {
 
-        return new TypeTree(Object.class, clazz)
-                .stream()
-                .map(TreeNode::getManagedObject)
-                .flatMap(c -> stream(c.getDeclaredMethods()));
+        return new TypeTree(Object.class, type)
+                   .stream()
+                   .map(TreeNode::getManagedObject)
+                   .flatMap(c -> stream(c.getDeclaredMethods()));
     }
 
-    public static List<Method> findMethods(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> ... paramTypes) {
+    public static List<Method> findMethods(Class<?> type, int modifiers, String name, Class<?> returnType, Class<?>... paramTypes) {
 
-        return streamMethods(modifiers, name, clazz, returnType, paramTypes).collect(Collectors.toList());
+        return streamMethods(type, modifiers, name, returnType, paramTypes).collect(Collectors.toList());
     }
 
-    public static Optional<Method> findMethod(int modifiers, String name, Class<?> clazz, Class<?> returnType, Class<?> ... paramTypes) {
+    public static Optional<Method> findMethod(Class<?> type, int modifiers, String name, Class<?> returnType, Class<?>... paramTypes) {
 
-        return streamMethods(modifiers, name, clazz, returnType, paramTypes).findFirst();
+        return streamMethods(type, modifiers, name, returnType, paramTypes).findFirst();
     }
 
-    public static Object invokeMethod(Object target, Method method, Object ... params) {
+    public static Object invokeMethod(Object target, Method method, Object... params) {
         try {
             return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, (params != null ? params : EMPTY_PARAMS));
         } catch (IllegalAccessException accessEx) {
@@ -577,26 +577,55 @@ public final class TypeUtil {
                     return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, params);
                 } catch (IllegalAccessException accessEx1) {
                     throw new UncheckedException("Unable to invoke method, \"" + method.getName() + "\" on target bean, class=\"" + target.getClass().getName()
-                        + "\" - the method is not accessible: ", accessEx1);
+                                                 + "\" - the method is not accessible: ", accessEx1);
                 } catch (InvocationTargetException invocationEx) {
                     throw ExceptionUtil.unwindAndRethrowRuntimeException(UncheckedException.class, "Unable to invoke method, \"" + method.getName()
-                        + "\" on target bean, class=\"" + target.getClass().getName() + "\" - the method threw an exception: ", invocationEx);
+                                                                                                   + "\" on target bean, class=\"" + target.getClass().getName() + "\" - the method threw an exception: ", invocationEx);
                 }
             } else {
                 throw new UncheckedException("Unable to invoke method, \"" + method.getName() + "\" on target bean, class=\"" + target.getClass().getName()
-                    + "\" - the method is not accessible: ", accessEx);
+                                             + "\" - the method is not accessible: ", accessEx);
             }
         } catch (InvocationTargetException invocationEx) {
             throw ExceptionUtil.unwindAndRethrowRuntimeException(UncheckedException.class, "Unable to invoke method [" + method + "]"
-                + (target == null ? "" : " on target bean [class=" + target.getClass().getName() + "]: "), invocationEx);
+                                                                                           + (target == null ? "" : " on target bean [class=" + target.getClass().getName() + "]: "), invocationEx);
         }
+    }
+
+    public static Stream<Field> streamFields(Class<?> type) {
+
+        return new TypeTree(Object.class, type)
+                   .stream()
+                   .map(TreeNode::getManagedObject)
+                   .flatMap(c -> stream(c.getDeclaredFields()));
+    }
+
+    public static Stream<Field> streamFields(Class<?> type, int modifiers, String name, Class<?> fieldType) {
+        return streamFields(type)
+                   .filter(f -> f.getName().equals(name))
+                   .filter(f -> (f.getModifiers() & modifiers) > 0)
+                   .filter(f -> fieldType == null || fieldType.isAssignableFrom(f.getType()));
+    }
+
+    public static List<Field> findFields(Class<?> type, int modifiers, String name, Class<?> fieldType) {
+        return streamFields(type, modifiers, name, fieldType).collect(Collectors.toList());
+    }
+
+
+    public static Optional<Field> findField(Class<?> type, int modifiers, String name, Class<?> fieldType) {
+        return streamFields(type, modifiers, name, fieldType).findFirst();
+    }
+
+
+    public static List<Field> findFields(Class<?> type) {
+
+        return streamFields(type).collect(Collectors.toList());
     }
 
     /**
      * Convenience method to return the display name of a type
      *
-     * @param type
-     *           the type whose name is to be displayed
+     * @param type the type whose name is to be displayed
      * @return the string display name for the type, useful for debugging
      */
     public static String getDisplayNameForType(Class<?> type) {
@@ -635,9 +664,9 @@ public final class TypeUtil {
 
     public static Stream<Method> getMethodsInClassHierarchy(final Class<?> specificType) {
         return new TypeTree(specificType)
-                .preorderStream()
-                .map(TreeNode::getManagedObject)
-                .flatMap(type -> stream(type.getDeclaredMethods()));
+                   .preorderStream()
+                   .map(TreeNode::getManagedObject)
+                   .flatMap(type -> stream(type.getDeclaredMethods()));
     }
 
     /**
@@ -650,7 +679,7 @@ public final class TypeUtil {
         if (fromType == null) return 0;
 
         int dimensions = 0;
-        while ( fromType.isArray() ) {
+        while (fromType.isArray()) {
             dimensions++;
             fromType = fromType.getComponentType();
         }
@@ -669,7 +698,7 @@ public final class TypeUtil {
         if (fromType == null) return null;
 
         Class<?> componentType = fromType;
-        while ( componentType.isArray() ) {
+        while (componentType.isArray()) {
             componentType = componentType.getComponentType();
         }
 
@@ -681,15 +710,15 @@ public final class TypeUtil {
      * an array component type, the number of array dimensions may be specified. The type descriptions
      * returned adhere to the type returned from a call to <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#getName%28%29">Class#getName()</a>.
      *
-     * @param clazz the type or component type, if an array type description is to be returned.
+     * @param type            the type or component type, if an array type description is to be returned.
      * @param arrayDimensions in the event the type specified is an array component, the number of dimensions of the
-     * array type description to be returned (minimum 1) or zero if the type is not an array.
+     *                        array type description to be returned (minimum 1) or zero if the type is not an array.
      * @return the class type description for the given type or array of component type.
      */
-    public static String getForNameTypeDescription(Class<?> clazz, int arrayDimensions) {
+    public static String getForNameTypeDescription(Class<?> type, int arrayDimensions) {
         StringBuilder buf = new StringBuilder();
         buf.append(StringUtil.repeat("[", arrayDimensions));
-        Class<?> currentClass = clazz;
+        Class<?> currentClass = type;
         while (true) {
             if (isPrimitiveType(currentClass)) {
                 char car;
@@ -709,7 +738,7 @@ public final class TypeUtil {
                     car = 'D';
                 } else if (currentClass == float.class) {
                     car = 'F';
-                } else /* long */{
+                } else /* long */ {
                     car = 'J';
                 }
                 return buf.append(car).toString();
@@ -725,17 +754,17 @@ public final class TypeUtil {
     /**
      * Returns the class type of a array class whose component type is specified.
      *
-     * @param clazz the type or component type, if an array type description is to be returned.
+     * @param type            the type or component type, if an array type description is to be returned.
      * @param arrayDimensions in the event the type specified is an array component, the number of dimensions of the
-     * array type description to be returned (minimum 1) or zero if the type is not an array.
+     *                        array type description to be returned (minimum 1) or zero if the type is not an array.
      * @return the class type description for the given type or array of component type.
      * @see #getForNameTypeDescription(Class, int)
      */
-    public static Class<?> forName(Class<?> clazz, int arrayDimensions) {
-        if (arrayDimensions <=0) {
-            return clazz;
+    public static Class<?> forName(Class<?> type, int arrayDimensions) {
+        if (arrayDimensions <= 0) {
+            return type;
         }
-        String classDescriptor = getForNameTypeDescription(clazz, arrayDimensions);
+        String classDescriptor = getForNameTypeDescription(type, arrayDimensions);
         return loadClass(classDescriptor);
     }
 }
