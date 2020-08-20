@@ -88,7 +88,7 @@ public interface Message {
         private String field;
         private String code;
         private String message;
-        private Object[] paremeters;
+        private Object[] parameters;
 
         @SuppressWarnings("unchecked")
         public <T> T getRelatedObject() {
@@ -142,36 +142,48 @@ public interface Message {
             return build();
         }
 
-        public String getMessage() {
+        public Builder message(Message message) {
+            if (message.getField() != null) field(message.getField());
+            if (message.getCode() != null) code(message.getCode());
+            if (message.getParameterisedMessage() != null) parameterisedMessage(message.getParameterisedMessage());
+            if (message.getMessageParameters() != null) parameters(message.getMessageParameters());
+            if (message.getRelatedObject() != null) relatedObject(message.getRelatedObject());
+            return this;
+        }
+
+        public Message withMessage(Message message) {
+            return message(message).build();
+        }
+
+        public String getParameterisedMessage() {
             return message;
         }
 
-        public Builder message(String message) {
+        public Builder parameterisedMessage(String message) {
             this.message = message;
             return this;
         }
 
-        public Message withMessage(String message) {
-            this.message = message;
-            return build();
+        public Message withParameterisedMessage(String message) {
+            return parameterisedMessage(message).build();
         }
 
-        public Object[] getParemeters() {
-            return paremeters;
+        public Object[] getParameters() {
+            return parameters;
         }
 
         public Builder parameters(Object ... paremeters) {
-            this.paremeters = paremeters;
+            this.parameters = paremeters;
             return this;
         }
 
         public Message withParameters(Object ... paremeters) {
-            this.paremeters = paremeters;
+            this.parameters = paremeters;
             return build();
         }
 
         public Message build() {
-            return new MessageImpl(cause, relatedObject, field, code, message, paremeters);
+            return new MessageImpl(cause, relatedObject, field, code, message, parameters);
         }
     }
 }
