@@ -524,7 +524,7 @@ public final class TypeUtil {
 
         return streamMethods(type)
                    .filter(m -> m.getName().equals(name))
-                   .filter(m -> (m.getModifiers() & modifiers) > 0)
+                   .filter(m -> (m.getModifiers() & modifiers) == modifiers)
                    .filter(m -> returnType == null || returnType.isAssignableFrom(m.getReturnType()))
                    .filter(m -> paramTypes == null || m.getParameterCount() == paramTypes.length)
                    .filter(m -> {
@@ -603,7 +603,7 @@ public final class TypeUtil {
     public static Stream<Field> streamFields(Class<?> type, int modifiers, String name, Class<?> fieldType) {
         return streamFields(type)
                    .filter(f -> f.getName().equals(name))
-                   .filter(f -> (f.getModifiers() & modifiers) > 0)
+                   .filter(f -> (f.getModifiers() & modifiers) == modifiers)
                    .filter(f -> fieldType == null || fieldType.isAssignableFrom(f.getType()));
     }
 

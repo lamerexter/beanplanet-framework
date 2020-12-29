@@ -33,6 +33,7 @@ import org.beanplanet.core.lang.Assert;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 import static org.beanplanet.core.io.IoUtil.DEFAULT_TRANSFER_BUF_SIZE;
@@ -46,7 +47,62 @@ public class DigestUtil {
     private static final char[] HEXDIGITS = "0123456789ABCDEF".toCharArray();
 
     /**
-     * Calculates a message digest of the specified {@link Resource} byte stream.
+     * Calculates an SHA-1 message digest of the specified {@link String} UTF-8 byte stream.
+     *
+     * @param resource the string whose UTF-8 byte stream is to be digested.
+     * @return the digest hash value calculated over the byte stream.
+     * @throws IoException thrown if an error occurs performing the message digest.
+     */
+    public static String sha256HashByteStreamToHexadecimal(String resource) throws IoException {
+        return sha256HashByteStreamToHexadecimal(new ByteArrayResource(resource.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    /**
+     * Calculates an SHA-1 message digest of the specified {@link Resource} byte stream.
+     *
+     * @param resource the resource whose byte stream is to be digested.
+     * @return the digest hash value calculated over the byte stream.
+     * @throws IoException thrown if an error occurs performing the message digest.
+     */
+    public static String sha256HashByteStreamToHexadecimal(Resource resource) throws IoException {
+        return hashToHexadecimalString(hashByteStream(resource, "SHA-256"));
+    }
+
+    /**
+     * Calculates an SHA-1 message digest of the specified {@link String} UTF-8 byte stream.
+     *
+     * @param resource the string whose UTF-8 byte stream is to be digested.
+     * @return the digest hash value calculated over the byte stream.
+     * @throws IoException thrown if an error occurs performing the message digest.
+     */
+    public static String sha1HashByteStreamToHexadecimal(String resource) throws IoException {
+        return sha1HashByteStreamToHexadecimal(new ByteArrayResource(resource.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    /**
+     * Calculates an SHA-1 message digest of the specified {@link Resource} byte stream.
+     *
+     * @param resource the resource whose byte stream is to be digested.
+     * @return the digest hash value calculated over the byte stream.
+     * @throws IoException thrown if an error occurs performing the message digest.
+     */
+    public static String sha1HashByteStreamToHexadecimal(Resource resource) throws IoException {
+        return hashToHexadecimalString(hashByteStream(resource, "SHA-1"));
+    }
+
+    /**
+     * Calculates an MD5 message digest of the specified {@link String} UTF-8 byte stream.
+     *
+     * @param resource the string whose UTF-8 byte stream is to be digested.
+     * @return the digest hash value calculated over the byte stream.
+     * @throws IoException thrown if an error occurs performing the message digest.
+     */
+    public static String md5HashByteStreamToHexadecimal(String resource) throws IoException {
+        return hashToHexadecimalString(hashByteStream(new ByteArrayResource(resource.getBytes(StandardCharsets.UTF_8)), "MD5"));
+    }
+
+    /**
+     * Calculates an MD5 message digest of the specified {@link Resource} byte stream.
      *
      * @param resource the resource whose byte stream is to be digested.
      * @return the digest hash value calculated over the byte stream.
