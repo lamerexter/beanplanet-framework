@@ -79,6 +79,7 @@ public class MessagesImplTest {
         messages.addInfo(message);
 
         // Then
+        assertThat(messages.isEmpty(), is(false));
         assertThat(messages.getInfos().size(), equalTo(1));
         assertThat(messages.getInfos().get(0), equalTo(message));
         assertThat(messages.getWarnings(), equalTo(Collections.emptyList()));
@@ -177,6 +178,7 @@ public class MessagesImplTest {
         messages.addWarning(message);
 
         // Then
+        assertThat(messages.isEmpty(), is(false));
         assertThat(messages.getInfos(), equalTo(Collections.emptyList()));
         assertThat(messages.getWarnings().size(), equalTo(1));
         assertThat(messages.getWarnings().get(0), equalTo(message));
@@ -275,6 +277,7 @@ public class MessagesImplTest {
         messages.addError(message);
 
         // Then
+        assertThat(messages.isEmpty(), is(false));
         assertThat(messages.getInfos(), equalTo(Collections.emptyList()));
         assertThat(messages.getWarnings(), equalTo(Collections.emptyList()));
         assertThat(messages.getErrors().size(), equalTo(1));

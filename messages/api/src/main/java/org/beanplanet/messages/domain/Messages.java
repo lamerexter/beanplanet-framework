@@ -57,6 +57,15 @@ public interface Messages {
     List<Message> getInfos();
 
     /**
+     * Determines if there are no messages.
+     *
+     * @return true if there are no info, warning or error messages, false otherwise.
+     */
+    default boolean isEmpty() {
+        return !(hasInfos() || hasWarnings() || hasErrors());
+    }
+
+    /**
      * Add an error with the supplied code and message text.
      *
      * @param code                 the code of the message.
