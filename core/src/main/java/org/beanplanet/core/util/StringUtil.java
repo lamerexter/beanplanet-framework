@@ -46,6 +46,26 @@ import static org.beanplanet.core.util.IterableUtil.asStream;
  */
 public class StringUtil {
     /**
+     * Converts a given string to lowercase.
+     *
+     * @param str the string to be converted to lowercase, which may be null.
+     * @return the string converted to lowercase, or null if the string was null.
+     */
+    public static String toLowercase(String str) {
+        return str == null ? null : str.toLowerCase();
+    }
+
+    /**
+     * Converts a given string to lowercase.
+     *
+     * @param str the string to be converted to lowercase, which may be null.
+     * @return the string converted to lowercase, or null if the string was null.
+     */
+    public static String toUppercase(String str) {
+        return str == null ? null : str.toUpperCase();
+    }
+
+    /**
      * Returns the specified string with the first letter capitalised.
      *
      * @param str the string whose first character is to be converted to upper case

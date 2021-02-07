@@ -26,8 +26,6 @@
 
 package org.beanplanet.core.util;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import java.util.LinkedHashMap;
@@ -42,6 +40,28 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class StringUtilTest {
+    @Test
+    public void toLowercase_null() {
+        assertThat(StringUtil.toLowercase(null), nullValue());
+    }
+
+    @Test
+    public void toLowercase() {
+        assertThat(StringUtil.toLowercase("   "), equalTo("   "));
+        assertThat(StringUtil.toLowercase("AbC dEF"), equalTo("abc def"));
+    }
+
+    @Test
+    public void toUppercase_null() {
+        assertThat(StringUtil.toUppercase(null), nullValue());
+    }
+
+    @Test
+    public void toUppercase() {
+        assertThat(StringUtil.toUppercase("   "), equalTo("   "));
+        assertThat(StringUtil.toUppercase("AbC dEF"), equalTo("ABC DEF"));
+    }
+
     @Test
     public void asDelimitedString_Stream_Predicate_Delimiter_Function() {
         assertThat(asDelimitedString(asList("a", "b", "c").stream(), null,",", null), equalTo("a,b,c"));
