@@ -2,6 +2,7 @@ package org.beanplanet.docs.pdf;
 
 import org.beanplanet.core.io.DigestUtil;
 import org.beanplanet.core.io.resource.ByteArrayResource;
+import org.beanplanet.core.io.resource.FileResource;
 import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.io.resource.UrlResource;
 import org.junit.Test;
@@ -43,19 +44,20 @@ public class PdfUtilTest {
         final String[] expectedPageHashes = new String[]{
                 "a55d9ae56023bb21a0c44ff116821f76",
                 "01335e5a7366fb2815015d79add75b3d",
-                "bd2de23b1932e93ceb00ddf3d447aaab",
-                "a142f092afda30bc45db0ced1fad58db",
-                "27eb0e4492f9152b785ed88c0b4eb4a5",
-                "c62a0fc96d4e39fc2f69423f59c42d57",
-                "0ee96e9c093c2a3d9a351f3e78a111a7",
-                "0c4d1add9edab81ca80488c30cb5c36d",
-                "2329f0b6a717194fe714b36d82d9e034"
+                "906aeda6e100bdee18cc9d63177294d6",
+                "f8715dd030328295f48088ab1d83a338",
+                "0e0a7c95e7492c9d18088214f4e3385c",
+                "de3829e1cf7991622bb93de875d0ab55",
+                "09ac33990053113f3522f1aae6dd227d",
+                "8fa2e6a7e529c5c3f1e54141f9317597",
+                "ca2411670a2861454421e6a4c9476e97"
         };
         for (int n = 0; n <= 8; n++) {
-//            final var destination = new FileResource("/tmp/Landscape_"+n+".pdf");
+//            final Resource destination = new FileResource("/tmp/Landscape_"+n+".pdf");
             final Resource destination = new ByteArrayResource(new ByteArrayOutputStream());
             convertImageToPdf(new UrlResource(PdfUtilTest.class.getResource("Landscape_" + n + ".jpg")), destination);
             final byte[] pageBytes = extractPdfPageToPNGBytes(destination, 0);
+//            System.out.println("****** "+DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
             assertEquals(expectedPageHashes[n], DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
         }
     }
@@ -65,19 +67,20 @@ public class PdfUtilTest {
         final String[] expectedPageHashes = new String[]{
                 "df7cf1e9f4be86720b15e03d552b4b9e",
                 "5e514a235abb2c9f1ca7e17ee6ca75fc",
-                "4d73f15fa0fad14bb22e6f6d6da3bd6e",
-                "6ca3fa2ec33c9c90bfc403149556bdd1",
-                "1c8a17f0615548afad052b4c7e87c693",
-                "232856e504236bfbfa4da1f41896ca6c",
-                "72a0326f0c91a9ba9dfccd10b1474c10",
-                "cb79a1f04ef35028c999ca918a0435e8",
-                "d909426ba0762a9d6c30c43fbd83685d"
+                "7cd625466455abd262a90a2bdc0813c0",
+                "5616d1b27a260e3573dbbf233539c32f",
+                "4d201dec84bd939ed506d8ce3721d3e3",
+                "a7e13e8ad77d5f9b80daaf5207bd0780",
+                "5143394f9f751940fa96204da4e4692b",
+                "25802915254927468fc3a145a9f6f9d3",
+                "7e8efe1775770c82fc3829d32140feb9"
         };
         for (int n = 0; n <= 8; n++) {
-//            final var destination = new FileResource("/tmp/Portrait_"+n+".pdf");
+//            final Resource destination = new FileResource("/tmp/Portrait_"+n+".pdf");
             final Resource destination = new ByteArrayResource(new ByteArrayOutputStream());
             convertImageToPdf(new UrlResource(PdfUtilTest.class.getResource("Portrait_" + n + ".jpg")), destination);
             final byte[] pageBytes = extractPdfPageToPNGBytes(destination, 0);
+//            System.out.println("****** "+DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
             assertEquals(expectedPageHashes[n], DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
         }
     }
