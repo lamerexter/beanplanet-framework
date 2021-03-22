@@ -7,9 +7,15 @@
       <version>2.0.1-SNAPSHOT</version>
       <relativePath>../pom.xml</relativePath>
    </parent>
-   <artifactId>beanplanet-proxy</artifactId>
-   <name>BeanPlanet - Proxy</name>
+   <artifactId>beanplanet-docs</artifactId>
+   <name>BeanPlanet - Documentation</name>
    <version>2.0.1-SNAPSHOT</version>
+
+   <properties>
+      <apache-commons-imaging-version>1.0-alpha2</apache-commons-imaging-version>
+      <apache-pdfbox-version>2.0.23</apache-pdfbox-version>
+      <apache-poi-version>5.0.0</apache-poi-version>
+   </properties>
 
    <dependencies>
       <dependency>
@@ -18,21 +24,19 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.beanplanet</groupId>
-         <artifactId>beanplanet-testing-proxies</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
+         <groupId>org.apache.commons</groupId>
+         <artifactId>commons-imaging</artifactId>
+         <version>${apache-commons-imaging-version}</version>
       </dependency>
       <dependency>
-         <groupId>cglib</groupId>
-         <artifactId>cglib-nodep</artifactId>
-         <version>3.2.6</version>
+         <groupId>org.apache.pdfbox</groupId>
+         <artifactId>pdfbox</artifactId>
+         <version>${apache-pdfbox-version}</version>
       </dependency>
       <dependency>
-         <groupId>org.databene</groupId>
-         <artifactId>contiperf</artifactId>
-         <version>2.3.4</version>
-         <scope>test</scope>
+         <groupId>org.apache.poi</groupId>
+         <artifactId>poi</artifactId>
+         <version>${apache-poi-version}</version>
       </dependency>
    </dependencies>
 </project>
