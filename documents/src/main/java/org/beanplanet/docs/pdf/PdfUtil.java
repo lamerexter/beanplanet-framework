@@ -13,16 +13,18 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.beanplanet.core.io.IoException;
+import org.beanplanet.core.io.IoUtil;
 import org.beanplanet.core.io.resource.ByteArrayResource;
+import org.beanplanet.core.io.resource.FileResource;
 import org.beanplanet.core.io.resource.Resource;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.awt.image.ColorModel;
+import java.io.*;
 
 /**
  * PDF Utility class.
@@ -126,12 +128,8 @@ public class PdfUtil {
 
         AffineTransformOp op = new AffineTransformOp(t, AffineTransformOp.TYPE_BICUBIC);
 
-        final BufferedImage sourceImage = Imaging.getBufferedImage(imageBytes);
-        BufferedImage destinationImage = op.createCompatibleDestImage(sourceImage, (sourceImage.getType() == BufferedImage.TYPE_BYTE_GRAY) ? sourceImage.getColorModel() : null );
-        Graphics2D g = destinationImage.createGraphics();
-        g.setBackground(Color.WHITE);
-        g.clearRect(0, 0, destinationImage.getWidth(), destinationImage.getHeight());
-        destinationImage = op.filter(sourceImage, destinationImage);
+        final BufferedImage sourceImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
+        BufferedImage destinationImage = op.filter(sourceImage, null);
         return new ByteArrayResource(Imaging.writeImageToBytes(destinationImage, ImageFormats.PNG, null));
     }
 

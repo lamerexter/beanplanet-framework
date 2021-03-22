@@ -295,7 +295,7 @@ public class IoUtil {
      */
     public static void transferResourceStreamsAndClose(Resource fromResource, Resource toResource)
         throws IoException {
-        transferResourceCharStreamsAndClose(fromResource, toResource, DEFAULT_TRANSFER_BUF_SIZE);
+        transferResourceStreamsAndClose(fromResource, toResource, DEFAULT_TRANSFER_BUF_SIZE);
     }
 
     /**
