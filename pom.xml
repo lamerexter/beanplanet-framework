@@ -39,7 +39,7 @@
         <apache.commons.lang3.version>3.5</apache.commons.lang3.version>
         <beanplanet.framework.version>0.32-SNAPSHOT</beanplanet.framework.version>
         <java.version>1.8</java.version>
-        <jackson.version>2.8.5</jackson.version>
+        <jackson.version>2.9.10.7</jackson.version>
         <hamcrest.version>1.3</hamcrest.version>
         <mockito.version>1.9.5</mockito.version>
         <junit.version>4.8.2</junit.version>
