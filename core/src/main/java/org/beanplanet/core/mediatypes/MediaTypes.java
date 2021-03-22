@@ -26,12 +26,22 @@
 
 package org.beanplanet.core.mediatypes;
 
-public class MediaTypes {
-    public static final MediaType APPLICATION_JSON = new DefaultMediaType("application/json");
+public interface MediaTypes {
+    interface Application {
+        MediaType JSON = new DefaultMediaType("application/json");
+    }
 
-    public static final MediaType TEXT_HTML = new DefaultMediaType("text/html");
-    public static final MediaType TEXT_PLAIN = new DefaultMediaType("text/plain");
+    interface Text {
+        MediaType HTML = new DefaultMediaType("text/html");
+        MediaType PLAIN = new DefaultMediaType("text/plain");
+    }
 
-    public static final MediaType IMAGE_PNG = new DefaultMediaType("image/png");
-
+    interface Image {
+        MediaType BMP = new DefaultMediaType("image/bmp");
+        MediaType GIF = new DefaultMediaType("image/gif");
+        MediaType JPEG = new DefaultMediaType("image/jpeg");
+        MediaType PNG = new DefaultMediaType("image/png");
+        MediaType SVG = new DefaultMediaType("image/svg+xml");
+        MediaType TIFF = new DefaultMediaType("image/tiff");
+    }
 }
