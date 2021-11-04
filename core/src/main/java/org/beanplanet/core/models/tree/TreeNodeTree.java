@@ -26,7 +26,13 @@
 
 package org.beanplanet.core.models.tree;
 
-import java.util.List;
+import org.beanplanet.core.models.path.NamePath;
+import org.beanplanet.core.models.path.SimpleNamePath;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class TreeNodeTree<E> extends AbstractTree<TreeNode<E>> {
     public TreeNodeTree(E root) {
@@ -35,6 +41,68 @@ public class TreeNodeTree<E> extends AbstractTree<TreeNode<E>> {
 
     public TreeNodeTree(TreeNode<E> root) {
         super(root);
+    }
+
+    public static <S> TreeNodeTree<S> copyFrom(final Tree<S> sourceTree) {
+        return copyFrom(sourceTree, s -> s);
+    }
+
+    public static <S, R> TreeNodeTree<R> copyFrom(final Tree<S> sourceTree, final Function<S, R> transformer) {
+        if ( sourceTree == null ) return null;
+
+        final Deque<TreeNode<R>> destNodeStack = new ArrayDeque<>();
+        final Deque<S> sourceNodeStack = new ArrayDeque<>();
+        final TreeNode<R> destRootNode = new TreeNode<>(transformer.apply(sourceTree.getRoot()));
+        destNodeStack.push(destRootNode);
+        sourceNodeStack.push(sourceTree.getRoot());
+
+        final Deque<S> nextChildrenDeque = new ArrayDeque<>();
+        final Deque<TreeNode<R>> destChildrenDeque = new ArrayDeque<>();
+
+        while ( !destNodeStack.isEmpty()) {
+            final TreeNode<R> nextDest = destNodeStack.pop();
+            final S nextSource = sourceNodeStack.pop();
+            List<S> nextChildren = sourceTree.getChildren(nextSource);
+            List<TreeNode<R>> destChildren = nextChildren.stream().map(transformer).map(TreeNode::new).collect(Collectors.toList());
+            nextDest.setChildren(destChildren);
+            nextChildrenDeque.clear();
+            for (S child : nextChildren) {
+                nextChildrenDeque.push(child);
+            }
+            while ( !nextChildrenDeque.isEmpty() ) {
+                sourceNodeStack.push(nextChildrenDeque.pop());
+            }
+            destChildrenDeque.clear();
+            for (TreeNode<R> destChild : destChildren) {
+                destChildrenDeque.push(destChild);
+            }
+            while ( !destChildrenDeque.isEmpty() ) {
+                destNodeStack.push(destChildrenDeque.pop());
+            }
+        }
+
+        return new TreeNodeTree<>(destRootNode);
+    }
+
+    public NamePath parentNamePath(final TreeNode<E> from, final Function<E, String> nameSupplier) {
+        return from.parentNamePath(nameSupplier);
+    }
+
+    public Optional<TreeNode<E>> find(final NamePath path, final Function<E, String> nameSupplier) {
+        if ( path.isEmpty() ) return Optional.empty();
+
+        TreeNode<E> from = path.getFirstElement().equals(nameSupplier.apply(getRoot().getManagedObject())) ? getRoot() : null;
+
+        for (int n=1; n < path.length() && from != null; n++) {
+            final String pathNameElement = path.getElement(n);
+            from = from.getChildren()
+                    .stream()
+                    .filter(node -> pathNameElement.equals(nameSupplier.apply(node.getManagedObject())))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        return Optional.ofNullable(from);
     }
 
     @Override

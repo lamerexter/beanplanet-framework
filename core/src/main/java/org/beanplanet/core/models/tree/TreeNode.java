@@ -26,10 +26,14 @@
 
 package org.beanplanet.core.models.tree;
 
+import org.beanplanet.core.models.path.NamePath;
+import org.beanplanet.core.models.path.SimpleNamePath;
+
 import java.io.Serializable;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -119,4 +123,16 @@ public class TreeNode<E> implements Serializable {
     public int getNumberOfChildren() {
         return children == null ? 0 : children.size();
     }
+
+    public NamePath parentNamePath(final Function<E, String> nameSupplier) {
+        LinkedList<String> namePathElements = new LinkedList<>();
+        TreeNode<E> fromNode = this;
+        while (fromNode != null) {
+            namePathElements.add(0, nameSupplier.apply(fromNode.getManagedObject()));
+            fromNode = fromNode.getParent();
+        }
+
+        return new SimpleNamePath(namePathElements);
+    }
+
 }

@@ -38,7 +38,7 @@ import org.beanplanet.core.events.PropertyChangeEventSource;
  */
 public interface Progress extends PropertyChangeEventSource, ChangeEventSource<Double> {
     /**
-     * The progress completion status, if known, betweem 0 and 1. Set only if the
+     * The progress completion status, if known, between 0 and 1. Set only if the
      * progress completion can be assessed, otherwise null if the progress completion rate cannot be
      * assessed or is indeterminate.
      *
@@ -46,6 +46,16 @@ public interface Progress extends PropertyChangeEventSource, ChangeEventSource<D
      * rate is not available at the time or is considered indeterminate.
      */
     Double getCompletion();
+
+    /**
+     * The percentage of completion, rounded down to be between 0 and 100.
+     *
+     * @return 0 if indeterminate or completion status cannot be assessed at the time of call, or the percentage complete between 0 and 100.
+     */
+    default int getPercentComplete() {
+        final Double complete = getCompletion();
+        return complete == null ? 0 : (int)(complete * 100d);
+    }
 
     /**
      * Whether the progredss of the process being performed is complete.
