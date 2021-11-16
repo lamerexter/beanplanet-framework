@@ -80,6 +80,7 @@ public class DateUtilTest {
       assertNotNull(DateUtil.parse("2011-01-18T18:43:14Z", "yyyy-MM-dd'T'HH:mm:ss'Z'"));
       
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+      df.setTimeZone(TimeZone.getTimeZone("UTC"));
       assertEquals(df.parse("2011-01-18T18:43:14Z"), DateUtil.parse("2011-01-18T18:43:14Z", "yyyy-MM-dd'T'HH:mm:ss'Z'"));
    }
    
@@ -91,30 +92,35 @@ public class DateUtilTest {
    @Test
    public void testNormativeISO8601Datetime() throws ParseException {
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss z");
+      df.setTimeZone(TimeZone.getTimeZone("UTC"));
       assertEquals(df.parse("2011-01-18T18:43:14 GMT"), DateUtil.parseIso8601Datetime("2011-01-18T18:43:14Z"));
    }
 
    @Test
    public void testISO8601DatetimeWithTimezoneOffset() throws ParseException {
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss Z");
+      df.setTimeZone(TimeZone.getTimeZone("UTC"));
       assertEquals(df.parse("2011-01-18T18:43:14 +0330"), DateUtil.parseIso8601Datetime("2011-01-18T18:43:14+03:30"));
    }
 
    @Test
    public void testISO8601DatetimeWithMillisAndTimezoneOffset() throws ParseException {
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S Z");
+      df.setTimeZone(TimeZone.getTimeZone("UTC"));
       assertEquals(df.parse("2011-01-18T18:43:14.512 +0330"), DateUtil.parseIso8601Datetime("2011-01-18T18:43:14.512+03:30"));
    }
 
    @Test
    public void testISO8601DatetimeWithMillis() throws ParseException {
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S");
+      df.setTimeZone(TimeZone.getTimeZone("UTC"));
       assertEquals(df.parse("2011-01-18T18:43:14.650"), DateUtil.parseIso8601Datetime("2011-01-18T18:43:14.650"));
    }
 
    @Test
    public void testISO8601DatetimeFormat() throws ParseException {
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+      df.setTimeZone(TimeZone.getTimeZone("UTC"));
       assertEquals("2011-01-18T18:43:14Z", DateUtil.toIso8601String(df.parse("2011-01-18T18:43:14")));
    }
 
@@ -132,12 +138,14 @@ public class DateUtilTest {
    @Test
    public void testToEndOfDayAtEndOfCalendarMonth() throws ParseException {
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+      df.setTimeZone(TimeZone.getTimeZone("UTC"));
       assertEquals(DateUtil.parseIso8601Datetime("2010-01-31T23:59:59.999"), DateUtil.toEndOfDayAtEndOfCalendarMonth(df.parse("2010-01-02T13:43:14")));
    }
 
    @Test
    public void testToEndOfDayAtEndOfCalendarMonthForFebLeapYear() throws ParseException {
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+      df.setTimeZone(TimeZone.getTimeZone("UTC"));
       assertEquals(DateUtil.parseIso8601Datetime("2004-02-29T23:59:59.999"), DateUtil.toEndOfDayAtEndOfCalendarMonth(df.parse("2004-02-02T13:43:14")));
    }
    
