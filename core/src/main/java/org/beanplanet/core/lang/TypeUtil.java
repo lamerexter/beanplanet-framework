@@ -259,14 +259,14 @@ public final class TypeUtil {
 
         try {
             type = Class.forName(className);
-        } catch (java.lang.ClassNotFoundException cnfEx) {
+        } catch (java.lang.ClassNotFoundException | ClassCastException ex) {
             // XClass not found under calling context, try the current threads
             // classloader, if any
             if (Thread.currentThread().getContextClassLoader() != null) {
                 try {
                     type = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
-                } catch (java.lang.ClassNotFoundException cnfThreadEx) {
-                    throw new TypeNotFoundException("The given class [" + className + "] was not found: ", cnfThreadEx);
+                } catch (java.lang.ClassNotFoundException | ClassCastException threadExx) {
+                    throw new TypeNotFoundException("The given class [" + className + "] was not found or could not be loaded: ", threadExx);
                 }
             }
         }

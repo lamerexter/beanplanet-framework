@@ -26,6 +26,10 @@
 
 package org.beanplanet.messages.domain;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.text.MessageFormat;
@@ -35,6 +39,7 @@ import java.util.Objects;
 /**
  * Standard message implementation.
  */
+@JsonInclude(NON_EMPTY)
 public class MessageImpl implements Message {
 
     /**

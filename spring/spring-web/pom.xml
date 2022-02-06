@@ -29,25 +29,56 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <parent>
         <groupId>org.beanplanet</groupId>
-        <artifactId>beanplanet-messages-parent</artifactId>
+        <artifactId>beanplanet-spring</artifactId>
         <version>2.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <name>Beanplanet -   Messages - Api</name>
-    <description>Beanplanet Messages API Project</description>
-    <artifactId>beanplanet-messages-api</artifactId>
+    <name>Beanplanet -   Spring Web</name>
+    <description>Beanplanet Spring Web</description>
+    <artifactId>beanplanet-spring-web</artifactId>
 
+    <properties>
+        <spring.version>5.3.15</spring.version>
+    </properties>
     <dependencies>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>org.beanplanet</groupId>
+            <artifactId>beanplanet-validation</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.beanplanet</groupId>
-            <artifactId>beanplanet-core</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>${spring.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -26,19 +26,22 @@
 
 package org.beanplanet.messages.domain;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static java.util.Collections.emptyList;
+import static org.beanplanet.messages.domain.MessageImpl.*;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Collections.emptyList;
-import static org.beanplanet.messages.domain.MessageImpl.fieldMessage;
-import static org.beanplanet.messages.domain.MessageImpl.globalMessage;
-
 /**
  * Standard messages container implementation.
  */
+@JsonInclude(NON_EMPTY)
 public class MessagesImpl implements Messages {
     /**
      * Holds Informational messages.
