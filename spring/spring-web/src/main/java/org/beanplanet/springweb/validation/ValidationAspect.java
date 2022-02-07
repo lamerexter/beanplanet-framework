@@ -71,8 +71,8 @@ public class ValidationAspect {
     }
   }
 
-  @Before("execution(* com.mb.recon.partner.reporting.controller.*.*(..))")
-  public void paramCheck(JoinPoint joinPoint) {
+  @Before("(within(@(@org.springframework.stereotype.Controller *) *) || within(@(@org.springframework.stereotype.Service *) *)) && execution(* *(.., @org.beanplanet.validation.Validated (*), ..))")
+  public void validateComponent(JoinPoint joinPoint) {
     signatureValidators.computeIfAbsent(((MethodSignature)joinPoint.getSignature()).getMethod(), buildValidator()).validate(joinPoint, messages());
   }
 
