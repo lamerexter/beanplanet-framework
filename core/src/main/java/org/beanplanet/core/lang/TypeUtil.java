@@ -549,7 +549,7 @@ public final class TypeUtil {
     public static Stream<Method> streamMethods(Class<?> type) {
 
         return new TypeTree(Object.class, type)
-                   .stream()
+                   .postorderStream()
                    .map(TreeNode::getManagedObject)
                    .flatMap(c -> stream(c.getDeclaredMethods()));
     }
