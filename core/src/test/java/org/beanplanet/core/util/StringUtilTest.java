@@ -253,4 +253,15 @@ public class StringUtilTest {
         assertThat(StringUtil.repeat("abc", 5), equalTo("abcabcabcabcabc"));
     }
 
+    @Test
+    public void nvlStr_null() {
+        assertThat(StringUtil.nvlStr(null), nullValue());
+    }
+
+    @Test
+    public void nvlStr_empty() {
+        assertThat(StringUtil.nvlStr(""), nullValue());
+        assertThat(StringUtil.nvlStr(" "), nullValue());
+        assertThat(StringUtil.nvlStr("\t\r\n"), nullValue());
+    }
 }

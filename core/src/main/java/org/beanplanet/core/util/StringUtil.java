@@ -688,6 +688,20 @@ public class StringUtil {
     }
 
     /**
+     * Returns a string consisting of the elements of an collection, converted to strings using toString(), delimited with a given delimiter. Only
+     * strings which are not empty (consisting only of whitespace) are added.
+     *
+     * @param delimiter the delimiter to apply between adjacent elements from the collection.
+     * @param collection an array of objects whose element non-null and non-empty string values to be delimited, which may be null.
+     * @return null if the given collection is null, otherwise a string of the collection's non-null and non-empty string element value, delimited by the given delimiter.
+     */
+    public static <T> String asDelimitedStringOfNotEmpty(final String delimiter, Object ... collection) {
+        if (collection == null) return null;
+
+        return asDelimitedString(Arrays.stream(collection), e -> e != null && !isEmptyOrNull(e.toString()), delimiter, null);
+    }
+
+    /**
      * Ensures the specified string, <code>str</code>, has the given prefix, <code>prefix</code>. The check for the
      * string prefix is case-sensitive.
      *
@@ -808,5 +822,9 @@ public class StringUtil {
     public static List<String> asCsvList(String str) {
         Stream<String> dsvStream = asDsvStream(str, ",");
         return dsvStream == null ? null : dsvStream.collect(Collectors.toList());
+    }
+
+    public static String nvlStr(String nullableOrEmpty) {
+        return isEmptyOrNull(nullableOrEmpty) ? null : nullableOrEmpty;
     }
 }
