@@ -1,22 +1,19 @@
 package org.beanplanet.docs.pdf;
 
+import static org.beanplanet.docs.pdf.PdfUtil.*;
+import static org.junit.Assert.assertEquals;
+
 import org.beanplanet.core.io.DigestUtil;
+import org.beanplanet.core.io.resource.ByteArrayOutputStreamResource;
 import org.beanplanet.core.io.resource.ByteArrayResource;
-import org.beanplanet.core.io.resource.FileResource;
 import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.io.resource.UrlResource;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-
-import static org.beanplanet.docs.pdf.PdfUtil.convertImageToPdf;
-import static org.beanplanet.docs.pdf.PdfUtil.extractPdfPageToPNGBytes;
-import static org.junit.Assert.assertEquals;
-
 public class PdfUtilTest {
     @Test
     public void convertImageToPdf_jpeg_xAndYBothLessThanA4() {
-        final Resource destination = new ByteArrayResource(new ByteArrayOutputStream());
+        final Resource destination = new ByteArrayOutputStreamResource();
         convertImageToPdf(new UrlResource(PdfUtilTest.class.getResource("apple_260x191.jpg")), destination);
         final byte[] pageBytes = extractPdfPageToPNGBytes(destination, 0);
         assertEquals("c925700ccbb6afd0037e46a281b2c20b", DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
@@ -24,7 +21,7 @@ public class PdfUtilTest {
 
     @Test
     public void convertImageToPdf_jpeg_xAndYBothLargerThanA4_landscape() {
-        final Resource destination = new ByteArrayResource(new ByteArrayOutputStream());
+        final Resource destination = new ByteArrayOutputStreamResource();
         convertImageToPdf(new UrlResource(PdfUtilTest.class.getResource("apple_2600x1908.jpg")), destination);
         final byte[] pageBytes = extractPdfPageToPNGBytes(destination, 0);
         assertEquals("adcc5d89bb237427b3da3967555c7ddd", DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
@@ -32,8 +29,7 @@ public class PdfUtilTest {
 
     @Test
     public void convertImageToPdf_jpeg_xAndYBothLargerThanA4_portrait() {
-//        final var destination = new FileResource("/tmp/test.pdf");
-        final Resource destination = new ByteArrayResource(new ByteArrayOutputStream());
+        final Resource destination = new ByteArrayOutputStreamResource();
         convertImageToPdf(new UrlResource(PdfUtilTest.class.getResource("apple_2600x1908_rotated_clockwise_90.jpg")), destination);
         final byte[] pageBytes = extractPdfPageToPNGBytes(destination, 0);
         assertEquals("be8402bf31a52389983f1c75f01aeb20", DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
@@ -53,11 +49,9 @@ public class PdfUtilTest {
                 "ca2411670a2861454421e6a4c9476e97"
         };
         for (int n = 0; n <= 8; n++) {
-//            final Resource destination = new FileResource("/tmp/Landscape_"+n+".pdf");
-            final Resource destination = new ByteArrayResource(new ByteArrayOutputStream());
+            final Resource destination = new ByteArrayOutputStreamResource();
             convertImageToPdf(new UrlResource(PdfUtilTest.class.getResource("Landscape_" + n + ".jpg")), destination);
             final byte[] pageBytes = extractPdfPageToPNGBytes(destination, 0);
-//            System.out.println("****** "+DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
             assertEquals(expectedPageHashes[n], DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
         }
     }
@@ -76,11 +70,9 @@ public class PdfUtilTest {
                 "7e8efe1775770c82fc3829d32140feb9"
         };
         for (int n = 0; n <= 8; n++) {
-//            final Resource destination = new FileResource("/tmp/Portrait_"+n+".pdf");
-            final Resource destination = new ByteArrayResource(new ByteArrayOutputStream());
+            final Resource destination = new ByteArrayOutputStreamResource();
             convertImageToPdf(new UrlResource(PdfUtilTest.class.getResource("Portrait_" + n + ".jpg")), destination);
             final byte[] pageBytes = extractPdfPageToPNGBytes(destination, 0);
-//            System.out.println("****** "+DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
             assertEquals(expectedPageHashes[n], DigestUtil.md5HashByteStreamToHexadecimal(new ByteArrayResource(pageBytes)));
         }
     }
