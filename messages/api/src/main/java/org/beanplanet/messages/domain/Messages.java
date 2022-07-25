@@ -25,6 +25,9 @@
  */
 package org.beanplanet.messages.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +37,8 @@ import java.util.function.Predicate;
 /**
  * Definition of standard messages container.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(as = MessagesImpl.class)
 public interface Messages {
     /**
      * Get all errors held in the messages container.

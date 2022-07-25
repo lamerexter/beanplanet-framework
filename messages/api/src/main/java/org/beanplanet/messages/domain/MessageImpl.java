@@ -75,6 +75,12 @@ public class MessageImpl implements Message {
     private Object[] messageParameters;
 
     /**
+     * Construct an empty message.
+     */
+    public MessageImpl() {
+    }
+
+    /**
      * Static factory method to conveniently create a global message.
      *
      * @param code                 the canonical code of this message.

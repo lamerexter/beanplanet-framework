@@ -7,6 +7,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface Validated {
 
-  Class<?>[] validatorClass () default {};
+  Class<?>[] validatorClass() default {};
 
+  Class<?>[] value() default {};
 }

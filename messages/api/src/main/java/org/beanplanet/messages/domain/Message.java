@@ -25,10 +25,16 @@
  */
 package org.beanplanet.messages.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 /**
  * Definition of message which may be either a 'global' message or a 'field-related' message.  A global message is not
  * related to a field and is therefore a general message.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(as = MessageImpl.class)
 public interface Message {
     /**
      * The object associated with the message.
