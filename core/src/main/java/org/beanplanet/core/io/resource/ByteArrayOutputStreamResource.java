@@ -30,76 +30,43 @@ import static org.beanplanet.core.lang.TypeUtil.getBaseName;
 
 import org.beanplanet.core.io.IoException;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 
 
 /**
- * An implementation of a resource, which can be backed by a byte array or <code>{@link ByteArrayOutputStream}</code>.
- *
- * <p>
- * If backed by a <code>ByteArrayOutputStream</code> this resource is not thread safe. Any backing
- * <code>ByteArrayOutputStream</code> is reset upon each successive invocation of
- * <code>{@link #getOutputStream()}</code>.
- * </p>
- *
- * <p>
- * Naturally, this resource is readable.
- * </p>
- *
- * @author Gary Watson
- *
+ * An implementation of a resource which is backed by a <code>{@link ByteArrayOutputStream}</code>.
  */
-public class ByteArrayResource extends AbstractResource implements ReadableResource {
-    /** The byte array backing this resource. */
-    private final byte[] byteArray;
-
-    /** The starting offset within the byte array backing this resource. */
-    private int offset;
-
-    /** The number of bytes within the array backing this resource, from the offset specified. */
-    private int length;
-
-    private static byte[] EMPTY_ARRAY = {};
-
+public class ByteArrayOutputStreamResource extends AbstractResource implements ReadableResource {
+    /** The <code>{@link ByteArrayOutputStream}</code> backing this resource. */
+    protected ByteArrayOutputStream byteArrayOutputStream;
 
     /**
      * Constructs a <code>ByteArrayResource</code> with no initial array.
      */
-    public ByteArrayResource() {
-        this(EMPTY_ARRAY, 0, 0);
+    public ByteArrayOutputStreamResource() {
+        this(new ByteArrayOutputStream());
     }
 
     /**
-     * Constructs a <code>ByteArrayResource</code> with the specified backing array.
+     * Constructs a <code>ByteArrayResource</code> with the specified backing <code>{@link ByteArrayOutputStream}</code>.
      *
-     * @param byteArray the byte array to back this resource.
+     * @param byteArrayOutputStream the byte array to back this resource.
      */
-    public ByteArrayResource(byte[] byteArray) {
-        this(byteArray, 0, byteArray.length);
+    public ByteArrayOutputStreamResource(final ByteArrayOutputStream byteArrayOutputStream) {
+        this.byteArrayOutputStream = byteArrayOutputStream;
     }
 
     /**
-     * Constructs a <code>ByteArrayResource</code> with the specified backing array, offset
-     * and number of bytes.
+     * Returns the <code>ByteArrayOutputStream</code> backing this resource.
      *
-     * @param byteArray the byte array to back this resource.
-     * @param offset the starting offset within the byte array backing this resource.
-     * @param length the number of bytes within the array backing this resource, from the offset specified.
+     * @return the <code>ByteArrayOutputStream</code> backing this resource, which may be null.
      */
-    public ByteArrayResource(byte[] byteArray, int offset, int length) {
-        this.byteArray = byteArray;
-        this.offset = byteArray == null ? 0 : offset;
-        this.length = byteArray == null ? 0 : length;
-    }
-
-    /**
-     * Returns the array backing this resource.
-     *
-     * @return the array backing this resource, which may be null.
-     */
-    public byte[] getByteArray() {
-        return byteArray;
+    public ByteArrayOutputStream getByteArrayOutputStream() {
+        return byteArrayOutputStream;
     }
 
     /**
@@ -110,7 +77,7 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
      */
     @Override
     public URL getUrl() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException(getBaseName(ByteArrayResource.class)
+        throw new UnsupportedOperationException(getBaseName(ByteArrayOutputStreamResource.class)
             + " are in-memory resources and have no URL");
     }
 
@@ -121,7 +88,8 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
      */
     @Override
     public boolean canRead() {
-        return byteArray != null; }
+        return byteArrayOutputStream != null;
+    }
 
     /**
      * Determines whether this resource can be written to, either as byte or character-orientated stream.
@@ -130,7 +98,7 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
      */
     @Override
     public boolean canWrite() {
-        return byteArray != null;
+        return byteArrayOutputStream != null;
     }
 
     /**
@@ -142,7 +110,7 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
      */
     @Override
     public InputStream getInputStream() throws IoException {
-        return new ByteArrayInputStream(byteArray, offset, length);
+        return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
     }
 
     /**
@@ -154,21 +122,6 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
      */
     @Override
     public OutputStream getOutputStream() throws IoException {
-        return new ByteArrayBackedOutputStream();
-    }
-
-    private class ByteArrayBackedOutputStream extends OutputStream {
-        private int writeIndex = offset;
-        private int lastIndexExcluding = offset+length;
-
-        @Override
-        public void write(int b) throws IOException {
-            checkIndexOutOfBounds();
-            byteArray[writeIndex++] = (byte)b;
-        }
-
-        private void checkIndexOutOfBounds() {
-            if (writeIndex >= lastIndexExcluding) throw new IndexOutOfBoundsException("Index "+writeIndex+" out of bounds of bye array backed output stream, offset="+offset+", length="+length);
-        }
+        return byteArrayOutputStream;
     }
 }

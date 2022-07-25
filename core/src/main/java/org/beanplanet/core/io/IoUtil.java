@@ -214,10 +214,27 @@ public class IoUtil {
      * @exception IOException thrown if an error occurs during the transfer.
      */
     public static void transfer(InputStream is, OutputStream os, int bufferSize) throws IoException {
+       transfer(is, os, bufferSize, null);
+    }
+
+    /**
+     * Automatically transfers data from the specified <code>InputStream</code> to the <code>OutputStream</code> until
+     * End-Of-File (EOF) is encountered on the input stream.
+     * <p>
+     * Note that the input and output streams are not closed by this method.
+     *
+     * @param is the input stream from which the data will be read
+     * @param os the output stream where the data will be written.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
+     * @poram callback optional callback invoked on successive reads from the source stream, which may be null
+     * @exception IOException thrown if an error occurs during the transfer.
+     */
+    public static void transfer(InputStream is, OutputStream os, int bufferSize, final ByteArrayReadCallback callback) throws IoException {
         byte transferBuf[] = new byte[bufferSize];
         int readCount;
         try {
             while ((readCount = is.read(transferBuf)) != -1) {
+                if ( callback != null ) callback.bytesRead(transferBuf, 0, readCount);
                 os.write(transferBuf, 0, readCount);
             }
         } catch (IOException e) {
@@ -429,6 +446,21 @@ public class IoUtil {
 
     /**
      * Automatically transfers data from the specified <code>InputStream</code> to the <code>OutputStream</code> until
+     * End-Of-File (EOF) is encountered on the input stream.
+     * <p>
+     * Note that the input and output streams are not closed by this method.
+     *
+     * @param is the input stream from which the data will be read
+     * @param os the output stream where the data will be written.
+     * @poram callback optional callback invoked on successive reads from the source stream, which may be null
+     * @exception IoException thrown if an error occurs during the transfer.
+     */
+    public static void transfer(InputStream is, OutputStream os, final ByteArrayReadCallback callback) throws IoException {
+        transfer(is, os, DEFAULT_TRANSFER_BUF_SIZE, callback);
+    }
+
+    /**
+     * Automatically transfers data from the specified <code>InputStream</code> to the <code>OutputStream</code> until
      * End-Of-File (EOF) is encountered on the input stream and closes both streams regardless of any successful or
      * erroneous outcome.
      * <p>
@@ -443,6 +475,29 @@ public class IoUtil {
     public static void transferAndClose(InputStream is, OutputStream os) throws IoException {
         try {
             transfer(is, os);
+        } finally {
+            closeIgnoringErrors(is);
+            closeIgnoringErrors(os);
+        }
+    }
+
+    /**
+     * Automatically transfers data from the specified <code>InputStream</code> to the <code>OutputStream</code> until
+     * End-Of-File (EOF) is encountered on the input stream and closes both streams regardless of any successful or
+     * erroneous outcome.
+     * <p>
+     * Note that the input and output streams are not closed by this method.
+     *
+     * @param is the input stream from which the data will be read
+     * @param os the output stream where the data will be written.
+     * @poram callback optional callback invoked on successive reads from the source stream, which may be null
+     * @exception IoException thrown if an error occurs during the transfer.
+     * @see #transfer(java.io.InputStream, java.io.OutputStream)
+     * @see #transferAndClose(java.io.InputStream, java.io.OutputStream, int)
+     */
+    public static void transferAndClose(InputStream is, OutputStream os, final ByteArrayReadCallback callback) throws IoException {
+        try {
+            transfer(is, os, callback);
         } finally {
             closeIgnoringErrors(is);
             closeIgnoringErrors(os);

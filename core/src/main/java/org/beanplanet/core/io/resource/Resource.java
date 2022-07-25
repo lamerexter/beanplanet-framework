@@ -87,21 +87,27 @@ public interface Resource extends Cloneable {
      *
      * @return true, if and only if this resource exists in some physical form, false otherwise.
      */
-    boolean exists();
+    default boolean exists() {
+        return false;
+    }
 
     /**
      * Determines whether this resource can be read, either as byte or character-orientated stream.
      *
      * @return true is this resource supports reading, false otherwise.
      */
-    boolean canRead();
+    default boolean canRead() {
+        return false;
+    }
 
     /**
      * Determines whether this resource can be written to, either as byte or character-orientated stream.
      *
      * @return true is this resource supports writing, false otherwise.
      */
-    boolean canWrite();
+    default boolean canWrite() {
+        return false;
+    }
 
     /**
      * Whether this resource supports random access, in terms of reading and writing randomly within the resource
@@ -114,14 +120,18 @@ public interface Resource extends Cloneable {
      *
      * @return true, if this type of resource supports random access, false otherwise.
      */
-    boolean supportsRandomAccess();
+    default boolean supportsRandomAccess() {
+        return false;
+    }
 
     /**
      * Returns the name-path to this resource.
      *
      * @return nsme-path of this resource, or the empty path is this resource is not name-path based.
      */
-    NamePath getNamePath();
+    default NamePath getNamePath() {
+        return NamePath.EMPTY_NAME_PATH;
+    }
 
     /**
      * Returns the name of this resource. Where this resource is also path-based, this will return the last name in the path.
@@ -178,7 +188,9 @@ public interface Resource extends Cloneable {
      * @throws UnsupportedOperationException if this resource is not readable or the operation is not supported
      * @throws IoException if an error occurs creating the stream.
      */
-    InputStream getInputStream() throws UnsupportedOperationException, IoException;
+    default InputStream getInputStream() throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not readable.");
+    }
 
     /**
      * Creates a new reader, suitable for reading from the resource. It is the caller's responsibility to close the
@@ -197,7 +209,9 @@ public interface Resource extends Cloneable {
      * @see #getReader(Charset)
      * @see #getReader(CharsetDecoder)
      */
-    Reader getReader() throws UnsupportedOperationException, IoException;
+    default Reader getReader() throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not readable.");
+    }
 
     /**
      * Creates a new reader, suitable for reading from the resource. It is the caller's responsibility to close the
@@ -211,7 +225,10 @@ public interface Resource extends Cloneable {
      * @see #getReader(Charset)
      * @see #getReader(CharsetDecoder)
      */
-    Reader getReader(String charSetName) throws UnsupportedOperationException, IoException;
+    default Reader getReader(String charSetName) throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not readable.");
+
+    }
 
     /**
      * Creates a new reader, suitable for reading from the resource. It is the caller's responsibility to close the
@@ -225,7 +242,9 @@ public interface Resource extends Cloneable {
      * @see #getReader(String)
      * @see #getReader(CharsetDecoder)
      */
-    Reader getReader(Charset charSet) throws UnsupportedOperationException, IoException;
+    default Reader getReader(Charset charSet) throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not readable.");
+    }
 
     /**
      * Creates a new reader, suitable for reading from the resource. It is the caller's responsibility to close the
@@ -239,7 +258,9 @@ public interface Resource extends Cloneable {
      * @see #getReader(String) as an alternative to specify an appropriate character set encoding
      * @see #getReader(Charset) as an alternative to specify an appropriate character set encoding
      */
-    Reader getReader(CharsetDecoder charSetDecoder) throws UnsupportedOperationException, IoException;
+    default Reader getReader(CharsetDecoder charSetDecoder) throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not readable.");
+    }
 
     /**
      * Creates a new output stream, suitable for writing to the resource. It is the caller's responsibility to close the
@@ -249,7 +270,9 @@ public interface Resource extends Cloneable {
      * @throws UnsupportedOperationException if this resource is not readable or the operation is not supported
      * @throws IoException if an error occurs creating the stream.
      */
-    OutputStream getOutputStream() throws UnsupportedOperationException, IoException;
+    default OutputStream getOutputStream() throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not writable.");
+    }
 
     /**
      * Creates a new writer, suitable for writing to the resource. It is the caller's responsibility to close the writer.
@@ -268,7 +291,9 @@ public interface Resource extends Cloneable {
      * @see #getWriter(Charset)
      * @see #getWriter(CharsetEncoder)
      */
-    Writer getWriter() throws UnsupportedOperationException, IoException;
+    default Writer getWriter() throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not writable.");
+    }
 
     /**
      * Creates a new writer, suitable for writing to the resource. It is the caller's responsibility to close the writer.
@@ -281,7 +306,9 @@ public interface Resource extends Cloneable {
      * @see #getWriter(Charset)
      * @see #getWriter(CharsetEncoder)
      */
-    Writer getWriter(String charsetName) throws UnsupportedOperationException, IoException;
+    default Writer getWriter(String charsetName) throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not writable.");
+    }
 
     /**
      * Creates a new writer, suitable for writing to the resource. It is the caller's responsibility to close the writer.
@@ -295,7 +322,9 @@ public interface Resource extends Cloneable {
      * @see #getWriter(String)
      * @see #getWriter(CharsetEncoder)
      */
-    Writer getWriter(Charset charSet) throws UnsupportedOperationException, IoException;
+    default Writer getWriter(Charset charSet) throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not writable.");
+    }
 
     /**
      * Creates a new writer, suitable for writing to the resource. It is the caller's responsibility to close the writer.
@@ -309,7 +338,9 @@ public interface Resource extends Cloneable {
      * @see #getWriter(String)
      * @see #getWriter(Charset)
      */
-    Writer getWriter(CharsetEncoder charSetEncoder) throws UnsupportedOperationException, IoException;
+    default Writer getWriter(CharsetEncoder charSetEncoder) throws UnsupportedOperationException, IoException {
+        throw new UnsupportedOperationException("This resource is not writable.");
+    }
 
     /**
      * Creates a new random accessor which provides functionality to read, at random, content of this resource. The
@@ -323,9 +354,12 @@ public interface Resource extends Cloneable {
      *
      * @return a random accessor which exposes the random read access operations. The accessor should be closed after
      *         use.
+     * @throws UnsupportedOperationException if this resource is not randomly accessible or the operation is not supported
      * @throws IoException if an I/O error occurs creating the random accessor
      */
-    RandomAccessor getRandomReadAccessor() throws IoException;
+    default RandomAccessor getRandomReadAccessor() throws IoException {
+        throw new UnsupportedOperationException("This resource is not randomly accessible.");
+    }
 
     /**
      * Creates a new random accessor which provides functionality to read and/or write, at random, over or beyond the
@@ -337,9 +371,12 @@ public interface Resource extends Cloneable {
      * </p>
      *
      * @return a random accessor which exposes the random access operations. The accessor should be closed after use.
+     * @throws UnsupportedOperationException if this resource is not randomly accessible or the operation is not supported
      * @throws IoException if an I/O error occurs creating the random accessor
      */
-    RandomAccessor getRandomReadWriteAccessor() throws IoException;
+    default RandomAccessor getRandomReadWriteAccessor() throws IoException {
+        throw new UnsupportedOperationException("This resource is not randomly accessible.");
+    }
 
     /**
      * Convenience method to read the resource as a string, using the platform default character set encoding. Obviously
@@ -389,5 +426,13 @@ public interface Resource extends Cloneable {
         throw new UnsupportedOperationException("Path resolution is not supported by this resource");
     }
 
-    Resource getParentResource();
+    /**
+     * Finds and returns the 'parent' recource in the space of this child. This might be a parent directory in a filesystem or some
+     * other parent in a hierarchical resource space.
+     *
+     * @return the parent resource or null if there is no such parent.
+     */
+    default Resource getParentResource() {
+        return null;
+    }
 }

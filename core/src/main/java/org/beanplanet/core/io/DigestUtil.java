@@ -26,6 +26,9 @@
 
 package org.beanplanet.core.io;
 
+import static org.beanplanet.core.io.IoUtil.DEFAULT_TRANSFER_BUF_SIZE;
+
+import org.beanplanet.core.io.resource.ByteArrayOutputStreamResource;
 import org.beanplanet.core.io.resource.ByteArrayResource;
 import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.io.resource.StringResource;
@@ -36,8 +39,6 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-import static org.beanplanet.core.io.IoUtil.DEFAULT_TRANSFER_BUF_SIZE;
-
 /**
  * I/O Stream utility class.
  *
@@ -45,6 +46,7 @@ import static org.beanplanet.core.io.IoUtil.DEFAULT_TRANSFER_BUF_SIZE;
  */
 public class DigestUtil {
     private static final char[] HEXDIGITS = "0123456789ABCDEF".toCharArray();
+    private static final int DEFAULT_HEXDUMP_WIDTH = 15;
 
     /**
      * Calculates an SHA-1 message digest of the specified {@link String} UTF-8 byte stream.
@@ -362,12 +364,22 @@ public class DigestUtil {
         }
     }
 
+    public static String hexDump(byte[] input, int fromIndex, int length) {
+        return hexDump(input, fromIndex, length, DEFAULT_HEXDUMP_WIDTH);
+    }
+
+    public static String hexDump(byte[] input, int fromIndex, int length, int width) {
+        final byte[] tmp = new byte[length];
+        System.arraycopy(input, fromIndex, tmp, 0, length);
+        return hexDump(new ByteArrayResource(tmp), width);
+    }
+
     public static String hexDump(String input) {
-        return hexDump(input, 15);
+        return hexDump(input, DEFAULT_HEXDUMP_WIDTH);
     }
 
     public static String hexDump(Resource input) {
-        return hexDump(input, 15);
+        return hexDump(input, DEFAULT_HEXDUMP_WIDTH);
     }
 
     public static String hexDump(String input, int width) {
@@ -378,10 +390,9 @@ public class DigestUtil {
     public static String hexDump(Resource input, int width) {
         if (input == null) return null;
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ByteArrayResource bar = new ByteArrayResource(baos);
-        hexDump(input, bar, width);
-        return new String(baos.toByteArray());
+        ByteArrayOutputStreamResource baosr = new ByteArrayOutputStreamResource();
+        hexDump(input, baosr, width);
+        return baosr.getByteArrayOutputStream().toString();
     }
 
     public static void hexDump(Resource input, Resource output, int width) {
