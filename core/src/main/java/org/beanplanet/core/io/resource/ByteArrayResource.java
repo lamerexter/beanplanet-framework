@@ -76,7 +76,7 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
      * @param byteArray the byte array to back this resource.
      */
     public ByteArrayResource(byte[] byteArray) {
-        this(byteArray, 0, byteArray.length);
+        this(byteArray, 0, byteArray == null ? 0 : byteArray.length);
     }
 
     /**

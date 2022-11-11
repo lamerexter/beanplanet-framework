@@ -24,7 +24,9 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.testing.beans;
+package org.beanplanet.core.beans;
+
+import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -181,6 +183,15 @@ public class TestBean {
       result = 31 * result + Arrays.hashCode(beanArray2Dim);
       result = 31 * result + Arrays.hashCode(beanArray3Dim);
       return result;
+   }
+
+   /**
+    * Returns a useful string representation of this object, showing the values
+    * of all readable properties.
+    * @return the string showing this object's property values, useful for inspection.
+    */
+   public String toString() {
+      return new PropertyBasedToStringBuilder(this).withNullValuePropetiesHidden(true).build();
    }
 
    /**
@@ -408,7 +419,7 @@ public class TestBean {
    public Double getDoubleProperty() {
       return doubleProperty;
    }
-   
+
    /**
     * Sets the double property.
     * 

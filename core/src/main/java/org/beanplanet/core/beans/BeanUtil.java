@@ -30,7 +30,11 @@ import org.beanplanet.core.lang.TypeUtil;
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+
+import static java.util.Arrays.asList;
 
 /**
  * A static utility class, containing convenient methods that deal will access to <a
@@ -55,7 +59,7 @@ public class BeanUtil {
      *
      * @see #isReadableProperty(JavabeanMetadataCache, Object, String)
      */
-    public static final boolean isReadableProperty(Object bean, String name) {
+    public static boolean isReadableProperty(Object bean, String name) {
         return isReadableProperty(JavabeanMetadataCache.getSystemCache(), bean, name);
     }
 
@@ -75,7 +79,7 @@ public class BeanUtil {
      *
      * @see #isReadableProperty(JavabeanMetadataCache, Object, String)
      */
-    public static final boolean isReadableProperty(Class<?> beanClass, String name) {
+    public static boolean isReadableProperty(Class<?> beanClass, String name) {
         return isReadableProperty(JavabeanMetadataCache.getSystemCache(), beanClass, name);
     }
 
@@ -90,7 +94,7 @@ public class BeanUtil {
      * @param name the name to be assessed for readability on the bean.
      * @return true, if the bean has the specified readable property or method that returns a value.
      */
-    public static final boolean isReadableProperty(JavabeanMetadataCache metaDataCache, Object bean, String name) {
+    public static boolean isReadableProperty(JavabeanMetadataCache metaDataCache, Object bean, String name) {
         return isReadableProperty(metaDataCache, bean.getClass(), name);
     }
 
@@ -105,7 +109,7 @@ public class BeanUtil {
      * @param name the name to be assessed for readability on the bean.
      * @return true, if the bean has the specified readable property or method that returns a value.
      */
-    public static final boolean isReadableProperty(JavabeanMetadataCache metaDataCache, Class<?> beanClass, String name) {
+    public static boolean isReadableProperty(JavabeanMetadataCache metaDataCache, Class<?> beanClass, String name) {
         // if (bean instanceof JavaBean) {
         // bean = ((JavaBean) bean).getBeanObject();
         // }
@@ -134,7 +138,7 @@ public class BeanUtil {
      * @throws BeanException if an error occurs reading the property of the bean.
      * @see #getPropertyValue(JavabeanMetadataCache, Object, String)
      */
-    public static final Object getPropertyValue(Object bean, String name) throws PropertyNotFoundException,
+    public static Object getPropertyValue(Object bean, String name) throws PropertyNotFoundException,
         BeanException {
         return getPropertyValue(JavabeanMetadataCache.getSystemCache(), bean, name);
     }
@@ -150,11 +154,7 @@ public class BeanUtil {
      * @throws BeanException if an error occurs reading the property of the bean.
      * @see #getPropertyValue(JavabeanMetadataCache, Object, String)
      */
-    public static final Object getPropertyValue(JavabeanMetadataCache metaDataCache, Object bean, String name) throws PropertyNotFoundException,
-        BeanException {
-        // if (bean instanceof JavaBean) {
-        // bean = ((JavaBean) bean).getBeanObject();
-        // }
+    public static Object getPropertyValue(JavabeanMetadataCache metaDataCache, Object bean, String name) throws PropertyNotFoundException, BeanException {
         if (!isReadableProperty(metaDataCache, bean, name)) {
             throw new PropertyNotFoundException("The name specified ["
                 + name
@@ -209,16 +209,6 @@ public class BeanUtil {
             return value;
 
         }
-        // catch (InvocationTargetException ex)
-        // {
-        // // Bean method called threw an exception
-        // throw new BeanException("Exception thrown from bean property read method, \"" + name + "\": ", ex
-        // .getTargetException());
-        // }
-        // catch (IllegalAccessException ex)
-        // {
-        // throw new BeanException(ex.getMessage());
-        // }
         catch (Throwable th) {
             // Bean method called threw an exception
             throw new BeanException("Unexpected error reading bean property [" + name + "] on bean [class="
@@ -236,7 +226,7 @@ public class BeanUtil {
      * @throws BeanException if an error occurs reading the property of the bean.
      * @see #getPropertyValue(JavabeanMetadataCache, Object, String)
      */
-    public static final Class<?> getPropertyType(Class<?> beanClass, String name) throws PropertyNotFoundException,
+    public static Class<?> getPropertyType(Class<?> beanClass, String name) throws PropertyNotFoundException,
         BeanException {
         return getPropertyType(JavabeanMetadataCache.getSystemCache(), beanClass, name);
     }
@@ -252,11 +242,7 @@ public class BeanUtil {
      * @throws BeanException if an error occurs reading the property of the bean.
      * @see #getPropertyValue(JavabeanMetadataCache, Object, String)
      */
-    public static final Class<?> getPropertyType(JavabeanMetadataCache metaDataCache, Class<?> beanClass, String name) throws PropertyNotFoundException,
-        BeanException {
-        // if (bean instanceof JavaBean) {
-        // bean = ((JavaBean) bean).getBeanObject();
-        // }
+    public static Class<?> getPropertyType(JavabeanMetadataCache metaDataCache, Class<?> beanClass, String name) throws PropertyNotFoundException, BeanException {
         if (!isReadableProperty(metaDataCache, beanClass, name)) {
             throw new PropertyNotFoundException("The name specified ["
                 + name
@@ -307,16 +293,6 @@ public class BeanUtil {
             return propertyType;
 
         }
-        // catch (InvocationTargetException ex)
-        // {
-        // // Bean method called threw an exception
-        // throw new BeanException("Exception thrown from bean property read method, \"" + name + "\": ", ex
-        // .getTargetException());
-        // }
-        // catch (IllegalAccessException ex)
-        // {
-        // throw new BeanException(ex.getMessage());
-        // }
         catch (Throwable th) {
             // Bean method called threw an exception
             throw new BeanException("Unexpected error reading bean property [" + name + "] on bean class ["
@@ -332,7 +308,7 @@ public class BeanUtil {
      * @param name the name to be assessed for readability on the bean.
      * @return true, if the bean has the specified readable property or method that returns a value.
      */
-    public static final boolean isWritableProperty(Object bean, String name) {
+    public static boolean isWritableProperty(Object bean, String name) {
         return isWritableProperty(JavabeanMetadataCache.getSystemCache(), bean, name);
     }
 
@@ -345,26 +321,9 @@ public class BeanUtil {
      * @return true, if the bean has the specified readable property or method that returns a value.
      */
     @SuppressWarnings("serial")
-    public static final boolean isWritableProperty(JavabeanMetadataCache metaDataCache, Object bean, final String name) {
-        // if (bean instanceof JavaBean) {
-        // bean = ((JavaBean) bean).getBeanObject();
-        // }
+    public static boolean isWritableProperty(JavabeanMetadataCache metaDataCache, Object bean, final String name) {
         JavabeanMetadata JavabeanMetadata = metaDataCache.getBeanMetaData(bean.getClass());
-        boolean isWritable = JavabeanMetadata.isWriteableProperty(name);
-
-//        if (!isWritable) {
-//            isWritable = !TypeUtil.getMethods(bean.getClass(), new Filter<Method>() {
-//                private String mutatorMethodName = "set" + StringUtil.initCap(name, false);
-//                public boolean accept(Method m) {
-//                    return Modifier.isPublic(m.getModifiers()) &&
-//                        (m.getName().equals(mutatorMethodName) || m.getName().equals(name)) &&
-//                        m.getParameterTypes().length == 1;
-//                }
-//
-//            }).isEmpty();
-//        }
-
-        return isWritable;
+        return JavabeanMetadata.isWriteableProperty(name);
     }
 
     /**
@@ -377,7 +336,7 @@ public class BeanUtil {
      *            property names.
      * @see #getPropertyNames(Object, Class);
      */
-    public static final String[] getPropertyNames(Object bean) throws BeanException {
+    public static String[] getPropertyNames(Object bean) throws BeanException {
         return getPropertyNames(bean, Object.class);
     }
 
@@ -391,7 +350,7 @@ public class BeanUtil {
      *            property names.
      * @see #getPropertyNames(Class, Class);
      */
-    public static final String[] getPropertyNames(Class<?> specificTypeInclusive) throws BeanException {
+    public static String[] getPropertyNames(Class<?> specificTypeInclusive) throws BeanException {
         return getPropertyNames(specificTypeInclusive, Object.class);
     }
 
@@ -402,7 +361,7 @@ public class BeanUtil {
      * @exception BeanException thrown if access to the properties is forbidden or a problem occurred obtaining the
      *            property names.
      */
-    public static final String[] getPropertyNames(JavabeanMetadataCache metaDataCache, Object bean) throws BeanException {
+    public static String[] getPropertyNames(JavabeanMetadataCache metaDataCache, Object bean) throws BeanException {
         JavabeanMetadata beanMetaData = metaDataCache.getBeanMetaData(bean.getClass());
         return beanMetaData.getPropertyNames();
     }
@@ -419,7 +378,7 @@ public class BeanUtil {
      *            property names.
      * @see #getPropertyNames(JavabeanMetadataCache, Object, Class)
      */
-    public static final String[] getPropertyNames(Object bean, Class<?> generalTypeInclusive) throws BeanException {
+    public static String[] getPropertyNames(Object bean, Class<?> generalTypeInclusive) throws BeanException {
         return getPropertyNames(JavabeanMetadataCache.getSystemCache(), bean, generalTypeInclusive);
     }
 
@@ -436,7 +395,7 @@ public class BeanUtil {
      *            property names.
      * @see #getPropertyNames(JavabeanMetadataCache, Class, Class)
      */
-    public static final String[] getPropertyNames(JavabeanMetadataCache metaDataCache,
+    public static String[] getPropertyNames(JavabeanMetadataCache metaDataCache,
                                                   Object bean,
                                                   Class<?> generalTypeInclusive) throws BeanException {
         return getPropertyNames(metaDataCache, bean.getClass(), generalTypeInclusive);
@@ -454,7 +413,7 @@ public class BeanUtil {
      *            property names.
      * @see #getPropertyNames(JavabeanMetadataCache, Class, Class)
      */
-    public static final String[] getPropertyNames(Class<?> specificTypeInclusive, Class<?> generalTypeInclusive) throws BeanException {
+    public static String[] getPropertyNames(Class<?> specificTypeInclusive, Class<?> generalTypeInclusive) throws BeanException {
         return getPropertyNames(JavabeanMetadataCache.getSystemCache(), specificTypeInclusive, generalTypeInclusive);
     }
 
@@ -470,11 +429,56 @@ public class BeanUtil {
      * @exception BeanException thrown if access to the properties is forbidden or a problem occurred obtaining the
      *            property names.
      */
-    public static final String[] getPropertyNames(JavabeanMetadataCache metaDataCache,
+    public static String[] getPropertyNames(JavabeanMetadataCache metaDataCache,
                                                   Class<?> specificTypeInclusive,
                                                   Class<?> generalTypeInclusive) throws BeanException {
         JavabeanMetadata beanMetaData = metaDataCache.getBeanMetaData(specificTypeInclusive, generalTypeInclusive);
         return beanMetaData.getPropertyNames();
+    }
+
+    /**
+     * Copies the values of all <i>readable</i> properties from source to corresponding <i>writable</i> properties of destination.
+     *
+     * @param source the source bean, whose readable properties will be read.
+     * @param destination the destination bean whose writable properties will be written to.
+     * @return the destination bean for convenience.
+     */
+    public static <T> T copyProperties(Object source, T destination) {
+        return copyProperties(new JavaBean<>(source), new JavaBean<>(destination), allProperties());
+    }
+
+    /**
+     * Copies the values of designated <i>readable</i> properties from source to corresponding <i>writable</i> properties of destination.
+     *
+     * @param source the source bean, whose readable properties will be read.
+     * @param destination the destination bean whose writable properties will be written to.
+     * @param propertyNames a supplier of property names from source, whose values will written to destination.
+     * @return the destination bean for convenience.
+     */
+    public static <T> T copyProperties(Object source, T destination, Function<Object, List<String>> propertyNames) {
+        return copyProperties(new JavaBean<>(source), new JavaBean<>(destination), propertyNames);
+    }
+
+    /**
+     * Copies the values of designated <i>readable</i> properties from source to corresponding <i>writable</i> properties of destination.
+     *
+     * @param sourceBean the source bean, whose readable properties will be read.
+     * @param destinationBean the destination bean whose writable properties will be written to.
+     * @param propertyNames a supplier of property names from source, whose values will written to destination.
+     * @return the destination bean for convenience.
+     */
+    public static <T> T copyProperties(JavaBean<?> sourceBean, JavaBean<T> destinationBean, Function<Object, List<String>> propertyNames) {
+        propertyNames.apply(sourceBean.getBean()).stream().filter(sourceBean::isReadableProperty).filter(destinationBean::isWritableProperty).forEach(p ->  destinationBean.set(p, sourceBean.get(p).getValue()));
+        return destinationBean.getBean();
+    }
+
+    /**
+     * A function to return a list of all property names of a given bean.
+     *
+     * @return the names of all properties of any given bean.
+     */
+    public static Function<Object, List<String>> allProperties() {
+        return bean -> asList(new JavaBean<>(bean).getPropertyNames());
     }
 }
 
