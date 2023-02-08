@@ -34,9 +34,8 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 import static org.beanplanet.core.Predicates.falsePredicate;
 import static org.beanplanet.core.Predicates.truePredicate;
-import static org.beanplanet.core.util.StringUtil.asDelimitedString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
+import static org.beanplanet.core.util.StringUtil.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class StringUtilTest {
@@ -229,7 +228,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void repeat_Null() {
+    public void repeat_null() {
         assertThat(StringUtil.repeat(null, 1), nullValue());
     }
 
@@ -263,5 +262,44 @@ public class StringUtilTest {
         assertThat(StringUtil.nvlStr(""), nullValue());
         assertThat(StringUtil.nvlStr(" "), nullValue());
         assertThat(StringUtil.nvlStr("\t\r\n"), nullValue());
+    }
+
+    @Test
+    public void isAlphanumeric() {
+        for (int n=0; n < ALPHNUMERIC_CHARS.length(); n++) {
+            assertThat(StringUtil.isAlphanumeric(ALPHNUMERIC_CHARS.charAt(n)), is(true));
+        }
+    }
+
+    @Test
+    public void isAsciiPrintableSpecial() {
+        for (int n=0; n < ASCII_PRINTABLE_SPECIAL_CHARS.length(); n++) {
+            assertThat(StringUtil.isAsciiPrintableSpecial(ASCII_PRINTABLE_SPECIAL_CHARS.charAt(n)), is(true));
+        }
+    }
+
+    @Test
+    public void randomChars_null() {
+        assertThat(StringUtil.randomChars(null, 1, 10), nullValue());
+    }
+
+    @Test
+    public void randomAlphaNumericChars_fixedLength() {
+        final String randomStr = StringUtil.randomAlphaumericChars(10);
+        assertThat(randomStr, notNullValue());
+        assertThat(randomStr.length(), equalTo(10));
+        for (int n=0; n < randomStr.length(); n++) {
+            assertThat(StringUtil.isAlphanumeric(randomStr.charAt(n)), is(true));
+        }
+    }
+
+    @Test
+    public void randomAlphaNumericAsciiSpecialPrintableChars_fixedLength() {
+        final String randomStr = StringUtil.randomAlphanumericAsciiPrintableSpecialChars(12);
+        assertThat(randomStr, notNullValue());
+        assertThat(randomStr.length(), equalTo(12));
+        for (int n=0; n < randomStr.length(); n++) {
+            assertThat(StringUtil.isAlphanumericOrAsciiPrintableSpecial(randomStr.charAt(n)), is(true));
+        }
     }
 }

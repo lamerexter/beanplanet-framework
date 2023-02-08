@@ -98,19 +98,7 @@ public class MessageImpl implements Message {
      * @param messageParameters    arguments to be injected into any placeholders in the message text.
      */
     public static final MessageImpl globalMessage(String code, String parameterisedMessage, Object... messageParameters) {
-        return globalMessage(null, code, parameterisedMessage, messageParameters);
-    }
-
-    /**
-     * Static factory method to conveniently create a global message.
-     *
-     * @param relatedObject        the object associated with the message, which may be null.
-     * @param code                 the canonical code of this message.
-     * @param parameterisedMessage the text of this message, with placeholders for supplied parameters.
-     * @param messageParameters    arguments to be injected into any placeholders in the message text.
-     */
-    public static final MessageImpl globalMessage(Object relatedObject, String code, String parameterisedMessage, Object... messageParameters) {
-        return globalMessage(null, relatedObject, code, parameterisedMessage, messageParameters);
+        return globalMessage(null, null, code, parameterisedMessage, messageParameters);
     }
 
     /**
@@ -147,19 +135,6 @@ public class MessageImpl implements Message {
      */
     public static final MessageImpl fieldMessage(String field, String code, String parameterisedMessage, Object... messageParameters) {
         return fieldMessage(null, null, field, code, parameterisedMessage, messageParameters);
-    }
-
-    /**
-     * Static factory method to conveniently create a field-related message.
-     *
-     * @param relatedObject        the object associated with the message, which may be null.
-     * @param field                the field to which the message applies.
-     * @param code                 the canonical code of this message.
-     * @param parameterisedMessage the text of this message, with placeholders for supplied parameters.
-     * @param messageParameters    arguments to be injected into any placeholders in the message text.
-     */
-    public static final MessageImpl fieldMessage(Object relatedObject, String field, String code, String parameterisedMessage, Object... messageParameters) {
-        return fieldMessage(null, relatedObject, field, code, parameterisedMessage, messageParameters);
     }
 
     /**

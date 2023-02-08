@@ -26,7 +26,9 @@
 
 package org.beanplanet.core.io;
 
+import org.beanplanet.core.io.resource.FileResource;
 import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.io.resource.StringResource;
 import org.beanplanet.core.util.StringUtil;
 
 import java.io.*;
@@ -649,6 +651,32 @@ public class IoUtil {
         } catch (FileNotFoundException e) {
             throw new IoException("An error occurred during transfer: ", e);
         }
+    }
+
+    /**
+     * Automatically transfers data from the specified source character sequence to a file.
+     *
+     * @param charSequence the character sequence from which data will be read
+     * @param destinationFile the destination file where the data will be written. If the file exists prior to this
+     *        operation it will be overwritten.
+     * @exception IoException thrown if an error occurs during the transfer.
+     * @see #transfer(java.io.InputStream, java.io.OutputStream, int)
+     */
+    public static void transfer(CharSequence charSequence, File destinationFile) throws IoException {
+        transfer(charSequence, destinationFile, DEFAULT_TRANSFER_BUF_SIZE);
+    }
+
+    /**
+     * Automatically transfers data from the specified source character sequence to a file.
+     *
+     * @param charSequence the character sequence from which data will be read
+     * @param destinationFile the destination file where the data will be written.
+     * @param bufferSize the length of th transfer buffer to use during the transfer for efficiency.
+     * @exception IoException thrown if an error occurs during the transfer.
+     * @see #transfer(java.io.InputStream, java.io.OutputStream, int)
+     */
+    public static void transfer(CharSequence charSequence, File destinationFile, int bufferSize) throws IoException {
+        transferResourceStreamsAndClose(new StringResource(charSequence.toString()), new FileResource(destinationFile), bufferSize);
     }
 
     /**

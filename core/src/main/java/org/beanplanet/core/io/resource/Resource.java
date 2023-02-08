@@ -184,7 +184,7 @@ public interface Resource extends Cloneable {
      * Creates a new input stream, suitable for reading the resource. It is the caller's responsibility to close the
      * input stream.
      *
-     * @return a newly created input stream for reading the resource.
+     * @return a newly created input stream for reading the resource (never <code>null</code>).
      * @throws UnsupportedOperationException if this resource is not readable or the operation is not supported
      * @throws IoException if an error occurs creating the stream.
      */

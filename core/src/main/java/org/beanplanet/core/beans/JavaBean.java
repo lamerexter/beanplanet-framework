@@ -139,7 +139,7 @@ public class JavaBean<T> implements Bean {
     public void set(String name, Object value) throws BeanException {
         PropertyDescriptor pd = assertAndGetWritablePropertyDescriptor(name);
 
-        TypeUtil.invokeMethod(bean, pd.getWriteMethod(), value);
+        TypeUtil.invokeMethod(typeConverter, bean, pd.getWriteMethod(), value);
     }
 
     public JavaBean<T> with(String name, Object value) throws BeanException {

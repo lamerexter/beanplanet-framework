@@ -101,6 +101,7 @@ public final class BeanTestSupport {
         propertyValueGenerators.put(LocalDateTime.class, valueClass -> LocalDateTime.now(ZoneId.of("UTC")));
         propertyValueGenerators.put(Long.class, valueClass -> (long) (Math.random() * Long.MAX_VALUE));
         propertyValueGenerators.put(long.class, valueClass -> (long)(Math.random() * Long.MAX_VALUE));
+        propertyValueGenerators.put(Map.class, valueClass -> Collections.emptyMap());
         propertyValueGenerators.put(Set.class, valueClass -> Collections.emptySet());
         propertyValueGenerators.put(String.class, valueClass -> UUID.randomUUID().toString());
 

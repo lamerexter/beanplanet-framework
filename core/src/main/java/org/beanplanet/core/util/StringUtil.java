@@ -45,6 +45,12 @@ import static org.beanplanet.core.util.IterableUtil.asStream;
  * A static utility class containing string-based operations.
  */
 public class StringUtil {
+    public static final String ALPHA_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    public static final String NUMERIC_CHARS = "0123456789";
+    public static final String ALPHNUMERIC_CHARS = ALPHA_CHARS+NUMERIC_CHARS;
+    public static final String ASCII_PRINTABLE_SPECIAL_CHARS = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+    public static final String ALPHNUMERIC_ASCII_PRINTABLE_SPECIA_CHARS = ALPHNUMERIC_CHARS+ASCII_PRINTABLE_SPECIAL_CHARS;
+
     /**
      * Converts a given string to lowercase.
      *
@@ -98,12 +104,16 @@ public class StringUtil {
                + (forceLowercase ? str.substring(1).toLowerCase() : str.substring(1));
     }
 
-    public static final boolean isEmptyOrNull(String str) {
-        return str == null || str.trim().isEmpty();
+    public static boolean isEmptyOrNull(Object obj) {
+        return obj == null || obj.toString().trim().isEmpty();
     }
 
-    public static final boolean notEmptyAndNotNull(String str) {
-        return !(isEmptyOrNull(str));
+    public static boolean notEmpty(Object obj) {
+        return !(isEmptyOrNull(obj));
+    }
+
+    public static boolean notEmptyAndNotNull(Object obj) {
+        return notEmpty(obj);
     }
 
     /**
@@ -826,5 +836,56 @@ public class StringUtil {
 
     public static String nvlStr(String nullableOrEmpty) {
         return isEmptyOrNull(nullableOrEmpty) ? null : nullableOrEmpty;
+    }
+
+    public static boolean isUpperAlpha(final int ch) {
+        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
+    }
+
+    public static boolean isLowerAlpha(final int ch) {
+        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
+    }
+
+    public static boolean isNumeric(final int ch) {
+        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
+    }
+
+    public static boolean isAlphanumeric(final int ch) {
+        return isUpperAlpha(ch) || isLowerAlpha(ch) || isNumeric(ch);
+    }
+
+    public static boolean isAsciiPrintableSpecial(final int ch) {
+        return ASCII_PRINTABLE_SPECIAL_CHARS.indexOf(ch) >= 0;
+    }
+
+    public static boolean isAlphanumericOrAsciiPrintableSpecial(final int ch) {
+        return isAlphanumeric(ch) || isAsciiPrintableSpecial(ch);
+    }
+
+    public static String randomChars(final CharSequence charSequence, final int minimumLengthInclusive, final int maximumLengthInclusive) {
+        if (charSequence == null) return null;
+        final int inputSequenceLength = charSequence.length();
+        final int chosenLength = minimumLengthInclusive+((int)Math.round(Math.random() * Math.abs(maximumLengthInclusive-minimumLengthInclusive)));
+        StringBuilder s = new StringBuilder(chosenLength);
+        for (int n=0; n < chosenLength; n++) {
+            s.append(charSequence.charAt((int)Math.floor(Math.random()*inputSequenceLength)));
+        }
+        return s.toString();
+    }
+
+    public static String randomAlphaumericChars(final int minimumLengthInclusive, final int maximumLengthInclusive) {
+        return randomChars(ALPHNUMERIC_CHARS, minimumLengthInclusive, maximumLengthInclusive);
+    }
+
+    public static String randomAlphaumericChars(final int maximumLengthInclusive) {
+        return randomAlphaumericChars(maximumLengthInclusive, maximumLengthInclusive);
+    }
+
+    public static String randomAlphanumericAsciiPrintableSpecialChars(final int minimumLengthInclusive, final int maximumLengthInclusive) {
+        return randomChars(ALPHNUMERIC_ASCII_PRINTABLE_SPECIA_CHARS, minimumLengthInclusive, maximumLengthInclusive);
+    }
+
+    public static String randomAlphanumericAsciiPrintableSpecialChars(final int maximumLengthInclusive) {
+        return randomAlphanumericAsciiPrintableSpecialChars(maximumLengthInclusive, maximumLengthInclusive);
     }
 }

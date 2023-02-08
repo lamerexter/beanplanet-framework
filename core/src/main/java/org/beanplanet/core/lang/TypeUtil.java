@@ -27,6 +27,7 @@
 package org.beanplanet.core.lang;
 
 import org.beanplanet.core.UncheckedException;
+import org.beanplanet.core.lang.conversion.TypeConverter;
 import org.beanplanet.core.models.tree.TreeNode;
 import org.beanplanet.core.util.ExceptionUtil;
 import org.beanplanet.core.util.StringUtil;
@@ -36,10 +37,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.*;
 import static java.util.Arrays.stream;
+import static java.util.Objects.isNull;
 
 /**
  * A static utility class for the everything <code>type-related</code> related.
@@ -565,8 +568,13 @@ public final class TypeUtil {
     }
 
     public static Object invokeMethod(Object target, Method method, Object... params) {
+       return invokeMethod(null, target, method, params);
+    }
+
+    public static Object invokeMethod(TypeConverter typeConverter, Object target, Method method, Object... params) {
+        Object[] convertedParams = convertParameters(typeConverter, method.getParameterTypes(), params);
         try {
-            return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, (params != null ? params : EMPTY_PARAMS));
+            return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, (convertedParams != null ? convertedParams : EMPTY_PARAMS));
         } catch (IllegalAccessException accessEx) {
             if (Modifier.isPublic(method.getModifiers())) {
                 // Known issue where method is declared as public but reflection is
@@ -574,7 +582,7 @@ public final class TypeUtil {
                 // to allow access in this case.
                 try {
                     method.setAccessible(true);
-                    return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, params);
+                    return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, convertedParams);
                 } catch (IllegalAccessException accessEx1) {
                     throw new UncheckedException("Unable to invoke method, \"" + method.getName() + "\" on target bean, class=\"" + target.getClass().getName()
                                                  + "\" - the method is not accessible: ", accessEx1);
@@ -590,6 +598,20 @@ public final class TypeUtil {
             throw ExceptionUtil.unwindAndRethrowRuntimeException(UncheckedException.class, "Unable to invoke method [" + method + "]"
                                                                                            + (target == null ? "" : " on target bean [class=" + target.getClass().getName() + "]: "), invocationEx);
         }
+    }
+
+    private static Object[] convertParameters(TypeConverter typeConverter, Class<?>[] parameterTypes, Object[] params) {
+        // Does not handle varargs
+        if ( typeConverter == null || params == null || parameterTypes.length != params.length) return params;
+
+        final boolean conversionNeeded = IntStream.range(0, params.length)
+                .filter(n -> params[n] != null)
+                .anyMatch(n -> !parameterTypes[n].isAssignableFrom(params[n].getClass()));
+        if ( !conversionNeeded ) return params;
+
+        return IntStream.range(0, params.length)
+                .mapToObj(n -> isNull(params[n]) || parameterTypes[n].isAssignableFrom(params[n].getClass()) ? params[n] : typeConverter.convert(params[n], parameterTypes[n]))
+                .toArray(Object[]::new);
     }
 
     public static Stream<Field> streamFields(Class<?> type) {
