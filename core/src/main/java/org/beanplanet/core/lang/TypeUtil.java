@@ -75,7 +75,6 @@ public final class TypeUtil {
         PRIMITIVE_TYPES.add(int.class);
         PRIMITIVE_TYPES.add(long.class);
         PRIMITIVE_TYPES.add(short.class);
-        PRIMITIVE_TYPES.add(void.class);
 
         PRIMITIVE_TYPE_WRAPPERS.add(Boolean.class);
         PRIMITIVE_TYPE_WRAPPERS.add(Byte.class);
@@ -85,7 +84,6 @@ public final class TypeUtil {
         PRIMITIVE_TYPE_WRAPPERS.add(Integer.class);
         PRIMITIVE_TYPE_WRAPPERS.add(Long.class);
         PRIMITIVE_TYPE_WRAPPERS.add(Short.class);
-        PRIMITIVE_TYPE_WRAPPERS.add(Void.class);
 
         PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.put(Boolean.class, boolean.class);
         PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.put(Byte.class, byte.class);
@@ -95,7 +93,6 @@ public final class TypeUtil {
         PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.put(Integer.class, int.class);
         PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.put(Long.class, long.class);
         PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.put(Short.class, short.class);
-        PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.put(Void.class, void.class);
 
         PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.put(boolean.class, Boolean.class);
         PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.put(byte.class, Byte.class);
@@ -105,7 +102,6 @@ public final class TypeUtil {
         PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.put(int.class, Integer.class);
         PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.put(long.class, Long.class);
         PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.put(short.class, Short.class);
-        PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.put(void.class, Void.class);
 
         NAME_TO_PRIMITIVE_CLASS.put("boolean", boolean.class);
         NAME_TO_PRIMITIVE_CLASS.put("byte", byte.class);
@@ -115,7 +111,6 @@ public final class TypeUtil {
         NAME_TO_PRIMITIVE_CLASS.put("int", int.class);
         NAME_TO_PRIMITIVE_CLASS.put("long", long.class);
         NAME_TO_PRIMITIVE_CLASS.put("short", short.class);
-        NAME_TO_PRIMITIVE_CLASS.put("void", void.class);
 
         INTEGER_NUMERIC_TYPES.add(BigInteger.class);
         INTEGER_NUMERIC_TYPES.add(byte.class);
@@ -225,6 +220,8 @@ public final class TypeUtil {
             return type;
         }
 
+        if ( isVoidtype(className) ) return void.class;
+
         try {
             type = Class.forName(className);
         } catch (java.lang.ClassNotFoundException cnfEx) {
@@ -259,6 +256,8 @@ public final class TypeUtil {
         if (type != null) {
             return type;
         }
+
+        if ( isVoidtype(className) ) return void.class;
 
         try {
             type = Class.forName(className);
@@ -299,6 +298,8 @@ public final class TypeUtil {
         if (type != null) {
             return type;
         }
+
+        if ( isVoidtype(className) ) return void.class;
 
         try {
             type = Class.forName(className, initialiseClass, classLoader);
@@ -397,6 +398,14 @@ public final class TypeUtil {
 
     public static boolean isPrimitiveTypeOrWrapperClass(Class<?> type) {
         return PRIMITIVE_TYPES.contains(type) || PRIMITIVE_TYPE_WRAPPERS.contains(type);
+    }
+
+    public static boolean isVoidtype(Class<?> type) {
+        return type == void.class;
+    }
+
+    public static boolean isVoidtype(String type) {
+        return void.class.getSimpleName().equals(type);
     }
 
     /**

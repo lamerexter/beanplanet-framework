@@ -31,7 +31,10 @@ import org.beanplanet.core.mediatypes.MediaType;
 import org.beanplanet.core.util.MultiValueListMapImpl;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A model of an HTTP response.
@@ -118,5 +121,33 @@ public class HttpResponse extends HttpMessage {
 
     public String toString() {
         return new PropertyBasedToStringBuilder(this).build();
+    }
+
+    /**
+     * Gets all cookies associated with the message by looking through the HTTP headers named "Cookie", for
+     * a cookie with the given name.
+     *
+     * @return the cookies associated with this message, or an empty list of there are none.
+     */
+    public List<Cookie> getCookies() {
+        final MultiValueListMapImpl<String, String> headers = getHeaders();
+        if ( headers == null ) return Collections.emptyList();
+
+        return headers.entrySet().stream()
+                .filter(e -> Cookie.HTTP_RESPONSE_HEADER_NAME.equalsIgnoreCase(e.getKey()))
+                .map(Map.Entry::getValue)
+                .flatMap(List::stream)
+                .map(Cookie::fromHttpHeaderValue)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Adds a cookie to this response message by adding an HTTP header with the "Set-Cookie" name and cookie formatted value.
+     *
+     * @param cookie the cookie whose equivalent HTTP header is to be added.
+     * @return this message for method chaining.
+     */
+    public HttpResponse withCookie(final Cookie cookie) {
+        return (HttpResponse)super.withHeader(Cookie.HTTP_RESPONSE_HEADER_NAME, cookie.toHttpResponseHeaderValue());
     }
 }

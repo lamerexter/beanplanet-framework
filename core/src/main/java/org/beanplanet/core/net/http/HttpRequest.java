@@ -29,11 +29,15 @@ package org.beanplanet.core.net.http;
 import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.mediatypes.MediaType;
 import org.beanplanet.core.net.UriBuilder;
+import org.beanplanet.core.util.MultiValueListMapImpl;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -128,6 +132,34 @@ public class HttpRequest extends HttpMessage {
 
     public boolean hasQueryParameter(String name) {
         return requestUriBuilder != null && requestUriBuilder.hasQueryParameter(name);
+    }
+
+    /**
+     * Gets all cookies associated with the message by looking through the HTTP headers named "Cookie", for
+     * a cookie with the given name.
+     *
+     * @return the cookies associated with this message, or an empty list of there are none.
+     */
+    public List<Cookie> getCookies() {
+        final MultiValueListMapImpl<String, String> headers = getHeaders();
+        if ( headers == null ) return Collections.emptyList();
+
+        return headers.entrySet().stream()
+                .filter(e -> Cookie.HTTP_REQUEST_HEADER_NAME.equalsIgnoreCase(e.getKey()))
+                .map(Map.Entry::getValue)
+                .flatMap(List::stream)
+                .map(Cookie::fromHttpHeaderValue)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Adds a cookie to this request message by adding an HTTP header with the "Cookie" name and cookie formatted value.
+     *
+     * @param cookie the cookie whose equivalent HTTP header is to be added.
+     * @return this message for method chaining.
+     */
+    public HttpRequest withCookie(final Cookie cookie) {
+        return (HttpRequest)super.withHeader(Cookie.HTTP_REQUEST_HEADER_NAME, cookie.toHttpRequestHeaderValue());
     }
 
     public String toString() {

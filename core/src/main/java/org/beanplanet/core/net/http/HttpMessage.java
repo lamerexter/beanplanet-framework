@@ -30,14 +30,16 @@ import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.mediatypes.MediaType;
 import org.beanplanet.core.util.MultiValueListMapImpl;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A model of an HTTP message, common to both request and response.
  *
  * @author Gary Watson
  */
-public class HttpMessage {
+public abstract class HttpMessage {
     /** The headers associated with the message. */
     private MultiValueListMapImpl<String, String> headers;
     /** The entity associated with the message. */
@@ -50,10 +52,21 @@ public class HttpMessage {
     /**
      * Gets the headers associated with the message.
      *
-     * @return the headers associated with the message.
+     * @return the headers associated with the message, which may be null if there are none.
      */
     public MultiValueListMapImpl<String, String> getHeaders() {
         return headers;
+    }
+
+    /**
+     * Adds an HTTP header to this message.
+     *
+     * @param name the name of the HTTP header to add.
+     * @param value the value of the HTTP header to add.
+     * @see #withHeader(String, String)
+     */
+    public void addHeader(final String name, final String value) {
+       withHeader(name, value);
     }
 
     /**
@@ -75,6 +88,13 @@ public class HttpMessage {
         return this;
     }
 
+    /**
+     * Adds an HTTP header to this message.
+     *
+     * @param name the name of the HTTP header to add.
+     * @param value the value of the HTTP header to add.
+     * @return this message for method chaining.
+     */
     public HttpMessage withHeader(String name, String value) {
         if (headers == null) {
             this.headers = new MultiValueListMapImpl<>();
@@ -124,5 +144,50 @@ public class HttpMessage {
     public HttpMessage withEntity(Resource entity) {
         setEntity(entity);
         return this;
+    }
+
+    /**
+     * Gets all cookies associated with the message.
+     *
+     * @return the cookies associated with this message, or an empty list of there are none.
+     */
+    public abstract List<Cookie> getCookies();
+
+    /**
+     * Adds a cookie to thie message. Subclasses are responsible for setting the correct header name associated with cookies.
+     *
+     * @param cookie the cookie whose equivalent HTTP header is to be added.
+     */
+    public void addCookie(final Cookie cookie) {
+        withCookie(cookie);
+    }
+
+    /**
+     * Adds a cookie to this message. Subclasses are responsible for setting the correct header name associated with cookies.
+     *
+     * @param cookie the cookie whose equivalent HTTP header is to be added.
+     * @return this message for method chaining.
+     */
+    public abstract HttpMessage withCookie(final Cookie cookie);
+
+    /**
+     * Determines whether this message has a cookie with the specified name.
+     *
+     * @param name the name of the cookie whose presence in this message is to be determined.
+     * @return true if this request contains a cookie with the given name, false otherwise.
+     */
+    public boolean hasCookie(final String name) {
+        return getCookies().stream().anyMatch(c -> name.equalsIgnoreCase(c.getName()));
+    }
+
+    /**
+     * Optionally gets a cookie with the specified name, by looking through the HTTP headers named "Set-Cookie", for
+     * a cookie with the given name.
+     *
+     * @param name the name of the cookie tp .
+     * @return true if this request contains a cookie with the given name, false otherwise.
+     */
+    public Optional<Cookie> getCookie(final String name) {
+        return getCookies().stream().filter(c -> name.equalsIgnoreCase(c.getName())).findFirst();
     }
 }
