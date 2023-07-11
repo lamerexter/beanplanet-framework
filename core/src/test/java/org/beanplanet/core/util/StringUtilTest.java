@@ -302,4 +302,38 @@ public class StringUtilTest {
             assertThat(StringUtil.isAlphanumericOrAsciiPrintableSpecial(randomStr.charAt(n)), is(true));
         }
     }
+
+    @Test
+    public void isBlank_null() {
+        assertThat(StringUtil.isBlank(null), is(true));
+    }
+
+    @Test
+    public void isBlank_empty() {
+        assertThat(StringUtil.isBlank(""), is(true));
+    }
+
+    @Test
+    public void isBlank_allWhitespaceChars() {
+        assertThat(StringUtil.isBlank(" "), is(true));
+        assertThat(StringUtil.isBlank(" \t"), is(true));
+        assertThat(StringUtil.isBlank(" \r"), is(true));
+        assertThat(StringUtil.isBlank(" \n"), is(true));
+        assertThat(StringUtil.isBlank(" \t\r\n "), is(true));
+    }
+
+    @Test
+    public void isBlank_nonWhitespaceChars() {
+        assertThat(StringUtil.isBlank(" H"), is(false));
+        assertThat(StringUtil.isBlank(" Hello World! "), is(false));
+    }
+
+    @Test
+    public void isBlank_nullToString() {
+        assertThat(StringUtil.isBlank(new Object() {
+            public String toString() {
+                return null;
+            }
+        }), is(true));
+    }
 }

@@ -27,11 +27,12 @@
 package org.beanplanet.core.models.tree;
 
 import org.beanplanet.core.models.path.NamePath;
-import org.beanplanet.core.models.path.SimpleNamePath;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class TreeNodeTree<E> extends AbstractTree<TreeNode<E>> {
@@ -42,6 +43,14 @@ public class TreeNodeTree<E> extends AbstractTree<TreeNode<E>> {
     public TreeNodeTree(TreeNode<E> root) {
         super(root);
     }
+
+    /**
+     * Performs shallow copy of this tree. Not implemented in this abstraction.
+     *
+     * @return a new shallow-copied instance of the tree.
+     * @throws UnsupportedOperationException as subclasses must override this method to produce a specific tree.
+     */
+    public TreeNodeTree<E> copyShallow() { return new TreeNodeTree<>(root.copyShallow()); }
 
     public static <S> TreeNodeTree<S> copyFrom(final Tree<S> sourceTree) {
         return copyFrom(sourceTree, s -> s);
@@ -160,5 +169,15 @@ public class TreeNodeTree<E> extends AbstractTree<TreeNode<E>> {
     @Override
     public TreeIterator<TreeNode<E>> postorderIterator() {
         return new PostorderIterator<>(this);
+    }
+
+    /**
+     * Finds all leaf nodes and extracts the managed objects for each node found.
+     *
+     * @return a list pf the manage objects that are leaf nodes in this tree.
+     * @see #getLeaves()
+     */
+    public List<E> getManagedLeaves() {
+        return leafNodeStream().map(TreeNode::getManagedObject).collect(Collectors.toList());
     }
 }

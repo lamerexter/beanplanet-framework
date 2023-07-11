@@ -114,7 +114,7 @@ public class HttpResponse extends HttpMessage {
         return (HttpResponse)super.withContentLength(contentLength);
     }
 
-    public HttpResponse withEntity(Resource entity) {
+    public HttpResponse withEntity(HttpEntity entity) {
         super.withEntity(entity);
         return this;
     }

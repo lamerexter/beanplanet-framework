@@ -25,9 +25,14 @@
  */
 package org.beanplanet.core.models.tree;
 
+import org.beanplanet.core.lang.ShallowCopyable;
+import org.beanplanet.core.util.IteratorUtil;
+
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -35,7 +40,15 @@ import java.util.stream.Stream;
  *
  * @author Gary Watson
  */
-public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable {
+public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable, ShallowCopyable<Tree<E>> {
+    /**
+     * Performs shallow copy of this tree. Not implemented in this abstraction.
+     *
+     * @return a new shallow-copied instance of the tree.
+     * @throws UnsupportedOperationException as subclasses must override this method to produce a specific tree.
+     */
+    default Tree<E> copyShallow() { throw new UnsupportedOperationException("Shallow copy of abstract tree not supported!"); }
+
     /**
     * Returns the root of the tree, if this tree model represents a single tree instance.
     * <p>
@@ -287,5 +300,32 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable 
      */
     default long size() {
         return preorderIterator().stream().count();
+    }
+
+    /**
+     * Finds and returns an iterator over leaf nodes in pre-order. Depending on the size of the tree model this may be an expensive operation.
+     *
+     * @return an iterator of all leaf nodes that comprise this tree model.
+     */
+    default Iterator<E> leafNodeIterator() {
+        return leafNodeStream().iterator();
+    }
+
+    /**
+     * Finds and returns a stream of leaf nodes in pre-order. Depending on the size of the tree model this may be an expensive operation.
+     *
+     * @return a stream of all leaf nodes that comprise this tree model.
+     */
+    default Stream<E> leafNodeStream() {
+        return preorderStream().filter(this::isLeaf);
+    }
+
+    /**
+     * Finds and returns all leaf nodes in pre-order. Depending on the size of the tree model this may be an expensive operation.
+     *
+     * @return a list of all leaf nodes that comprise this tree model.
+     */
+    default List<E> getLeaves() {
+        return leafNodeStream().collect(Collectors.toList());
     }
 }

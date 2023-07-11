@@ -89,5 +89,15 @@ public class CollectionUtil {
     public static <T> Iterable<T> emptyImmutableIterable() {
         return (Iterable<T>)Collections.emptyList();
     }
+
+    /**
+     * Returns the last element in a list.
+     *
+     * @param list the list whose last element is to be returned.
+     * @return the last element
+     */
+    public static <T> T lastOrNull(List<T> list) {
+        return list == null || list.isEmpty() ? null : list.get(list.size()-1);
+    }
 }
 

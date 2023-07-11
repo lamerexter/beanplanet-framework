@@ -29,6 +29,7 @@ import java.util.Optional;
 
 public interface TypeConverterRegistry {
    void addConverter(Class<?> fromType, Class<?> toType, TypeConverter converter);
+   void addConverter(Class<?> fromType, TypeConverter converter);
    void addConverter(TypeConverter converter);
    Optional<TypeConverter> lookup(Class<?> fromType, Class<?> toType);
    

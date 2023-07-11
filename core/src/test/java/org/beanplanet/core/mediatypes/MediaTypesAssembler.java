@@ -24,13 +24,12 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core;
+package org.beanplanet.core.mediatypes;
 
 import org.beanplanet.core.io.FileUtil;
 import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.logging.Logger;
 import org.beanplanet.core.util.MultiValueListMapImpl;
-import org.beanplanet.core.util.MultiValueMap;
 import org.beanplanet.core.util.MultiValueMapImpl;
 import org.beanplanet.core.util.StringUtil;
 

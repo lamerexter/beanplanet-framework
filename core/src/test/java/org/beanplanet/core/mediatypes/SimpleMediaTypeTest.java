@@ -24,8 +24,10 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core;
+package org.beanplanet.core.mediatypes;
 
+import org.beanplanet.core.BeanTestSupport;
+import org.beanplanet.core.mediatypes.SimpleMediaType;
 import org.junit.Test;
 
 public class SimpleMediaTypeTest {

@@ -26,13 +26,17 @@
 
 package org.beanplanet.core.net.http;
 
-import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.mediatypes.MediaType;
+import org.beanplanet.core.util.CollectionUtil;
 import org.beanplanet.core.util.MultiValueListMapImpl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+
+import static org.beanplanet.core.util.CollectionUtil.lastOrNull;
 
 /**
  * A model of an HTTP message, common to both request and response.
@@ -43,12 +47,13 @@ public abstract class HttpMessage {
     /** The headers associated with the message. */
     private MultiValueListMapImpl<String, String> headers;
     /** The entity associated with the message. */
-    private Resource entity;
+    private HttpEntity entity;
 
     @SuppressWarnings("unchecked")
     public <B extends HttpMessage> B withBuilder(Class<B> builder) {
         return (B)this;
     }
+
     /**
      * Gets the headers associated with the message.
      *
@@ -56,6 +61,26 @@ public abstract class HttpMessage {
      */
     public MultiValueListMapImpl<String, String> getHeaders() {
         return headers;
+    }
+
+    /**
+     * Get all headers with the given name.
+     *
+     * @param headerName the name of header whose instances are to be returned.
+     * @return all values of the named header, or the empty list if there are no headers with the given name.
+     */
+    public List<String> getHeaders(final String headerName) {
+        return headers == null ? Collections.emptyList() : headers.entrySet().stream().filter(e -> headerName.equalsIgnoreCase(e.getKey())).map(Entry::getValue).findFirst().orElse(Collections.emptyList());
+    }
+
+    /**
+     * Get the last header with the given name.
+     *
+     * @param headerName the name of header whose last instance is to be returned.
+     * @return the value of the last instance of the named header, or null if there are no headers with the given name.
+     */
+    public String getLastHeader(final String headerName) {
+        return lastOrNull(getHeaders(headerName));
     }
 
     /**
@@ -81,7 +106,7 @@ public abstract class HttpMessage {
     public HttpMessage withHeaders(Map<String, Object> headers) {
         if (headers == null) return null;
 
-        for (Map.Entry<String, Object> header : headers.entrySet()) {
+        for (Entry<String, Object> header : headers.entrySet()) {
             withHeader(header.getKey(), String.valueOf(header.getValue()));
         }
 
@@ -121,7 +146,7 @@ public abstract class HttpMessage {
      *
      * @return the entity associated with the message.
      */
-    public Resource getEntity() {
+    public HttpEntity getEntity() {
         return entity;
     }
 
@@ -130,7 +155,7 @@ public abstract class HttpMessage {
      *
      * @param entity the entity associated with the message.
      */
-    public void setEntity(Resource entity) {
+    public void setEntity(HttpEntity entity) {
         this.entity = entity;
     }
 
@@ -141,7 +166,7 @@ public abstract class HttpMessage {
      * @return this instance for method chaining.
      *
      */
-    public HttpMessage withEntity(Resource entity) {
+    public HttpMessage withEntity(HttpEntity entity) {
         setEntity(entity);
         return this;
     }

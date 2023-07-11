@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2018 Beanplanet Ltd
+ *  Copyright (C) 2020 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -24,35 +24,33 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.util;
+package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.beans.JavaBean;
+import org.beanplanet.core.beans.TestBean;
+import org.beanplanet.core.lang.conversion.UnsupportedTypeConversionException;
 import org.junit.Test;
 
-import java.util.Collections;
+import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.beanplanet.core.lang.conversion.SystemTypeConverter.systemTypeConverter;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class CollectionUtilTest {
+public class UnboundedTypeConversionTest {
     @Test
-    public void isNotNullOrEmpty() {
-        assertThat(CollectionUtil.isNotNullOrEmpty(asList("Hello", "World")), is(true));
+    public void unboundedTypeConversion_successful() {
+        assertThat(systemTypeConverter().convert(new JavaBean<>(new TestBean()).with("intProperty", 12345).getBean(), Integer.class), equalTo(12345));
+        assertThat(systemTypeConverter().convert(new JavaBean<>(new TestBean()).with("bigDecimalProperty", BigDecimal.TEN).getBean(), BigDecimal.class), equalTo(BigDecimal.TEN));
     }
 
-    @Test
-    public void lastOrNull_nulllist() {
-        assertThat(CollectionUtil.lastOrNull(null), nullValue());
-    }
-
-    @Test
-    public void lastOrNull_emptylist() {
-        assertThat(CollectionUtil.lastOrNull(Collections.emptyList()), nullValue());
-    }
-
-    @Test
-    public void lastOrNull() {
-        assertThat(CollectionUtil.lastOrNull(asList(1)), equalTo(1));
-        assertThat(CollectionUtil.lastOrNull(asList(1, 2, 3)), equalTo(3));
+    @Test(expected = UnsupportedTypeConversionException.class)
+    public void unboundedTypeConversion_unsuccessful() {
+        systemTypeConverter().convert(new TestBean(), InetAddress.class);
     }
 }

@@ -25,21 +25,23 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
-import junit.framework.TestCase;
 import org.beanplanet.core.lang.TypeUtil;
 import org.beanplanet.core.lang.conversion.SystemTypeConverter;
 import org.beanplanet.core.lang.conversion.TypeConverter;
-import org.beanplanet.core.lang.conversion.UnsupportedTypeConversionException;
-import org.beanplanet.core.lang.conversion.system.NumberTypeConverterUtil;
 import org.junit.Before;
+import org.junit.Test;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * Unit tests for {@code {@link NumberTypeConverterUtil }}.
  */
-public class NumberTypeConverterTest extends TestCase {
+public class NumberTypeConverterTest {
    protected TypeConverter converter;
    protected Class<?> allTypes[] = new Class<?>[] { BigDecimal.class, BigInteger.class, boolean.class, byte.class,
                                                    char.class, Character.class, double.class, Double.class,
@@ -51,6 +53,7 @@ public class NumberTypeConverterTest extends TestCase {
       converter = SystemTypeConverter.getInstance();
    }
 
+   @Test
    public void testAllNumberToNumberConversions() {
       String values[] = new String[] { "0", "1" };
       for (String value : values) {
@@ -58,14 +61,9 @@ public class NumberTypeConverterTest extends TestCase {
             // Convert from test string value to the source type value
             Object sourceTypeValue = converter.convert(value, sourceType); //TypeUtil.instantiateClass(sourceType, char.class.equals(sourceType) || Character.class.equals(sourceType) ? new Object[] {value.charAt(0)} : new Object[] {value });
             for (Class<?> targetType : allTypes) {
-               try {
                   Object convertedValue = converter.convert(sourceTypeValue, targetType);
-                  assertNotNull(convertedValue);
-                  assertEquals(TypeUtil.ensureNonPrimitiveType(targetType), convertedValue.getClass());
-               }
-               catch (UnsupportedTypeConversionException utcEx) {
-                  fail("Unable to test type onversion from "+sourceType+" to "+targetType+": " + utcEx.getMessage());
-               }
+                  assertThat(convertedValue, notNullValue());
+                  assertThat(convertedValue.getClass(), equalTo(TypeUtil.ensureNonPrimitiveType(targetType)));
             }
          }
       }

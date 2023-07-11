@@ -26,22 +26,32 @@
 
 package org.beanplanet.core.mediatypes;
 
+/**
+ * Industry standard media types, as defined by the <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">IANA media types database</a>,
+ */
 public interface MediaTypes {
     interface Application {
-        MediaType JSON = new DefaultMediaType("application/json");
+        MediaType ATOM_XML = new SimpleMediaType("application/atom+xml");
+        MediaType JSON = new SimpleMediaType("application/json");
+        MediaType OCTET_STREAM = new SimpleMediaType("application/octet-stream");
+        MediaType XHTML_XML = new SimpleMediaType("application/xhtml+xml");
+        MediaType XML = new SimpleMediaType("application/xml");
     }
 
     interface Text {
-        MediaType HTML = new DefaultMediaType("text/html");
-        MediaType PLAIN = new DefaultMediaType("text/plain");
+        MediaType HTML = new SimpleMediaType("text/html");
+        MediaType PLAIN = new SimpleMediaType("text/plain");
+        MediaType XML = new SimpleMediaType("text/xml");
     }
 
     interface Image {
-        MediaType BMP = new DefaultMediaType("image/bmp");
-        MediaType GIF = new DefaultMediaType("image/gif");
-        MediaType JPEG = new DefaultMediaType("image/jpeg");
-        MediaType PNG = new DefaultMediaType("image/png");
-        MediaType SVG = new DefaultMediaType("image/svg+xml");
-        MediaType TIFF = new DefaultMediaType("image/tiff");
+        MediaType BMP = new SimpleMediaType("image/bmp");
+        MediaType GIF = new SimpleMediaType("image/gif");
+        MediaType JPEG = new SimpleMediaType("image/jpeg");
+        MediaType PNG = new SimpleMediaType("image/png");
+        MediaType SVG = new SimpleMediaType("image/svg+xml");
+        MediaType TIFF = new SimpleMediaType("image/tiff");
     }
+
+    MediaType[] XML_FORMAT_MEDIA_TYPES = { Application.ATOM_XML, Application.XHTML_XML, Application.XML, Text.XML, Image.SVG };
 }

@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2018 Beanplanet Ltd
+ *  Copyright (C) 2019 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -26,40 +26,25 @@
 
 package org.beanplanet.core.mediatypes;
 
-import org.beanplanet.core.lang.Assert;
-import org.beanplanet.core.util.StringUtil;
+import org.beanplanet.core.models.Registry;
 
-public class DefaultMediaType implements MediaType {
-    private String baseType;
-    private String subType;
+import java.util.List;
+import java.util.Optional;
 
-    public DefaultMediaType(String mediaTypeName) {
-        Assert.notNull(mediaTypeName);
-        int separatorPos = mediaTypeName.indexOf('/');
-        Assert.isTrue(separatorPos >= 0);
+/**
+ * <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">Media Type</a>, as defined by the <a href="https://www.iana.org">Internet Assigned Numbers Authority (IANA)</a>. Represents
+ * most widely-known types of content such as text (text/plain), HTML (text/html), images (image/png amongst others) and more.
+ */
+public interface MediaTypeRegistry extends Registry<String, MediaType> {
+    List<MediaType> findMediaTypesForFileExtension(String extension);
 
-        this.baseType = mediaTypeName.substring(0, separatorPos);
-        this.subType = mediaTypeName.substring(separatorPos+1);;
+    default Optional<MediaType> findMediaTypeForFileExtension(String extension) {
+        return findMediaTypesForFileExtension(extension).stream().findFirst();
     }
 
-    public DefaultMediaType(String baseType, String subType) {
-        this.baseType = baseType;
-        this.subType = subType;
-    }
+    List<String> findFileExtensionsForMediaType(String name);
 
-    public String getBaseType() {
-        return baseType;
-    }
-
-    public void setBaseType(String baseType) {
-        this.baseType = baseType;
-    }
-
-    public String getSubType() {
-        return subType;
-    }
-
-    public void setSubType(String subType) {
-        this.subType = subType;
+    default Optional<String> findFileExtensionForMediaType(String name) {
+        return findFileExtensionsForMediaType(name).stream().findFirst();
     }
 }

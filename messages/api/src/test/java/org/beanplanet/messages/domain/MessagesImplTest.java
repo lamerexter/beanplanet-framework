@@ -477,4 +477,14 @@ public class MessagesImplTest {
         assertThat(messages.hasErrorWithCode("notPresent"), is(false));
     }
 
+    @Test
+    public void hasErrorMessageContaining() {
+        // Given
+        MessagesImpl messages = messages()
+                .addError("theCode", "theMessage");
+
+        // Then
+        assertThat(messages.hasErrorMessageContaining("theMessage"), is(true));
+        assertThat(messages.hasErrorMessageContaining("notPresent"), is(false));
+    }
 }

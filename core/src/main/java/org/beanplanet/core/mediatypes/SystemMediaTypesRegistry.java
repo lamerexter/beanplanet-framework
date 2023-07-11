@@ -24,8 +24,9 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core;
+package org.beanplanet.core.mediatypes;
 
+import org.beanplanet.core.UncheckedException;
 import org.beanplanet.core.models.AbstractRegistry;
 import org.beanplanet.core.util.MultiValueListMap;
 import org.beanplanet.core.util.MultiValueListMapImpl;
@@ -35,7 +36,7 @@ import java.util.List;
 
 public class SystemMediaTypesRegistry extends AbstractRegistry<String, MediaType> implements MediaTypeRegistry {
     private static final MediaTypeRegistry instance;
-    private MultiValueListMap<String, MediaType> fileExtensionToMediaType = new MultiValueListMapImpl<>();
+    private final MultiValueListMap<String, MediaType> fileExtensionToMediaType = new MultiValueListMapImpl<>();
 
     static {
         SystemMediaTypesRegistry systemMediaTypesRegistry = new SystemMediaTypesRegistry();

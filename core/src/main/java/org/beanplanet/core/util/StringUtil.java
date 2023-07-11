@@ -104,6 +104,26 @@ public class StringUtil {
                + (forceLowercase ? str.substring(1).toLowerCase() : str.substring(1));
     }
 
+    /**
+     * Determines whether an object string is null or contains only whitespace.
+     *
+     * @param obj the object whose tring value is to be determined as blank.
+     * @return true if the object or object's string value is null or if it contains whitespace characters only, false otherwise.
+     */
+    public static boolean isBlank(final Object obj) {
+        if (obj == null) return true;
+
+        final String s = obj.toString();
+        if (s == null) return true;
+        for(int n = 0; n < s.length(); ++n) {
+            if (!Character.isWhitespace(s.charAt(n))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static boolean isEmptyOrNull(Object obj) {
         return obj == null || obj.toString().trim().isEmpty();
     }

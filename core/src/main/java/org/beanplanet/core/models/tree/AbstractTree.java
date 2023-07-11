@@ -26,6 +26,8 @@
 
 package org.beanplanet.core.models.tree;
 
+import java.util.Objects;
+
 /**
  * Maintains the root node of this tree model.
  */
@@ -51,4 +53,18 @@ public abstract class AbstractTree<T> implements Tree<T> {
     public T getRoot() {
         return root;
     }
+
+    public boolean equals(Object other) {
+        if (this == other) return true;
+
+        if ( !(other instanceof Tree) ) return false;
+        final Tree<?> that = (Tree<?>)other;
+
+        return Objects.equals(this.getRoot(), that.getRoot());
+    }
+
+    public int hashCode() {
+        return Objects.hash(getRoot());
+    }
+
 }

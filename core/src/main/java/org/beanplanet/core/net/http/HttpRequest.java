@@ -56,7 +56,7 @@ public class HttpRequest extends HttpMessage {
     public HttpRequest() {
     }
 
-    public HttpRequest withEntity(Resource entity) { super.withEntity(entity); return this; }
+    public HttpRequest withEntity(HttpEntity entity) { super.withEntity(entity); return this; }
 
     public String getMethod() {
         return method;

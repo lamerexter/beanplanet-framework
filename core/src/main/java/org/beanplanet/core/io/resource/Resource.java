@@ -383,10 +383,34 @@ public interface Resource extends Cloneable {
      * this assumes tbe contents of the resource to be a string of manageable size, readable in the platform's default character set
      * encoding - so care must be taken when using this method.
      *
+     * @param charset the character set which will be used to read the resource content, which may be null in which case the system-default character set will be used.
+     * @return the string of the contents of the resource.
+     */
+    default String readFullyAsString(final Charset charset) {
+        return IoUtil.transferAndClose(charset == null ? this.getReader() : this.getReader(charset), new StringWriter()).toString();
+    }
+
+    /**
+     * Convenience method to read the resource as a string, using the platform default character set encoding. Obviously
+     * this assumes tbe contents of the resource to be a string of manageable size, readable in the platform's default character set
+     * encoding - so care must be taken when using this method.
+     *
+     * @param charset the character set which will be used to read the resource content, which may be null in which case the system-default character set will be used.
+     * @return the string of the contents of the resource.
+     */
+    default String readFullyAsString(final String charset) {
+        return readFullyAsString(charset != null ? Charset.forName(charset) : null);
+    }
+
+    /**
+     * Convenience method to read the resource as a string, using the platform default character set encoding. Obviously
+     * this assumes tbe contents of the resource to be a string of manageable size, readable in the platform's default character set
+     * encoding - so care must be taken when using this method.
+     *
      * @return the string of the contents of the resource.
      */
     default String readFullyAsString() {
-        return IoUtil.transferAndClose(this.getReader(), new StringWriter()).toString();
+        return readFullyAsString((Charset)null);
     }
 
     /**

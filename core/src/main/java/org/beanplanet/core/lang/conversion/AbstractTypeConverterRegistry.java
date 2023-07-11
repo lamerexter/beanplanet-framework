@@ -36,7 +36,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * 
  */
 public abstract class AbstractTypeConverterRegistry implements TypeConverterRegistry {
-   protected ConcurrentHashMap<Class<?>, ConcurrentHashMap<Class<?>, CompositeTypeConverter>> converters = new ConcurrentHashMap<Class<?>, ConcurrentHashMap<Class<?>, CompositeTypeConverter>>();
+   protected ConcurrentHashMap<Class<?>, ConcurrentHashMap<Class<?>, CompositeTypeConverter>> converters = new ConcurrentHashMap<>();
+
+   protected ConcurrentHashMap<Class<?>, CompositeTypeConverter> unboundedConverters = new ConcurrentHashMap<>();
 
    public void addConverter(Class<?> fromType, Class<?> toType, TypeConverter converter) {
       ConcurrentHashMap<Class<?>, CompositeTypeConverter> sourceTypeConverterMap = converters.get(toType);
@@ -59,6 +61,11 @@ public abstract class AbstractTypeConverterRegistry implements TypeConverterRegi
       convertersSet.add(converter);
    }
 
+   public void addConverter(Class<?> fromType, TypeConverter converter) {
+      CompositeTypeConverter unboundedConvertersFromType = unboundedConverters.computeIfAbsent(fromType, t -> new CompositeTypeConverter());
+      unboundedConvertersFromType.add(converter);
+   }
+
    public void addConverter(TypeConverter converter) {
       // Dynamic (runtime-based) converters are just a special type of converter whose
       // capabilities cannot be determined until called.
@@ -68,6 +75,9 @@ public abstract class AbstractTypeConverterRegistry implements TypeConverterRegi
    public Optional<TypeConverter> lookup(final Class<?> fromType, final Class<?> toType) {
       TypeConverter matchingConverter = null;
 
+      //----------------------------------------------------------------------------------------------------------------
+      // Lookup bounded type converter(s).
+      //----------------------------------------------------------------------------------------------------------------
       Map<Class<?>, CompositeTypeConverter> sourceConvertersForTarget = converters.get(toType);
       if (sourceConvertersForTarget != null) {
          // Attempt direct lookup
@@ -81,6 +91,22 @@ public abstract class AbstractTypeConverterRegistry implements TypeConverterRegi
                                                          .findFirst().orElse(null);
 
          }
+      }
+      if (matchingConverter != null) return Optional.of(matchingConverter);
+
+      //----------------------------------------------------------------------------------------------------------------
+      // Lookup unbounded type converter(s).
+      //----------------------------------------------------------------------------------------------------------------
+      // Attempt direct lookup
+      matchingConverter = unboundedConverters.get(fromType);
+
+      if (matchingConverter == null) {
+         // Fall back to assignable converter check. This will handle array types, for example (Object[] <-- T[])
+         matchingConverter = unboundedConverters.entrySet().stream()
+                 .filter(e -> e.getKey().isAssignableFrom(fromType))
+                 .map(Map.Entry::getValue)
+                 .findFirst().orElse(null);
+
       }
 
       return Optional.ofNullable(matchingConverter);

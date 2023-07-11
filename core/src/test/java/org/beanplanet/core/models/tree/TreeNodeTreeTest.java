@@ -32,6 +32,10 @@ import java.util.Collections;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -124,6 +128,34 @@ public class TreeNodeTreeTest {
     }
 
     @Test
+    public void getLeaves() {
+        // Given
+        TreeNode<String> child1 = new TreeNode<>("child1");
+        TreeNode<String> child21 = new TreeNode<>("child21");
+        TreeNode<String> child22 = new TreeNode<>("child22");
+        TreeNode<String> child2 = new TreeNode<>("child2", child21, child22);
+        TreeNode<String> root = new TreeNode<>("root", child1, child2);
+        TreeNodeTree<String> tree = new TreeNodeTree<>(root);
+
+        // Then
+        assertThat(tree.getLeaves(), equalTo(asList(child1, child21, child22)));
+    }
+
+    @Test
+    public void getManagedLeaves() {
+        // Given
+        TreeNode<String> child1 = new TreeNode<>("child1");
+        TreeNode<String> child21 = new TreeNode<>("child1");
+        TreeNode<String> child22 = new TreeNode<>("child22");
+        TreeNode<String> child2 = new TreeNode<>("child2", child21, child22);
+        TreeNode<String> root = new TreeNode<>("root", child1, child2);
+        TreeNodeTree<String> tree = new TreeNodeTree<>(root);
+
+        // Then
+        assertThat(tree.getManagedLeaves(), equalTo(asList("child1", "child1", "child22")));
+    }
+
+    @Test
     public void childIterator() {
         // Given
         TreeNode<String> child1 = new TreeNode<>("child1");
@@ -153,4 +185,18 @@ public class TreeNodeTreeTest {
         assertThat(tree.getChildren(child2), equalTo(asList(child21)));
     }
 
+    @Test
+    public void copyShallow() {
+        // Given
+        TreeNode<String> child1 = new TreeNode<>("child1");
+        TreeNode<String> child21 = new TreeNode<>("child21");
+        TreeNode<String> child2 = new TreeNode<>("child2", child21);
+        TreeNode<String> root = new TreeNode<>("root", child1, child2);
+        TreeNodeTree<String> tree = new TreeNodeTree<>(root);
+        TreeNodeTree<String> treeCopy = tree.copyShallow();
+
+        // Then
+        assertThat(treeCopy, is(not(sameInstance(tree))));
+        assertThat(treeCopy, is(equalTo(tree)));
+    }
 }

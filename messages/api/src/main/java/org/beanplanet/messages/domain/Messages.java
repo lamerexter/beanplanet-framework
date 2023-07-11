@@ -237,6 +237,16 @@ public interface Messages {
     }
 
     /**
+     * Whether there is an error present with message containing the given string.
+     *
+     * @param messageText the error message text whose presence in any error is to be determined.
+     * @return true if there exists an error message containing the given message text, false otherwise.
+     */
+    default boolean hasErrorMessageContaining(final String messageText) {
+        return hasErrors() && getErrors().stream().map(Message::getRenderedMessage).filter(Objects::nonNull).anyMatch(errMsg -> errMsg.contains(messageText));
+    }
+
+    /**
      * Add a warning for a field, with the supplied code and message text.
      *
      * @param field                the field to which the warning applies.

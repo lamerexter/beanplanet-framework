@@ -26,17 +26,16 @@
 
 package org.beanplanet.core.mediatypes;
 
+import org.beanplanet.core.models.Described;
 import org.beanplanet.core.models.Named;
 
 import java.util.List;
 
 /**
- * Definition of a content type (holderf of MIME type information).
- *
- * @author Gary Watson
- *
+ * <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">Media Type</a>, as defined by the <a href="https://www.iana.org">Internet Assigned Numbers Authority (IANA)</a>. Represents
+ * most widely-known types of content such as text (text/plain), HTML (text/html), images (image/png amongst others) and more.
  */
-public interface MediaType extends Named {
+public interface MediaType extends Named, Described {
     /**
      * Returns the base of the content type name. For the JPEG image content type, <b>image</b>/jpeg, the base name is
      * <b>image</b>.
@@ -54,11 +53,12 @@ public interface MediaType extends Named {
     String getSubType();
 
     /**
-     * Returns the canonical name of the media type. Although a media type may have more than one known type name, this
-     * is the most well-known name for the type.
+     * Returns the known file extensions (not including the leading dot) for the content type. For text documents, for
+     * example, these might be <b>txt</b> and <b>text</b>.
+     *
+     * @return the known content types of the media type, in preference order with first preference first, which
+     * may be empty but never null.
      */
-    default String getName() {
-        return getBaseType()+"/"+getSubType();
-    }
+    List<String> getFileExtensions();
 }
 

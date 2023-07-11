@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2019 Beanplanet Ltd
+ *  Copyright (C) 2018 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -23,28 +23,24 @@
  *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
+package org.beanplanet.core.lang.conversion.system;
 
-package org.beanplanet.core;
+import org.beanplanet.core.beans.TestBean;
+import org.beanplanet.core.lang.conversion.UnsupportedTypeConversionException;
+import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
-import org.beanplanet.core.models.Registry;
-
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
 
 /**
- * <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">Media Type</a>, as defined by the <a href="https://www.iana.org">Internet Assigned Numbers Authority (IANA)</a>. Represents
- * most widely-known types of content such as text (text/plain), HTML (text/html), images (image/png amongst others) and more.
+ * Testing utility containing unbounded target type converters for tests.
  */
-public interface MediaTypeRegistry extends Registry<String, MediaType> {
-    List<MediaType> findMediaTypesForFileExtension(String extension);
+@TypeConverter
+public final class UnboundedTypeConverters {
+    @TypeConverter
+    public static Object testBeanToTargetType(TestBean value, Class<?> targetType) {
+        if (targetType == Integer.class) return value.getIntProperty();
+        if (targetType == BigDecimal.class) return value.getBigDecimalProperty();
 
-    default Optional<MediaType> findMediaTypeForFileExtension(String extension) {
-        return findMediaTypesForFileExtension(extension).stream().findFirst();
-    }
-
-    List<String> findFileExtensionsForMediaType(String name);
-
-    default Optional<String> findFileExtensionForMediaType(String name) {
-        return findFileExtensionsForMediaType(name).stream().findFirst();
+        throw new UnsupportedTypeConversionException("Conversion from TestBean to "+targetType+" is not supported");
     }
 }

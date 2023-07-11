@@ -77,29 +77,33 @@ public class PackageScanTypeConverterLoader implements TypeConverterLoader, Logg
 
    protected PackageResourceScanner<Class<?>> packageScanner = new FilteringPackageClassScanner(PACKAGE_SCAN_CLASS_FILTER);
 
-   private static final Predicate<Method> ANNOTATED_METHOD_FILTER = new Predicate<Method>() {
-      private static final long serialVersionUID = 1L;
-
+   private static final Predicate<Method> ANNOTATED_BOUNDED_METHOD_FILTER = new Predicate<Method>() {
       public boolean test(Method method) {
          Class<?> paramTypes[] = method.getParameterTypes();
          return Modifier.isPublic(method.getModifiers())
-                && !Modifier.isAbstract(method.getModifiers())
-                && method.isAnnotationPresent(org.beanplanet.core.lang.conversion.annotations.TypeConverter.class)
-                && paramTypes != null
-                && paramTypes.length <= 2
-                && paramTypes[0] != Void.class
-                && paramTypes[0] != void.class
-                && (paramTypes.length == 1 || (paramTypes[1] == Class.class));
+                 && !Modifier.isAbstract(method.getModifiers())
+                 && method.isAnnotationPresent(org.beanplanet.core.lang.conversion.annotations.TypeConverter.class)
+                 && paramTypes.length == 1
+                 && paramTypes[0] != Void.class
+                 && paramTypes[0] != void.class;
       }
    };
-//
-//   public PackageScanTypeConverterLoader() {
-//   }
-//
-//   public PackageScanTypeConverterLoader(String typeConverterPackagesResource) {
-//      setTypeConverterPackagesResource(typeConverterPackagesResource);
-//   }
-//
+
+   private static final Predicate<Method> ANNOTATED_UNBOUNDED_METHOD_FILTER = new Predicate<Method>() {
+      public boolean test(Method method) {
+         Class<?> paramTypes[] = method.getParameterTypes();
+         return Modifier.isPublic(method.getModifiers())
+                 && !Modifier.isAbstract(method.getModifiers())
+                 && method.isAnnotationPresent(org.beanplanet.core.lang.conversion.annotations.TypeConverter.class)
+                 && paramTypes.length == 2
+                 && paramTypes[0] != Void.class
+                 && paramTypes[0] != void.class
+                 && (paramTypes[1] == Class.class);
+      }
+   };
+
+//   private static final Predicate<Method> ANNOTATED_METHOD_FILTER =  ANNOTATED_BOUNDED_METHOD_FILTER.or(ANNOTATED_UNBOUNDED_METHOD_FILTER);;
+
    /**
     * @return the typeConverterPackagesResource
     */
@@ -232,13 +236,24 @@ public class PackageScanTypeConverterLoader implements TypeConverterLoader, Logg
          return;
       }
 
-      TypeUtil.getMethodsInClassHierarchy(clazz).filter(ANNOTATED_METHOD_FILTER).forEach(m -> {
+      TypeUtil.getMethodsInClassHierarchy(clazz).filter(ANNOTATED_BOUNDED_METHOD_FILTER).forEach(m -> {
          try {
             registry.addConverter(m.getParameterTypes()[0],
                                   m.getReturnType(),
                                   Modifier.isStatic(m.getModifiers()) ?
                                   new StaticMethodTypeConverter(m) :
                                   new InstanceMethodTypeConverter(m.getDeclaringClass().newInstance(), m));
+         } catch (InstantiationException | IllegalAccessException ex) {
+            error("Ignoring problematic type converter candidate method [" + m + "] which could not be instantiated: ", ex);
+         }
+      });
+
+      TypeUtil.getMethodsInClassHierarchy(clazz).filter(ANNOTATED_UNBOUNDED_METHOD_FILTER).forEach(m -> {
+         try {
+            registry.addConverter(m.getParameterTypes()[0],
+                                  Modifier.isStatic(m.getModifiers()) ?
+                                          new StaticMethodTypeConverter(m) :
+                                          new InstanceMethodTypeConverter(m.getDeclaringClass().newInstance(), m));
          } catch (InstantiationException | IllegalAccessException ex) {
             error("Ignoring problematic type converter candidate method [" + m + "] which could not be instantiated: ", ex);
          }

@@ -190,7 +190,7 @@ public class TestBean {
    public Object getNull() {
       return null;
    }
-   
+
    /**
     * Gets the primitive boolean property.
     * 

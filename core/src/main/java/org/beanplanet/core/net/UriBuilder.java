@@ -40,8 +40,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.*;
 import static org.beanplanet.core.net.UriUtil.decode;
 import static org.beanplanet.core.net.UriUtil.encode;
-import static org.beanplanet.core.util.StringUtil.ensureHasPrefix;
-import static org.beanplanet.core.util.StringUtil.isEmptyOrNull;
+import static org.beanplanet.core.util.StringUtil.*;
 
 /**
  * A Uniform Resource Identifier builder.  Builds URIs, as defined by <a href="https://tools.ietf.org/html/rfc3986">RFC 3986</a>.  This implementation allows
@@ -74,7 +73,7 @@ public class UriBuilder {
             withPort(uri.getPort());
             withPath(uri.getPath());
 
-            if (uri.getQuery() != null) {
+            if ( !isBlank(uri.getQuery()) ) {
                 withQueryParameters(new MultiValueListMapImpl<>(
                         Arrays.asList(uri.getQuery().split("&")).stream()
                                 .map(s -> s.split("="))

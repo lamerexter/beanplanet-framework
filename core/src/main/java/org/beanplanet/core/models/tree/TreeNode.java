@@ -26,6 +26,7 @@
 
 package org.beanplanet.core.models.tree;
 
+import org.beanplanet.core.lang.ShallowCopyable;
 import org.beanplanet.core.models.path.NamePath;
 import org.beanplanet.core.models.path.SimpleNamePath;
 
@@ -34,11 +35,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-public class TreeNode<E> implements Serializable {
+public class TreeNode<E> implements Serializable, ShallowCopyable {
     private TreeNode<E> parent;
     private E managedObject;
     private List<TreeNode<E>> children;
@@ -61,6 +63,14 @@ public class TreeNode<E> implements Serializable {
         if (children != null) {
             this.children.stream().forEach(c -> c.setParent(this));
         }
+    }
+
+    public TreeNode<E> copyShallow() {
+        return copyShallow(parent == null ? null : parent.copyShallow());
+    }
+
+    public TreeNode<E> copyShallow(final TreeNode<E> parent) {
+        return new TreeNode<>(parent, managedObject, (children == null ? null : children.stream().map(n -> n.copyShallow(parent)).collect(Collectors.toList())));
     }
 
     public TreeNode<E> getParent() {
@@ -96,9 +106,11 @@ public class TreeNode<E> implements Serializable {
     public boolean equals(Object other) {
         if (this == other) return true;
 
-        return other instanceof TreeNode
-               && Objects.equals(((TreeNode)other).getManagedObject(), getManagedObject())
-               && Objects.equals(((TreeNode)other).getChildren(), getChildren());
+        if ( !(other instanceof TreeNode) ) return false;
+        final TreeNode<?> that = (TreeNode<?>)other;
+
+        return Objects.equals(this.managedObject, that.managedObject)
+               && Objects.equals(this.children, that.children);
     }
 
     public int hashCode() {

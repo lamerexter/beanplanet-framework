@@ -24,7 +24,7 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core;
+package org.beanplanet.core.mediatypes;
 
 import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.io.resource.Resource;
