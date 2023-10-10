@@ -27,13 +27,12 @@
 package org.beanplanet.core.io;
 
 import org.beanplanet.core.models.tree.FilesystemTree;
-import org.beanplanet.core.util.IterableUtil;
-import org.beanplanet.core.util.IteratorUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class FileUtil {
@@ -244,6 +243,21 @@ public class FileUtil {
             }
 
             return result;
+        }
+    }
+
+    /**
+     * Creates a temporary file that will be deleted automatically when the VM exists or when the O/S is restarted, relative
+     * to the O/S dependent temporary files directory. On *nix systems the temporary files directory is typically {@code /tmp}}.
+     *
+     * @return the temporary file created, which may be written to and read from.
+     * @throws IoException if the temporary file could not be created.
+     */
+    public static final File createTemporaryFile() {
+        try {
+            return File.createTempFile(UUID.randomUUID().toString(), ".tmp");
+        } catch (IOException e) {
+            throw new IoException(e);
         }
     }
 
