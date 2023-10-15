@@ -26,6 +26,9 @@
 
 package org.beanplanet.core.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -908,4 +911,48 @@ public class StringUtil {
     public static String randomAlphanumericAsciiPrintableSpecialChars(final int maximumLengthInclusive) {
         return randomAlphanumericAsciiPrintableSpecialChars(maximumLengthInclusive, maximumLengthInclusive);
     }
+
+    /**
+     * Splits the specified string into a stream of lines. Lines can be separated by a line-feed or a carriage-return line-feed
+     * terminator.
+     *
+     * @param str the string to be split into a stream of lines.
+     * @return a stream of the lines of the string, or null if the string specified was null.
+     */
+    public static Stream<String> toLinesStream(final String str) {
+        if (str == null) {
+            return null;
+        }
+
+        return Arrays.stream(toLinesArray(str));
+    }
+
+    /**
+     * Splits the specified string into lines. Lines can be separated by a line-feed or a carriage-return line-feed
+     * terminator.
+     *
+     * @param str the string to be split into lines
+     * @return an array of lines that comprise the string, or null if the string specified was null
+     */
+    public static String[] toLinesArray(final String str) {
+        if (str == null) {
+            return null;
+        }
+
+        BufferedReader br = new BufferedReader(new StringReader(str));
+
+        ArrayList<String> linesList = new ArrayList<String>();
+
+        try {
+            String line = br.readLine();
+            while (line != null) {
+                linesList.add(line);
+                line = br.readLine();
+            }
+        } catch (IOException notGoingToHappenWithAnInMemoryStringReaderEx) {
+        }
+
+        return linesList.toArray(new String[linesList.size()]);
+    }
+
 }
