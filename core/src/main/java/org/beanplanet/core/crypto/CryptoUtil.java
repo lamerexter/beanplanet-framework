@@ -3002,6 +3002,20 @@ public class CryptoUtil {
     }
 
     /**
+     * Encrypts resource binary input stream content to the specified resource output stream using the system default secret
+     * key.
+     *
+     * @param fromResource the resource stream containing the binary content to be encrypted
+     * @param toResource the destination resource stream to contain the cypher text
+     * @throws SecurityException if an unexpected error occurs during encryption
+     * @see #DEFAULT_SYMMETRIC_ALGORITHM
+     * @see #decrypt(Resource, Resource)
+     */
+    public static void encrypt(Resource fromResource, Resource toResource) throws SecurityException {
+        encrypt(null, null, embeddedSecretKey, fromResource, toResource, IoUtil.DEFAULT_TRANSFER_BUF_SIZE);
+    }
+
+    /**
      * Encrypts resource binary input stream content to the specified resource output stream using the specified
      * algorithm and the specified key. The resources are opened, if not already, and are subsequently closed by this
      * operation.
@@ -3016,6 +3030,20 @@ public class CryptoUtil {
      */
     public static void encrypt(Key key, Resource fromResource, Resource toResource) throws SecurityException {
         encrypt(null, null, key, fromResource, toResource, IoUtil.DEFAULT_TRANSFER_BUF_SIZE);
+    }
+
+    /**
+     * Decrypts resource binary input stream content to the specified resource output stream using the system default secret
+     * key.
+     *
+     * @param fromResource the resource stream containing the binary content to be decrypted
+     * @param toResource the destination resource stream to contain the decrypted data
+     * @throws SecurityException if an unexpected error occurs during decryption
+     * @see #DEFAULT_SYMMETRIC_ALGORITHM
+     * @see #encrypt(Resource, Resource)
+     */
+    public static void decrypt(Resource fromResource, Resource toResource) throws SecurityException {
+        decrypt(null, null, embeddedSecretKey, fromResource, toResource, IoUtil.DEFAULT_TRANSFER_BUF_SIZE);
     }
 
     /**

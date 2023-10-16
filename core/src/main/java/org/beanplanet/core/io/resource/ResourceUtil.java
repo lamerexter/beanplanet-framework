@@ -2,12 +2,15 @@ package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.io.FileUtil;
 import org.beanplanet.core.io.IoUtil;
+import org.beanplanet.core.util.StringUtil;
 
+import java.io.File;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Optional;
 
 /**
  * Utilities for resolving, loading and handling resources.
@@ -23,6 +26,40 @@ public class ResourceUtil {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    public static boolean isClasspathResource(final String resourceSpec) {
+        if (StringUtil.isBlank(resourceSpec)) {
+            return false;
+        }
+
+        return resourceSpec.startsWith("classpath:");
+    }
+
+    public static boolean isUrl(final String urlSpec) {
+        if (StringUtil.isBlank(urlSpec)) {
+            return false;
+        }
+
+        if (isClasspathResource(urlSpec)) {
+            return true;
+        }
+
+        try {
+            new URL(urlSpec);
+            return true;
+        } catch (MalformedURLException malEx) {
+            return false;
+        }
+    }
+
+    public static boolean isFile(final String fileSpec) {
+        if (StringUtil.isBlank(fileSpec)) {
+            return false;
+        }
+
+        final File file = new File(fileSpec);
+        return file.exists();
     }
 
     public static boolean isFileUrl(final URL url) {
@@ -81,5 +118,13 @@ public class ResourceUtil {
         } catch (MalformedURLException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static Optional<Resource> toResource(final String resourceSpec) {
+        if ( isUrl(resourceSpec) ) return Optional.of(new UrlResource(resourceSpec));
+        if ( isClasspathResource(resourceSpec) ) return Optional.of(new ClasspathResource(resourceSpec));
+        if ( isFile(resourceSpec) ) return Optional.of(new FileResource(resourceSpec));
+
+        return Optional.empty();
     }
 }

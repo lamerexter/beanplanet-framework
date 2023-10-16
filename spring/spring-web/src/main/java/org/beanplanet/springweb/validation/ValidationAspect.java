@@ -14,6 +14,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
