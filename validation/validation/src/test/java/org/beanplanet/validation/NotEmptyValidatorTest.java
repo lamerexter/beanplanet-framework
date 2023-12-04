@@ -39,7 +39,7 @@ import static org.beanplanet.validation.NotEmptyValidator.DEFAULT_MESSAGE_CODE;
 import static org.beanplanet.validation.NotEmptyValidator.DEFAULT_PARAM_MESSAGE;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -178,28 +178,28 @@ public class NotEmptyValidatorTest {
         assertThat(validator.getValidation().test("  Hello "), is(true));
 
         // When a null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNullObject = validator.validate(null, messages());
 
         // Then  no error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(false));
 
         // When a null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(true);
+        when(condition.test(any())).thenReturn(true);
         messagesForNullObject = validator.validate(null, messages());
 
         // Then an error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(true));
 
         // When a non-null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNonNullObject = validator.validate(new Object(), messages());
 
         // Then no error message is added
         assertThat(messagesForNonNullObject.hasErrorLike(message), is(false));
 
         // When a non-null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         messagesForNonNullObject = validator.validate(new Object(), messages());
 
         // Then no error message is added
@@ -226,21 +226,21 @@ public class NotEmptyValidatorTest {
         assertThat(validator.getValidation().test("  Hello "), is(true));
 
         // When a null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNullObject = validator.validate(new TestBean(), messages());
 
         // Then  no error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(false));
 
         // When a null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(true);
+        when(condition.test(any())).thenReturn(true);
         messagesForNullObject = validator.validate(new TestBean(), messages());
 
         // Then an error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(true));
 
         // When a non-null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNonNullObject = validator.validate(new TestBean("StringValue"),
                                                                messages());
 
@@ -248,7 +248,7 @@ public class NotEmptyValidatorTest {
         assertThat(messagesForNonNullObject.hasErrorLike(message), is(false));
 
         // When a non-null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         messagesForNonNullObject = validator.validate(new TestBean("StringValue"), messages());
 
         // Then no error message is added
@@ -275,21 +275,21 @@ public class NotEmptyValidatorTest {
         assertThat(validator.getValidation().test("  Hello "), is(true));
 
         // When a null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNullObject = validator.validate(new TestBean(), messages());
 
         // Then  no error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(false));
 
         // When a null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(true);
+        when(condition.test(any())).thenReturn(true);
         messagesForNullObject = validator.validate(new TestBean(), messages());
 
         // Then an error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(true));
 
         // When a non-null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNonNullObject = validator.validate(new TestBean("StringValue"),
                                                                messages());
 
@@ -297,7 +297,7 @@ public class NotEmptyValidatorTest {
         assertThat(messagesForNonNullObject.hasErrorLike(message), is(false));
 
         // When a non-null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         messagesForNonNullObject = validator.validate(new TestBean("StringValue"), messages());
 
         // Then no error message is added

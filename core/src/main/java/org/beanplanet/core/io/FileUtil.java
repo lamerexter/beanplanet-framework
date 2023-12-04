@@ -262,6 +262,21 @@ public class FileUtil {
     }
 
     /**
+     * Creates a temporary directory, relative to the O/S dependent temporary files directory.
+     *
+     * <p>
+     * For example, on *nix systems where the temporary files directory is typically {@code /tmp}, the temporary directory
+     * created will be similar to {@code /tmp/1a2r34-4r5c6-b45a}.
+     * </p>
+     *
+     * @return the directory created.
+     * @throws IoException if the directory could not be created.
+     */
+    public static final File createTemporaryDirectory() {
+        return createTemporaryDirectory(UUID.randomUUID().toString());
+    }
+
+    /**
      * Creates a temporary directory with the given path, relative to the O/S dependent temporary files directory.
      *
      * <p>

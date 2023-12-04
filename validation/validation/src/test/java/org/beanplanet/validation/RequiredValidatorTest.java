@@ -29,20 +29,17 @@ package org.beanplanet.validation;
 import org.beanplanet.messages.domain.Message;
 import org.beanplanet.messages.domain.Messages;
 import org.beanplanet.testing.beans.TestBean;
-import org.beanplanet.validation.RequiredValidator;
 import org.junit.Test;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static org.beanplanet.messages.domain.MessageImpl.fieldMessage;
 import static org.beanplanet.messages.domain.MessageImpl.globalMessage;
 import static org.beanplanet.messages.domain.MessagesImpl.messages;
 import static org.beanplanet.validation.RequiredValidator.DEFAULT_MESSAGE_CODE;
 import static org.beanplanet.validation.RequiredValidator.DEFAULT_PARAM_MESSAGE;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -176,28 +173,28 @@ public class RequiredValidatorTest {
         assertThat(validator.getValidation().test(null), is(false));
 
         // When a null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNullObject = validator.validate(null, messages());
 
         // Then  no error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(false));
 
         // When a null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(true);
+        when(condition.test(any())).thenReturn(true);
         messagesForNullObject = validator.validate(null, messages());
 
         // Then an error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(true));
 
         // When a non-null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNonNullObject = validator.validate(new Object(), messages());
 
         // Then no error message is added
         assertThat(messagesForNonNullObject.hasErrorLike(message), is(false));
 
         // When a non-null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         messagesForNonNullObject = validator.validate(new Object(), messages());
 
         // Then no error message is added
@@ -223,21 +220,21 @@ public class RequiredValidatorTest {
         assertThat(validator.getValidation().test(null), is(false));
 
         // When a null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNullObject = validator.validate(new TestBean(), messages());
 
         // Then  no error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(false));
 
         // When a null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(true);
+        when(condition.test(any())).thenReturn(true);
         messagesForNullObject = validator.validate(new TestBean(), messages());
 
         // Then an error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(true));
 
         // When a non-null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNonNullObject = validator.validate(new TestBean("StringValue"),
                                                                messages());
 
@@ -245,7 +242,7 @@ public class RequiredValidatorTest {
         assertThat(messagesForNonNullObject.hasErrorLike(message), is(false));
 
         // When a non-null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         messagesForNonNullObject = validator.validate(new TestBean("StringValue"), messages());
 
         // Then no error message is added
@@ -271,21 +268,21 @@ public class RequiredValidatorTest {
         assertThat(validator.getValidation().test(null), is(false));
 
         // When a null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNullObject = validator.validate(new TestBean(), messages());
 
         // Then  no error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(false));
 
         // When a null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(true);
+        when(condition.test(any())).thenReturn(true);
         messagesForNullObject = validator.validate(new TestBean(), messages());
 
         // Then an error message is added
         assertThat(messagesForNullObject.hasErrorLike(message), is(true));
 
         // When a non-null object is validated (condition == false)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         Messages messagesForNonNullObject = validator.validate(new TestBean("StringValue"),
                                                                messages());
 
@@ -293,7 +290,7 @@ public class RequiredValidatorTest {
         assertThat(messagesForNonNullObject.hasErrorLike(message), is(false));
 
         // When a non-null object is validated (condition == true)
-        when(condition.test(anyObject())).thenReturn(false);
+        when(condition.test(any())).thenReturn(false);
         messagesForNonNullObject = validator.validate(new TestBean("StringValue"), messages());
 
         // Then no error message is added

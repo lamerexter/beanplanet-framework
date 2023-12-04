@@ -38,7 +38,7 @@ import static org.beanplanet.messages.domain.MessageImpl.globalMessage;
 import static org.beanplanet.messages.domain.MessagesImpl.messages;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class PredicatedValidatorTest {
@@ -276,7 +276,7 @@ public class PredicatedValidatorTest {
         Function<TestBean, String> valueProvider = o -> o.getStringProperty();
         Predicate<String> validation = mock(Predicate.class);
         TestBean objectToValidate = new TestBean("theStringPropertyValue");
-        when(condition.test(anyObject())).thenReturn(true);
+        when(condition.test(any())).thenReturn(true);
         PredicatedValidator<TestBean> validator = new PredicatedValidator<TestBean>(condition,
                                                                                     valueProvider,
                                                                                     message,
@@ -304,7 +304,7 @@ public class PredicatedValidatorTest {
         Messages messages = messages();
         Predicate<Object> validation = mock(Predicate.class);
         Object objectToValidate = new Object();
-        when(validation.test(anyObject())).thenReturn(true);
+        when(validation.test(any())).thenReturn(true);
         PredicatedValidator<Object> validator = new PredicatedValidator<Object>(message,
                                                                                 validation) {
         };

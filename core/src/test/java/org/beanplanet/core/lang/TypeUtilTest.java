@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.stream.Stream;
 
 import static org.beanplanet.core.lang.TypeUtil.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -65,8 +66,13 @@ public class TypeUtilTest {
     }
 
     @Test
-    public void determineCommonSuperclass_autoboxing_withMutipleClassesHavingCommonSuperclass_returnsCommopnSuperclass() {
+    public void determineCommonSuperclass_autoboxing_withMutipleClassesHavingCommonSuperclass_returnsCommonSuperclass() {
         assertThat(determineCommonSuperclass(Integer.class, Long.class, Double.class), equalTo(Number.class));
+    }
+
+    @Test
+    public void determineCommonSuperclass_autoboxing_withInterfaceAndPrimitiveTypes_returnsCommonSuperclass() {
+        assertThat(determineCommonSuperclass(Stream.class, boolean.class), equalTo(Object.class));
     }
 
     @Test
@@ -101,7 +107,7 @@ public class TypeUtilTest {
     }
 
     @Test
-    public void determineCommonSuperclass_noboxing_withMutipleClassesHavingCommonSuperclass_returnsCommopnSuperclass() {
+    public void determineCommonSuperclass_noboxing_withMutipleClassesHavingCommonSuperclass_returnsCommonSuperclass() {
         assertThat(determineCommonSuperclass(false, Integer.class, Long.class, Double.class), equalTo(Number.class));
     }
 

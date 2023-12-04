@@ -38,17 +38,21 @@ import java.util.stream.Stream;
  * @author Gary Watson
  */
 public interface TreeIterator<E> extends Iterator<E> {
-   public boolean hasPrevious();
+   boolean hasPrevious();
 
-   public boolean hasNext();
+   boolean hasNext();
 
-   public E previous();
+   E previous();
 
-   public E next();
+   E next();
 
-   public void remove();
+   default void remove() {
+      throw new UnsupportedOperationException("Removal of tree nodes from model via iterator is unsupported");
+   }
 
-   public void set(E replacement);
+   default void set(E replacement) {
+      throw new UnsupportedOperationException("Set of tree node in model via iterator is unsupported");
+   }
 
    default TreeIterator<E> reverse() {
       return new ReverseOrderTreeIterator<>(this);

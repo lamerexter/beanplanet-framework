@@ -27,8 +27,50 @@
 package org.beanplanet.core.models.tree;
 
 public interface DepthFirstTreeIterators<E> {
+    /**
+     * Returns a preorder iterator over all nodes in the tree.
+     *
+     * @return a preorder iterator over all nodes in the tree, starting from the tree root node.
+     */
     TreeIterator<E> preorderIterator();
+
+    /**
+     * Returns a preorder iterator over all nodes in the tree, starting with the given subtree node.
+     *
+     * @param from the node from which preorder iteration will start.
+     * @return a preorder iterator over all nodes in the subtree, starting at the given node.
+     */
+    TreeIterator<E> preorderIterator(E from);
+
     TreeIterator<E> preorderParentUnawareIterator();
+
+    /**
+     * Returns an inorder iterator over all nodes in the tree, starting from the root node.
+     *
+     * @return an inorder iterator over all nodes in the subtree, starting at the root node.
+     */
     TreeIterator<E> inorderIterator();
+
+    /**
+     * Returns an inorder iterator over all nodes in the tree, starting with the given subtree node.
+     *
+     * @param from the node from which inorder iteration will start.
+     * @return an inorder iterator over all nodes in the subtree, starting at the given node.
+     */
+    TreeIterator<E> inorderIterator(E from);
+
+    /**
+     * Returns a postorder iterator over all nodes in the tree.
+     *
+     * @return a postorder iterator over all nodes in the tree, starting from the tree root node.
+     */
     TreeIterator<E> postorderIterator();
+
+    /**
+     * Returns a postorder iterator over all nodes in the tree, starting with the given subtree node.
+     *
+     * @param from the node from which the postorder iteration will start.
+     * @return a postorder iterator over all nodes in the subtree, starting at the given node.
+     */
+    TreeIterator<E> postorderIterator(E from);
 }

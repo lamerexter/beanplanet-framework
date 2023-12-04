@@ -1,7 +1,7 @@
 /*
  *  MIT Licence:
  *
- *  Copyright (C) 2020 Beanplanet Ltd
+ *  Copyright (C) 2018 Beanplanet Ltd
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without restriction
@@ -24,32 +24,45 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.lang.conversion.system;
+package org.beanplanet.core.models.tree;
 
-import org.junit.Test;
+import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.Objects;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+public class AncestorIterator<T> implements TreeIterator<T> {
+    final ListIterator<T> ancestorListIterator;
 
-import static java.util.Arrays.asList;
-import static org.beanplanet.core.lang.conversion.SystemTypeConverter.systemTypeConverter;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+    public AncestorIterator(final Tree<T> tree, T from) {
+        LinkedList<T> ancestorList = new LinkedList<T>();
+        if ( !Objects.equals(tree.getRoot(), from) ) {
+            from = tree.getParent(from);
+            while (from != null) {
+                ancestorList.add(0, from);
+                from = tree.getParent(from);
+                if (Objects.equals(tree.getRoot(), from)) break;
+            }
+        }
 
-public class StreamToSequenceReductionConvertersTest {
-    @Test
-    public void streamToArray_TypeConversion() {
-        assertThat(systemTypeConverter().convert(asList(1, 2, 3).stream(), Integer[].class), equalTo(new Integer[] { 1, 2, 3}));
+        ancestorListIterator = ancestorList.listIterator(0);
     }
 
-    @Test
-    public void streamToList_TypeConversion() {
-        assertThat(systemTypeConverter().convert(asList(1, 2, 3).stream(), List.class), equalTo(asList(1, 2, 3)));
+    @Override
+    public boolean hasNext() {
+        return ancestorListIterator.hasNext();
+    }
+    @Override
+    public T next() {
+        return ancestorListIterator.next();
     }
 
-    @Test
-    public void streamToSet_TypeConversion() {
-        assertThat(systemTypeConverter().convert(asList(1, 2, 3).stream(), Set.class), equalTo(new LinkedHashSet<>(asList(1, 2, 3))));
+    @Override
+    public boolean hasPrevious() {
+        return ancestorListIterator.hasPrevious();
+    }
+
+    @Override
+    public T previous() {
+        return ancestorListIterator.previous();
     }
 }

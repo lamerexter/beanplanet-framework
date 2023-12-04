@@ -27,7 +27,6 @@ package org.beanplanet.core.lang.conversion.system;
 
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
-import java.lang.reflect.Array;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,22 +37,7 @@ import java.util.stream.Stream;
  * Conversion functions from a {@link Stream} to various sequence types (arrays, collections etc).
  */
 @TypeConverter
-public final class StreamToSequenceReductionConverters {
-    /**
-     * Converts the specified {@link Stream} to an array of the given target type.
-     *
-     * @param value      the stream to be reduced to an array whose component type was specified.
-     * @param targetType the target type to be created, which must be an array type. All elements in the stream MUST be assignable to the
-     *                      component type of the array type.
-     * @throws ArrayStoreException if one or more elements from the stream are not assignable to the given component type.
-     */
-    @SuppressWarnings("unchecked")
-    @TypeConverter
-    public static <T> T[] streamToArray(final Stream<T> value, final Class<T> targetType) {
-        final Class<?> componentType = targetType.isArray() ? targetType.getComponentType() : targetType;
-        return (value == null ? null : value.toArray(size -> (T[]) Array.newInstance(componentType, size)));
-    }
-
+public final class StreamToCollectionConverters {
     /**
      * Converts the specified {@link Stream} to a {@link List} of the given component type.
      *

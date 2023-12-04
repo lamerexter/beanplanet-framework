@@ -50,6 +50,16 @@ public final class SequenceToStreamConverters {
     }
 
     /**
+     * Converts the specified array to a {@link java.util.stream.Stream}.
+     *
+     * @param value the array to be streamed.
+     */
+    @TypeConverter
+    public static Stream<Integer> arrayToStream(int[] value) {
+        return (value == null ? null : Arrays.stream(value).boxed());
+    }
+
+    /**
      * Converts the specified list to a {@link java.util.stream.Stream}.
      *
      * @param value the list to be streamed.

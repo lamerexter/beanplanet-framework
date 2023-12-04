@@ -102,7 +102,8 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
         //--------------------------------------------------------------------------------------------------------------
         // Attempt to find a corresponding converter in the registry.
         //--------------------------------------------------------------------------------------------------------------
-        Class<?> targetClass = targetType.isArray() ? Object[].class : targetType;
+//        Class<?> targetClass = targetType.isArray() ? Object[].class : targetType;    // GAW 2023-11-05 Why to Object[] ?!?
+        Class<?> targetClass = targetType;
         return lookup(value.getClass(), targetClass)
                    .orElseThrow(() -> new UnsupportedTypeConversionException(format("Type converter from type \"%s\" to type \"%s\" not found",
                                                                                     (value == null ? null : value.getClass().getName()), targetType.getName()))

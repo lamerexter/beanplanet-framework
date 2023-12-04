@@ -46,13 +46,11 @@ public class AbstractRegistry<K, T> implements Registry<K, T>, StartupShutdownLi
 
     @Override
     public boolean addToRegistry(K key, T item) {
-        checkLoaded();
         return catalog.putIfAbsent(key, item) == null;
     }
 
     @Override
     public boolean removeFromRegistry(K key) {
-        checkLoaded();
         return catalog.remove(key) != null;
     }
 

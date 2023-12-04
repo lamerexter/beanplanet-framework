@@ -2782,7 +2782,7 @@ public class CryptoUtil {
             // Get the cipher object for the specified algorithm
             Cipher cipher = providerName != null ? Cipher.getInstance(algorithm, providerName)
                     : Cipher.getInstance(algorithm);
-            // Initialise the cipher using the specified parameters and/or rendomness.
+            // Initialise the cipher using the specified parameters and/or randomness.
             if (algorithmParameters != null && random != null) {
                 cipher.init(Cipher.ENCRYPT_MODE, key, algorithmParameters, random);
             }
@@ -3921,3 +3921,4 @@ public class CryptoUtil {
 
     }
 }
+

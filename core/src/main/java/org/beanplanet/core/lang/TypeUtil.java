@@ -180,7 +180,7 @@ public final class TypeUtil {
 
         commonSuperclass[0] = ensureNonPrimitiveType(commonSuperclass[0]);
         while (!stream(classes).map(TypeUtil::ensureNonPrimitiveType).allMatch(c -> commonSuperclass[0].isAssignableFrom(c))) {
-            commonSuperclass[0] = commonSuperclass[0].getSuperclass();
+            commonSuperclass[0] = commonSuperclass[0].getSuperclass() != null ? commonSuperclass[0].getSuperclass() : Object.class;
         }
 
         return commonSuperclass[0];

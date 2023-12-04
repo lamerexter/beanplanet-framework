@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
@@ -190,7 +190,7 @@ public class ManagedCacheTest {
         // Then
         assertThat(cache.isEmpty(), is(false));
 
-        verify(listener).onCacheItemsAdded(anyObject());
+        verify(listener).onCacheItemsAdded(any());
         verifyNoMoreInteractions(listener);
 
         // When remove existing entry
@@ -218,8 +218,8 @@ public class ManagedCacheTest {
         // Then
         assertThat(cache.isEmpty(), is(true));
 
-        verify(listener).onCacheItemsAdded(anyObject());
-        verify(listener).onCacheCleared(anyObject());
+        verify(listener).onCacheItemsAdded(any());
+        verify(listener).onCacheCleared(any());
         verifyNoMoreInteractions(listener);
     }
 }

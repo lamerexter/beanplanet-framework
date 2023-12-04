@@ -1,5 +1,6 @@
 package org.beanplanet.core.lang;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -12,5 +13,12 @@ public class LambdaCaptureTest {
         return postCodes
                 .stream()
                 .filter(postCode -> postCode.contains(prefix));
+    }
+
+    public static Stream<String> doIt1() {
+        List<String> postCodes = asList("W5 4LT", "DL1 2BG");
+        return postCodes
+                .stream()
+                .filter(postCode -> true);
     }
 }
