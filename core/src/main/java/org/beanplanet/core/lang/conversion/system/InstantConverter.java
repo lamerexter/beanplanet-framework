@@ -27,34 +27,22 @@ package org.beanplanet.core.lang.conversion.system;
 
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
- * A type converter supporting inter-collection type conversions.
+ * A type converter from {@link Instant} to meaningful target types.
  */
 @TypeConverter
-public final class CollectionToCollectionTypeConverter {
-    /**
-     * Converts a list of values to a <code>{@link LinkedHashSet}</code>.
-     *
-     * @param value a set containing the list values preserved in order of appearance in the list, or null if the list was null.
-     */
+public final class InstantConverter {
     @TypeConverter
-    public static <T> Set<T> listToSetConversion(List<T> value) {
-        return value == null ? null : new LinkedHashSet<>(value);
+    public static long instantToLongPrimitive(final Instant value) {
+        return instantToLongWrapper(value);
     }
 
-    /**
-     * Converts a set to an <code>{@link ArrayList}</code> of values. The order of values in the returned list is entirely dependent on the
-     * order returned by the set implementation.
-     *
-     * @param value a list containing the values in order of appearance in the set, or null if the set was null.
-     */
     @TypeConverter
-    public static <T> List<T> setToListConversion(Set<T> value) {
-        return value == null ? null : new ArrayList<>(value);
+    public static Long instantToLongWrapper(final Instant value) {
+        return value == null ? null : value.toEpochMilli();
     }
 }

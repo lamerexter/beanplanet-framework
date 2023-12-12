@@ -30,6 +30,9 @@ import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -779,6 +782,26 @@ public class NumberTypeConverterUtil {
     @TypeConverter
     public static Integer toInteger(Short value) {
         return (value == null ? null : toInteger(value.shortValue()));
+    }
+
+    @TypeConverter
+    public static Instant toInstant(long value) {
+        return Instant.ofEpochMilli(value);
+    }
+
+    @TypeConverter
+    public static Instant toInstant(Long value) {
+        return (value == null ? null : toInstant(value.longValue()));
+    }
+
+    @TypeConverter
+    public static LocalDate toLocaldate(long value) {
+        return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    @TypeConverter
+    public static LocalDate toLocaldate(Long value) {
+        return (value == null ? null : toLocaldate(value.longValue()));
     }
 
     @TypeConverter
