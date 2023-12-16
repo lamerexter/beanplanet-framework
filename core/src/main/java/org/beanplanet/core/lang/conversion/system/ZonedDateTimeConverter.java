@@ -25,8 +25,12 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.DateTimeConversionUtil;
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
@@ -36,7 +40,32 @@ import java.util.Date;
 @TypeConverter
 public final class ZonedDateTimeConverter {
     @TypeConverter
-    public static Date chronoDateTimeToDate(final ZonedDateTime value) {
-        return value == null ? null : Date.from(value.toInstant());
+    public static Date toDate(final ZonedDateTime value) {
+        return DateTimeConversionUtil.toDate(value);
+    }
+
+    @TypeConverter
+    public static Instant toInstant(final ZonedDateTime value) {
+        return DateTimeConversionUtil.toInstant(value);
+    }
+
+    @TypeConverter
+    public static LocalDate toLocalDate(final ZonedDateTime value) {
+        return DateTimeConversionUtil.toLocalDate(value);
+    }
+
+    @TypeConverter
+    public static long toLongPrimitive(final ZonedDateTime value) {
+        return DateTimeConversionUtil.toLong(value);
+    }
+
+    @TypeConverter
+    public static Long toLongPrimitiveWrapper(final ZonedDateTime value) {
+        return DateTimeConversionUtil.toLong(value);
+    }
+
+    @TypeConverter
+    public static ZonedDateTime toOffsetDateTime(final OffsetDateTime value) {
+        return DateTimeConversionUtil.toZonedDateTime(value);
     }
 }

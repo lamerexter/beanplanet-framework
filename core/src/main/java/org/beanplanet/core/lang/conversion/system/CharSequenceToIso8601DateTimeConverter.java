@@ -37,7 +37,7 @@ import java.util.Date;
  * {@link java.time.ZonedDateTime} and {@link Long}/long (representing epoch milliseconds).
  */
 @TypeConverter
-public final class Iso8601DateTimeConverter {
+public final class CharSequenceToIso8601DateTimeConverter {
     @TypeConverter
     public static Date stringToDate(final CharSequence value) {
         return value == null ? null : Date.from(stringToInstant(value));

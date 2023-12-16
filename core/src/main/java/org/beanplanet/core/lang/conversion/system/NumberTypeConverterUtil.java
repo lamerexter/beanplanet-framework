@@ -795,16 +795,6 @@ public class NumberTypeConverterUtil {
     }
 
     @TypeConverter
-    public static LocalDate toLocaldate(long value) {
-        return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDate();
-    }
-
-    @TypeConverter
-    public static LocalDate toLocaldate(Long value) {
-        return (value == null ? null : toLocaldate(value.longValue()));
-    }
-
-    @TypeConverter
     public static Long toLong(BigDecimal value) {
         return (value == null ? null : value.longValue());
     }

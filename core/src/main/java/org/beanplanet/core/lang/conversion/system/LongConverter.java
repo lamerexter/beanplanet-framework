@@ -28,46 +28,63 @@ package org.beanplanet.core.lang.conversion.system;
 import org.beanplanet.core.lang.conversion.DateTimeConversionUtil;
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
- * A type converter from {@link Instant} to meaningful target types.
+ * A type converter from {@link Long} to meaningful target types.
  */
 @TypeConverter
-public final class InstantConverter {
+public final class LongConverter {
     @TypeConverter
-    public static Date toDate(final Instant value) {
+    public static Date toDate(final long value) {
         return DateTimeConversionUtil.toDate(value);
     }
 
     @TypeConverter
-    public static LocalDate toLocalDate(final Instant value) {
+    public static Date toDate(final Long value) {
+        return DateTimeConversionUtil.toDate(value);
+    }
+
+    @TypeConverter
+    public static Instant toInstant(final long value) {
+        return DateTimeConversionUtil.toInstant(value);
+    }
+
+    @TypeConverter
+    public static Instant toInstant(final Long value) {
+        return DateTimeConversionUtil.toInstant(value);
+    }
+
+    @TypeConverter
+    public static LocalDate toLocalDate(final long value) {
         return DateTimeConversionUtil.toLocalDate(value);
     }
 
     @TypeConverter
-    public static LocalDateTime toLocalDateTime(final Instant value) {
-        return DateTimeConversionUtil.toLocalDateTime(value);
+    public static LocalDate toLocalDate(final Long value) {
+        return DateTimeConversionUtil.toLocalDate(value);
     }
 
     @TypeConverter
-    public static long toLongPrimitive(final Instant value) {
-        return DateTimeConversionUtil.toLong(value);
+    public static ZonedDateTime toOffsetDateTime(final long value) {
+        return DateTimeConversionUtil.toZonedDateTime(value);
     }
 
     @TypeConverter
-    public static Long toLongPrimitiveWrapper(final Instant value) {
-        return DateTimeConversionUtil.toLong(value);
+    public static ZonedDateTime toOffsetDateTime(final Long value) {
+        return DateTimeConversionUtil.toZonedDateTime(value);
     }
 
     @TypeConverter
-    public static OffsetDateTime toOffsetDateTime(final Instant value) {
-        return DateTimeConversionUtil.toOffsetDateTime(value);
+    public static ZonedDateTime toZonedDateTime(final long value) {
+        return DateTimeConversionUtil.toZonedDateTime(value);
     }
 
     @TypeConverter
-    public static ZonedDateTime toZonedDateTime(final Instant value) {
+    public static ZonedDateTime toZonedDateTime(final Long value) {
         return DateTimeConversionUtil.toZonedDateTime(value);
     }
 }

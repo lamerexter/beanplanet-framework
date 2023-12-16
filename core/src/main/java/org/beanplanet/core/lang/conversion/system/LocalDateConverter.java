@@ -25,24 +25,49 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.DateTimeConversionUtil;
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
+import java.util.Date;
 
 /**
- * A type converter from {@link Instant} to meaningful target types.
+ * A type converter from {@link LocalDate} to meaningful target types.
  */
 @TypeConverter
 public final class LocalDateConverter {
     @TypeConverter
-    public static long localDateToLong(final LocalDate value) {
-        return value.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    public static Date toDate(final LocalDate value) {
+        return DateTimeConversionUtil.toDate(value);
     }
 
     @TypeConverter
-    public static Long localDateToLongWrapper(final LocalDate value) {
-        return value == null ? null : localDateToLong(value);
+    public static Instant toInstant(final LocalDate value) {
+        return DateTimeConversionUtil.toInstant(value);
+    }
+
+    @TypeConverter
+    public static LocalDateTime toLocalDateTime(final LocalDate value) {
+        return DateTimeConversionUtil.toLocalDateTime(value);
+    }
+
+    @TypeConverter
+    public static long toLongPrimitive(final LocalDate value) {
+        return DateTimeConversionUtil.toLong(value);
+    }
+
+    @TypeConverter
+    public static Long toLongPrimitiveWrapper(final LocalDate value) {
+        return DateTimeConversionUtil.toLong(value);
+    }
+
+    @TypeConverter
+    public static OffsetDateTime toOffsetDateTime(final LocalDate value) {
+        return DateTimeConversionUtil.toOffsetDateTime(value);
+    }
+
+    @TypeConverter
+    public static ZonedDateTime toZonedDateTime(final LocalDate value) {
+        return DateTimeConversionUtil.toZonedDateTime(value);
     }
 }

@@ -32,42 +32,42 @@ import java.time.*;
 import java.util.Date;
 
 /**
- * A type converter from {@link Instant} to meaningful target types.
+ * A type converter from {@link Date} to meaningful target types.
  */
 @TypeConverter
-public final class InstantConverter {
+public final class DateConverter {
     @TypeConverter
-    public static Date toDate(final Instant value) {
-        return DateTimeConversionUtil.toDate(value);
+    public static Instant toInstant(final Date value) {
+        return DateTimeConversionUtil.toInstant(value);
     }
 
     @TypeConverter
-    public static LocalDate toLocalDate(final Instant value) {
+    public static LocalDate toLocalDate(final Date value) {
         return DateTimeConversionUtil.toLocalDate(value);
     }
 
     @TypeConverter
-    public static LocalDateTime toLocalDateTime(final Instant value) {
+    public static LocalDateTime toLocalDateTime(final Date value) {
         return DateTimeConversionUtil.toLocalDateTime(value);
     }
 
     @TypeConverter
-    public static long toLongPrimitive(final Instant value) {
+    public static long toLongPrimitive(final Date value) {
         return DateTimeConversionUtil.toLong(value);
     }
 
     @TypeConverter
-    public static Long toLongPrimitiveWrapper(final Instant value) {
+    public static Long toLongWrapper(final Date value) {
         return DateTimeConversionUtil.toLong(value);
     }
 
     @TypeConverter
-    public static OffsetDateTime toOffsetDateTime(final Instant value) {
+    public static OffsetDateTime toOffsetDateTime(final Date value) {
         return DateTimeConversionUtil.toOffsetDateTime(value);
     }
 
     @TypeConverter
-    public static ZonedDateTime toZonedDateTime(final Instant value) {
+    public static ZonedDateTime toZonedDateTime(final Date value) {
         return DateTimeConversionUtil.toZonedDateTime(value);
     }
 }
