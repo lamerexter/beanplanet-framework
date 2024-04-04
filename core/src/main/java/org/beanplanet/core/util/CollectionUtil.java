@@ -26,12 +26,9 @@
 
 package org.beanplanet.core.util;
 
-import org.beanplanet.core.collections.DoublyLinkedList;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * A utility class containing useful collection methods.

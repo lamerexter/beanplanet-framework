@@ -29,44 +29,41 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <name>Beanplanet - Spring Integeration</name>
-    <description>Beanplanet Spring</description>
-    <groupId>org.beanplanet</groupId>
-    <artifactId>beanplanet-spring</artifactId>
-    <packaging>pom</packaging>
-    <version>2.0.1-SNAPSHOT</version>
-    <url>http://www.beanplanet.com</url>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <parent>
         <groupId>org.beanplanet</groupId>
-        <artifactId>beanplanet</artifactId>
+        <artifactId>beanplanet-spring</artifactId>
         <version>2.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+    <name>Beanplanet -   Spring Core</name>
+    <description>Beanplanet Spring Core</description>
+    <artifactId>beanplanet-spring-core</artifactId>
 
-    <licenses>
-        <license>
-            <name>MIT License</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <name>Gary Watson</name>
-            <email>support@beanplanet.com</email>
-            <organization>Beanplanet Ltd</organization>
-            <organizationUrl>http://www.beanplanet.com</organizationUrl>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:git@github.com:lamerexter/beanplanet-framework.git</connection>
-        <developerConnection>scm:git:ssh://github.com:simpligility/ossrh-demo.git</developerConnection>
-        <url>http://github.com/simpligility/ossrh-demo/tree/master</url>
-    </scm>
-
-    <modules>
-        <module>spring-core</module>
-        <module>spring-web</module>
-    </modules>
+    <properties>
+        <spring.version>5.3.15</spring.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.beanplanet</groupId>
+            <artifactId>beanplanet-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+    </dependencies>
 </project>

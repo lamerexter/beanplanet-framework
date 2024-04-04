@@ -34,6 +34,7 @@ public interface MediaTypes {
         MediaType ATOM_XML = new SimpleMediaType("application/atom+xml");
         MediaType JSON = new SimpleMediaType("application/json");
         MediaType OCTET_STREAM = new SimpleMediaType("application/octet-stream");
+        MediaType PDF = new SimpleMediaType("application/pdf");
         MediaType XHTML_XML = new SimpleMediaType("application/xhtml+xml");
         MediaType XML = new SimpleMediaType("application/xml");
     }
@@ -53,5 +54,5 @@ public interface MediaTypes {
         MediaType TIFF = new SimpleMediaType("image/tiff");
     }
 
-    MediaType[] XML_FORMAT_MEDIA_TYPES = { Application.ATOM_XML, Application.XHTML_XML, Application.XML, Text.XML, Image.SVG };
+    MediaType[] XML_FORMAT_MEDIA_TYPES = {Application.ATOM_XML, Application.XHTML_XML, Application.XML, Text.XML, Image.SVG};
 }
