@@ -1,5 +1,6 @@
 package org.beanplanet.core.crypto;
 
+import org.beanplanet.core.codec.Hex;
 import org.beanplanet.core.io.IoUtil;
 import org.beanplanet.core.io.resource.FileResource;
 import org.beanplanet.core.io.resource.Resource;
@@ -3876,7 +3877,13 @@ public class CryptoUtil {
         return modePos > 0 ? algorithm.substring(0, modePos) : algorithm;
     }
 
-    public static void main(String args[]) {
+    public static void main(String ...  args) {
+        SecretKey key = CryptoUtil.generateSymmetricKey("AES", 128);
+
+        System.out.println(key.getAlgorithm()+":"+key.getFormat()+":"+ Hex.encodeToHexString(key.getEncoded()));
+    }
+
+    public static void main_old(String args[]) {
         System.out.println("Service types:");
         String serviceTypes[] = getServiceTypes();
         for (int n = 0; n < serviceTypes.length; n++) {

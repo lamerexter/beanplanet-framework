@@ -28,10 +28,9 @@ package org.beanplanet.core.util;
 
 import org.beanplanet.core.models.Factory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MultiValueCollectionMapImpl<K, V, C extends Collection<V>> extends AbstractMultiValueMap<K, V, C> {
     public MultiValueCollectionMapImpl() {

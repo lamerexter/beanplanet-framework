@@ -110,7 +110,7 @@ public class StringUtil {
     /**
      * Determines whether an object string is null or contains only whitespace.
      *
-     * @param obj the object whose tring value is to be determined as blank.
+     * @param obj the object whose string value is to be determined as blank.
      * @return true if the object or object's string value is null or if it contains whitespace characters only, false otherwise.
      */
     public static boolean isBlank(final Object obj) {
@@ -125,6 +125,17 @@ public class StringUtil {
         }
 
         return true;
+    }
+
+    /**
+     * Determines whether an object string is not blank: not null and does not contain only whitespace.
+     *
+     * @param obj the object whose string value is to be determined as not blank.
+     * @return true if the object or object's string value is not null and does not contain only whitespace characters, false otherwise.
+     * @see #isBlank(Object)
+     */
+    public static boolean isNotBlank(final Object obj) {
+        return !isBlank(obj);
     }
 
     public static boolean isEmptyOrNull(Object obj) {
@@ -378,6 +389,20 @@ public class StringUtil {
         }
 
         return str;
+    }
+
+    /**
+     * Returns a string consisting of the elements of an collection delimited by comma (,).  Before being included,
+     * elements are optionally filtered by a given predicate.  Once the decision to include an element has been made, the
+     * element may be optionally transformed by a given transformation function.
+     *
+     * @param collection the collection of objects to be delimited, which may be null.
+     * @return null if the given collection is null, otherwise comma-separated-vales (CSV) string of the collection elements.
+     */
+    public static <T> String asCsvString(Collection<T> collection) {
+        if (collection == null) return null;
+
+        return asDelimitedString(collection.stream(), ",");
     }
 
     /**
@@ -822,7 +847,7 @@ public class StringUtil {
 
         int delimPos = str.indexOf(delim);
         if (delimPos < 0) {
-            return Stream.of(str);
+            return trimWhitespace && isBlank(str) ? Stream.empty() : Stream.of(str);
         }
 
         LinkedList<String> splitParts = new LinkedList<>();
@@ -855,6 +880,11 @@ public class StringUtil {
     public static List<String> asCsvList(String str) {
         Stream<String> dsvStream = asDsvStream(str, ",");
         return dsvStream == null ? null : dsvStream.collect(Collectors.toList());
+    }
+
+    public static Set<String> asCsvSet(String str) {
+        Stream<String> dsvStream = asDsvStream(str, ",");
+        return dsvStream == null ? null : dsvStream.collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public static String nvlStr(String nullableOrEmpty) {
@@ -955,4 +985,22 @@ public class StringUtil {
         return linesList.toArray(new String[linesList.size()]);
     }
 
+    /**
+     * Determines if a given string contains any pf the given characters.
+     *
+     * @param str the string to be tested for containing any of the specified characters.
+     * @param chars the characters to be determined as contained within the given string.
+     * @return true if the given string contains any of the specified characters, false otherwise.
+     */
+    public static boolean containsAnyOf(String str, String chars) {
+        if (str == null || chars == null) return false;
+
+        for (int s=0; s < str.length(); s++) {
+            for (int c=0; c < chars.length(); c++) {
+                if (str.charAt(s) == chars.charAt(c) ) return true;
+            }
+        }
+
+        return false;
+    }
 }

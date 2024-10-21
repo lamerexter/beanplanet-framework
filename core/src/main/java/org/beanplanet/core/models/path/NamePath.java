@@ -33,6 +33,11 @@ import static java.util.Collections.singletonList;
 public interface NamePath extends Path<String> {
     NamePath EMPTY_NAME_PATH = new DelimitedNamePath("", "");
 
+    /**
+     * Joins the name path into a single path string, with path elements delimited by the given delimiter.
+     * @param delimiter used to delim path elements.
+     * @return a path string of all elements, delimited by the given delimiter.
+     */
     default String join(String delimiter) {
         return StringUtil.asDelimitedString(getElements(), delimiter);
     }

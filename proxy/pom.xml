@@ -11,6 +11,10 @@
    <name>BeanPlanet - Proxy</name>
    <version>2.0.1-SNAPSHOT</version>
 
+   <properties>
+      <bytebuddy.version>1.15.5</bytebuddy.version>
+   </properties>
+
    <dependencies>
       <dependency>
          <groupId>org.beanplanet</groupId>
@@ -24,15 +28,9 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>cglib</groupId>
-         <artifactId>cglib-nodep</artifactId>
-         <version>3.2.6</version>
-      </dependency>
-      <dependency>
-         <groupId>org.databene</groupId>
-         <artifactId>contiperf</artifactId>
-         <version>2.3.4</version>
-         <scope>test</scope>
+         <groupId>net.bytebuddy</groupId>
+         <artifactId>byte-buddy</artifactId>
+         <version>${bytebuddy.version}</version>
       </dependency>
    </dependencies>
 </project>

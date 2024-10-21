@@ -65,6 +65,7 @@ public final class TypeUtil {
 
     private static final Object[] EMPTY_PARAMS = new Object[]{};
     private static final Class<?>[] EMPTY_ARG_TYPES = new Class<?>[]{};
+    public static final Type[] EMPTY_TYPES = EMPTY_ARG_TYPES;
 
     static {
         PRIMITIVE_TYPES.add(boolean.class);
@@ -543,9 +544,7 @@ public final class TypeUtil {
                        if (paramTypes != null) {
                            for (int n = 0; n < paramTypes.length; n++) {
                                if (paramTypes[n] != null
-                                   && !(m.getParameterTypes()[n].isAssignableFrom(paramTypes[n])
-                                        || (m.getParameterTypes()[n] instanceof Class && paramTypes[n] instanceof Class)
-                               )) {
+                                   && !m.getParameterTypes()[n].isAssignableFrom(paramTypes[n])) {
                                    return false;
                                }
                            }

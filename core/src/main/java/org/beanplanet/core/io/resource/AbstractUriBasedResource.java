@@ -268,7 +268,7 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
             URI otherUri = other.toUri();
             boolean otherHasRootPath = otherUri.getPath() != null && otherUri.getPath().startsWith("/");
             if (otherHasRootPath) {
-                uriBuilder.setPath(otherUri.getPath());
+                uriBuilder.path(otherUri.getPath());
             } else {
                 UriResource otherResource = new UriResource(otherUri);
 
@@ -282,7 +282,7 @@ public abstract class AbstractUriBasedResource extends AbstractResource implemen
                 for (int n=0; n < otherPathNameElements.size(); n++) {
                     combinedUriPath.append(combinedUriPath.length() > 0 ? "/" : "").append(otherResource.getNamePath().getElements().get(n));
                 }
-                uriBuilder.setPath((thisHasRootPath || (pathNameElements.isEmpty() && !otherPathNameElements.isEmpty()) ? "/" : "") + combinedUriPath.toString());
+                uriBuilder.path((thisHasRootPath || (pathNameElements.isEmpty() && !otherPathNameElements.isEmpty()) ? "/" : "") + combinedUriPath.toString());
             }
 
             return new UriResource(uriBuilder.toUri()).getPath();

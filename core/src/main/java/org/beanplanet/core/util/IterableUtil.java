@@ -28,7 +28,9 @@ package org.beanplanet.core.util;
 
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class IterableUtil {
@@ -67,5 +69,15 @@ public class IterableUtil {
     @SuppressWarnings("unchecked")
     public static <T> Iterable<T> emptyImmutableIterable() {
         return (Iterable<T>)Collections.emptyList();
+    }
+
+    /**
+     * Converts an {@link Iterable<T>} to a {@link List<T>}.#
+     *
+     * @param iterable the iterable to be converted to a list.
+     * @return a list, containing all the elements provided by the iterable sequence.
+     */
+    public static <T> List<T> toList(final Iterable<T> iterable) {
+        return iterable == null ? null : asStream(iterable).collect(Collectors.toList());
     }
 }

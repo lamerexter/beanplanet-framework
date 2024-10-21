@@ -47,13 +47,13 @@ public class UriBuilderTest {
         UriBuilder builder = new UriBuilder();
 
         // Then
-        assertThat(builder.getScheme(), nullValue());
-        assertThat(builder.getUserInfo(), nullValue());
-        assertThat(builder.getHost(), nullValue());
-        assertThat(builder.getPort(), nullValue());
-        assertThat(builder.getPath(), nullValue());
-        assertThat(builder.getQueryParameters(), nullValue());
-        assertThat(builder.getFragment(), nullValue());
+        assertThat(builder.scheme(), nullValue());
+        assertThat(builder.userInfo(), nullValue());
+        assertThat(builder.host(), nullValue());
+        assertThat(builder.port(), nullValue());
+        assertThat(builder.path(), nullValue());
+        assertThat(builder.queryParameters(), nullValue());
+        assertThat(builder.fragment(), nullValue());
     }
 
     @Test
@@ -63,11 +63,11 @@ public class UriBuilderTest {
         UriBuilder builder = new UriBuilder(uri);
 
         // Then
-        assertThat(builder.getScheme(), equalTo(uri.getScheme()));
-        assertThat(builder.getUserInfo(), equalTo(uri.getUserInfo()));
-        assertThat(builder.getHost(), equalTo(uri.getHost()));
-        assertThat(builder.getPort(), equalTo(uri.getPort()));
-        assertThat(builder.getPath(), equalTo(uri.getPath()));
+        assertThat(builder.scheme(), equalTo(uri.getScheme()));
+        assertThat(builder.userInfo(), equalTo(uri.getUserInfo()));
+        assertThat(builder.host(), equalTo(uri.getHost()));
+        assertThat(builder.port(), equalTo(uri.getPort()));
+        assertThat(builder.path(), equalTo(uri.getPath()));
 
         MultiValueListMapImpl<String, String> expectedQueryParams = new MultiValueListMapImpl<>();
         expectedQueryParams.addValue("a", "1");
@@ -75,8 +75,8 @@ public class UriBuilderTest {
         expectedQueryParams.addValue("b", "22");
         expectedQueryParams.addValue("b", "222");
         expectedQueryParams.addValue("c", "3");
-        assertThat(builder.getQueryParameters(), equalTo(expectedQueryParams));
-        assertThat(builder.getFragment(), equalTo(uri.getFragment()));
+        assertThat(builder.queryParameters(), equalTo(expectedQueryParams));
+        assertThat(builder.fragment(), equalTo(uri.getFragment()));
     }
 
     @Test
@@ -97,7 +97,7 @@ public class UriBuilderTest {
 
         // When
         UriBuilder builder = new UriBuilder();
-        builder.setScheme("https");
+        builder.scheme("https");
 
         // Then
         builder.toUri();

@@ -31,6 +31,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.List;
+import static java.util.Arrays.asList;
 
 
 /**
@@ -146,6 +148,21 @@ public class DateUtil {
      * @throws ParseException           if the given date string cannot be parsed using any of the format(s) specified.
      */
     public static Date parse(String dateString, String... formats) throws IllegalArgumentException, org.beanplanet.core.lang.ParseException {
+        return parse(dateString, formats == null ? null : asList(formats));
+    }
+
+    /**
+     * Parses the given string into a date using the simple date format
+     * specification(s) supplied.
+     *
+     * @param dateString the string representation of a date to be parsed.
+     * @param formats    the expected format of the string date.
+     * @return the date, parsed from the given string representation(s) or null if
+     * the given string date was null.
+     * @throws IllegalArgumentException if the format(s) specified are invalid or null.
+     * @throws ParseException           if the given date string cannot be parsed using any of the format(s) specified.
+     */
+    public static Date parse(String dateString, List<String> formats) throws IllegalArgumentException, org.beanplanet.core.lang.ParseException {
         if (dateString == null) {
             return null;
         }

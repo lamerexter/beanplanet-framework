@@ -2,6 +2,7 @@ package org.beanplanet.core.net;
 
 import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.io.IoUtil;
+import org.beanplanet.core.io.resource.ByteArrayOutputStreamResource;
 import org.beanplanet.core.io.resource.FileResource;
 import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.lang.Assert;
@@ -9,6 +10,7 @@ import org.beanplanet.core.util.StringUtil;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A utility class for performing Base64 string and stream encoding operations.
@@ -33,7 +35,7 @@ public class Base64Encoder extends FilterOutputStream {
             '7', '8', '9', '+', '/' };
 
     /** Whether or not to include line breaks in encoded output. */
-    private boolean outputLineBreaks = true;
+    private boolean outputLineBreaks = false;
 
     /** The total number of input bytes encoded. */
     private int inputCharCount;
@@ -252,6 +254,21 @@ public class Base64Encoder extends FilterOutputStream {
         } catch (IOException ioEx) {
             throw new IoException("Unable to complete Base64 encode operation [source=" + source + ", destination=" + destination + "]: ", ioEx);
         }
+    }
+
+    /**
+     * Convenience method which reads from the specified source resource and returns the Base64 encoded form as a
+     * string. Careful when using this method, which is only intended for use with short source content.
+     *
+     * @param source the input to be encoded.
+     * @return a string of the base664 encoded source content.
+     */
+    public static String encode(Resource source) {
+        Assert.notNull(source, "The source resource to encode may not be null");
+        ByteArrayOutputStreamResource destination = new ByteArrayOutputStreamResource();
+        encode(source, destination);
+
+        return new String(destination.readFullyAsBytes(), StandardCharsets.US_ASCII);
     }
 
     /**

@@ -27,8 +27,7 @@
 package org.beanplanet.core.net.http;
 
 import org.beanplanet.core.io.resource.Resource;
-import org.beanplanet.core.mediatypes.MediaType;
-import org.beanplanet.core.util.MultiValueListMapImpl;
+import org.beanplanet.core.util.MultiValueListMap;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
 import java.util.Collections;
@@ -41,87 +40,79 @@ import java.util.stream.Collectors;
  *
  * @author Gary Watson
  */
-public class HttpResponse extends HttpMessage {
+public class HttpResponse extends AbstractHttpMessage implements Response {
     public static final int OK = 200;
     public static final int BAD_REQUEST = 400;
 
-    /** The HTTP response status code. */
-    private int statusCode;
-    /** The phrase associated with the given status code. */
-    private String reasonPhrase;
-
+    /**
+     * The status line information associated with the HTTP Response.
+     */
+    private HttpResponseStatus status;
 
     public HttpResponse() {
     }
 
-    public HttpResponse(int status, MultiValueListMapImpl<String, String> headers) {
-        this.statusCode = status;
-        setHeaders(headers);
+    public HttpResponse(final HttpResponseStatus status,
+                        final HttpHeaders headers,
+                        final Resource body) {
+        super(headers, body);
+        this.status = status;
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    public HttpResponse(final int statusCode,
+                        final String reasonPhrase,
+                        final HttpHeaders headers,
+                        final Resource body) {
+        this(new HttpResponseStatus(statusCode, reasonPhrase), headers, body);
     }
 
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
+    public HttpResponse(final int statusCode,
+                        final HttpHeaders headers) {
+        this(statusCode, null, headers, null);
     }
 
-    public HttpResponse withStatusCode(int statusCode) {
-        setStatusCode(statusCode);
-        return this;
+    public HttpResponse(final int statusCode,
+                        final HttpHeaders headers,
+                        final Resource body) {
+        this(statusCode, null, headers, body);
+    }
+
+    public HttpResponse(final int statusCode,
+                        final Resource body) {
+        this(statusCode, null, null, body);
+    }
+
+    public HttpResponse(final int statusCode) {
+        this(statusCode, null, null, null);
+    }
+
+    private HttpResponse(HttpResponseBuilder<?, ?> builder) {
+        super(builder);
+        this.status = new HttpResponseStatus(builder.statusCode, builder.reasonPhrase);
+    }
+
+    public HttpResponseStatus getStatus() {
+        return status;
     }
 
     public HttpResponse ok() {
-        return withStatusCode(OK);
+        return new HttpResponse(OK);
     }
 
     public HttpResponse badRequest() {
-        return withStatusCode(BAD_REQUEST);
-    }
-
-
-    public String getReasonPhrase() {
-        return reasonPhrase;
-    }
-
-    public void setReasonPhrase(String reasonPhrase) {
-        this.reasonPhrase = reasonPhrase;
-    }
-
-    public HttpResponse withReasonPhrase(String reasonPhrase) {
-        setReasonPhrase(reasonPhrase);
-        return this;
-    }
-
-    public HttpResponse withHeaders(Map<String, Object> headers) {
-        return (HttpResponse)super.withHeaders(headers);
-    }
-
-    public HttpResponse withHeader(String name, String value) {
-        return (HttpResponse)super.withHeader(name, value);
-    }
-
-    public HttpResponse withContentType(MediaType contentType) {
-        return (HttpResponse)super.withContentType(contentType);
-    }
-
-    public HttpResponse withContentType(String contentType) {
-        return (HttpResponse)super.withContentType(contentType);
-    }
-
-    public HttpResponse withContentLength(int contentLength) {
-        return (HttpResponse)super.withContentLength(contentLength);
-    }
-
-    public HttpResponse withEntity(HttpEntity entity) {
-        super.withEntity(entity);
-        return this;
+        return new HttpResponse(BAD_REQUEST);
     }
 
     public String toString() {
-        return new PropertyBasedToStringBuilder(this).build();
+        return new PropertyBasedToStringBuilder(
+                this,
+                "statusCode", this::getStatusCode,
+                "reasonPhrase", this::getReasonPhrase,
+                "headers", super::getHeaders,
+                "body", super::getBody
+        ).build();
     }
+
 
     /**
      * Gets all cookies associated with the message by looking through the HTTP headers named "Cookie", for
@@ -130,15 +121,15 @@ public class HttpResponse extends HttpMessage {
      * @return the cookies associated with this message, or an empty list of there are none.
      */
     public List<Cookie> getCookies() {
-        final MultiValueListMapImpl<String, String> headers = getHeaders();
-        if ( headers == null ) return Collections.emptyList();
+        final MultiValueListMap<String, String> headers = getHeaders().getAll();
+        if (headers == null) return Collections.emptyList();
 
         return headers.entrySet().stream()
-                .filter(e -> Cookie.HTTP_RESPONSE_HEADER_NAME.equalsIgnoreCase(e.getKey()))
-                .map(Map.Entry::getValue)
-                .flatMap(List::stream)
-                .map(Cookie::fromHttpHeaderValue)
-                .collect(Collectors.toList());
+                      .filter(e -> Cookie.HTTP_RESPONSE_HEADER_NAME.equalsIgnoreCase(e.getKey()))
+                      .map(Map.Entry::getValue)
+                      .flatMap(List::stream)
+                      .map(Cookie::fromHttpHeaderValue)
+                      .collect(Collectors.toList());
     }
 
     /**
@@ -148,6 +139,49 @@ public class HttpResponse extends HttpMessage {
      * @return this message for method chaining.
      */
     public HttpResponse withCookie(final Cookie cookie) {
-        return (HttpResponse)super.withHeader(Cookie.HTTP_RESPONSE_HEADER_NAME, cookie.toHttpResponseHeaderValue());
+        getHeaders().set(Cookie.HTTP_RESPONSE_HEADER_NAME, cookie.toHttpResponseHeaderValue());
+        return this;
+    }
+
+    public static HttpResponseBuilder<?, ?> builder() {
+        return new HttpResponseBuilderImpl();
+    }
+
+    public static abstract class HttpResponseBuilder<C extends HttpResponse, B extends HttpResponseBuilder<C, B>> extends HttpMessageBuilder<C, B> {
+        /**
+         * The HTTP response status code.
+         */
+        protected int statusCode;
+        /**
+         * The phrase associated with the given status code.
+         */
+        protected String reasonPhrase;
+
+        protected abstract B self();
+
+        public B statusCode(final int statusCode) {
+            this.statusCode = statusCode;
+            return self();
+        }
+
+        public B reasonPhrase(final String reasonPhrase) {
+            this.reasonPhrase = reasonPhrase;
+            return self();
+        }
+
+        public abstract C build();
+    }
+
+    private static final class HttpResponseBuilderImpl extends HttpResponseBuilder<HttpResponse, HttpResponseBuilderImpl> {
+        private HttpResponseBuilderImpl() {
+        }
+
+        protected HttpResponseBuilderImpl self() {
+            return this;
+        }
+
+        public HttpResponse build() {
+            return new HttpResponse(this);
+        }
     }
 }

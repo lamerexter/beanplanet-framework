@@ -26,6 +26,10 @@
 
 package org.beanplanet.core.net;
 
+import org.beanplanet.core.models.path.DelimitedNamePath;
+import org.beanplanet.core.models.path.NamePath;
+import org.beanplanet.core.models.path.PathUtil;
+import org.beanplanet.core.util.MultiValueListMap;
 import org.beanplanet.core.util.MultiValueListMapImpl;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 import org.beanplanet.core.util.StringUtil;
@@ -57,115 +61,127 @@ public class UriBuilder {
     private Integer port;
     private String path;
 
-    private MultiValueListMapImpl<String, String> queryParameters;
+    private MultiValueListMap<String, String> queryParameters;
 
-    public UriBuilder() {}
-
-    public UriBuilder(URI uri) {
-        withUri(uri);
+    public UriBuilder() {
     }
 
-    public UriBuilder withUri(URI uri) {
-        if (uri != null) {
-            withScheme(uri.getScheme());
-            withUserInfo(uri.getUserInfo());
-            withHost(uri.getHost());
-            withPort(uri.getPort());
-            withPath(uri.getPath());
+    public UriBuilder(final UriBuilder other) {
+        this.scheme = other.scheme;
+        this.fragment = other.fragment;
+        this.userInfo = other.userInfo;
+        this.host = other.host;
+        this.port = other.port;
+        this.path = other.path;
+    }
 
-            if ( !isBlank(uri.getQuery()) ) {
-                withQueryParameters(new MultiValueListMapImpl<>(
+    public UriBuilder(URI uri) {
+        uri(uri);
+    }
+
+    public UriBuilder uri(URI uri) {
+        if (uri != null) {
+            scheme(uri.getScheme());
+            userInfo(uri.getUserInfo());
+            host(uri.getHost());
+            withPort(uri.getPort());
+            path(uri.getPath());
+
+            if (!isBlank(uri.getQuery())) {
+                queryParameters(new MultiValueListMapImpl<>(
                         Arrays.asList(uri.getQuery().split("&")).stream()
-                                .map(s -> s.split("="))
-                                .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())))
+                              .map(s -> s.split("="))
+                              .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())))
                 ));
             }
 
-            withFragment(uri.getFragment());
+            fragment(uri.getFragment());
         }
 
         return this;
     }
 
-    public String getScheme() {
+    public UriBuilder merge(UriBuilder override) {
+        UriBuilder copy = new UriBuilder(this);
+
+        if ( isNotBlank(override.scheme) ) copy.scheme = override.scheme;
+        if ( isNotBlank(override.userInfo) ) copy.userInfo = override.userInfo;
+        if ( isNotBlank(override.host) ) copy.host = override.host;
+        if ( override.port >=0 ) copy.port = override.port;
+
+        if ( isNotBlank(override.path)) {
+            if ( isBlank(copy.path) ) {
+                copy.path = override.path;
+            } else if ( isNotBlank(override) ) {
+                DelimitedNamePath copyPath = new DelimitedNamePath(copy.path, "/");
+                DelimitedNamePath subPath = new DelimitedNamePath(override.path, "/");
+                copy.path = copyPath.join(subPath).join();
+            }
+        }
+
+        return copy;
+    }
+
+    public String scheme() {
         return scheme;
     }
 
-    public void setScheme(String scheme) {
+    public UriBuilder scheme(String scheme) {
         this.scheme = scheme;
-    }
-
-    public UriBuilder withScheme(String scheme) {
-        setScheme(scheme);
         return this;
     }
 
-    public String getFragment() {
+    public String fragment() {
         return fragment;
     }
 
-    public void setFragment(String fragment) {
+    public UriBuilder fragment(String fragment) {
         this.fragment = fragment;
-    }
-
-    public UriBuilder withFragment(String fragment) {
-        setFragment(fragment);
         return this;
     }
 
-    public String getUserInfo() {
+    public String userInfo() {
         return userInfo;
     }
 
-    public void setUserInfo(String userInfo) {
+    public UriBuilder userInfo(String userInfo) {
         this.userInfo = userInfo;
-    }
-
-    public UriBuilder withUserInfo(String userInfo) {
-        setUserInfo(userInfo);
         return this;
     }
 
-    public String getHost() {
+    public String host() {
         return host;
     }
 
-    public void setHost(String host) {
+    public UriBuilder host(String host) {
         this.host = host;
-    }
-
-    public UriBuilder withHost(String host) {
-        setHost(host);
         return this;
     }
 
-    public Integer getPort() {
+    public Integer port() {
         return port;
     }
 
-    public void setPort(Integer port) {
+    public UriBuilder port(Integer port) {
         this.port = port;
+        return this;
     }
 
     public UriBuilder withPort(Integer port) {
-        setPort(port);
+        port(port);
         return this;
     }
 
-    public String getPath() {
+    public String path() {
         return path;
     }
 
-    public void setPath(String path) {
+    public UriBuilder path(String path) {
         this.path = path;
-    }
-
-    public UriBuilder withPath(String path) {
-        setPath(path);
         return this;
     }
 
-    public MultiValueListMapImpl<String, String> getQueryParameters() {
+    public MultiValueListMap<String, String> queryParameters() {
         return queryParameters;
     }
 
@@ -173,39 +189,39 @@ public class UriBuilder {
         return queryParameters != null && !queryParameters.getOrDefault(name, Collections.emptyList()).isEmpty();
     }
 
-    public void setQueryParameters(MultiValueListMapImpl<String, String> queryParameters) {
+    public UriBuilder queryParameters(MultiValueListMap<String, String> queryParameters) {
         this.queryParameters = queryParameters;
+        return this;
     }
 
     public boolean hasAuthority() {
-        return StringUtil.notEmptyAndNotNull(getUserInfo())
-                || StringUtil.notEmptyAndNotNull(getHost())
-                || getPort() != null;
-    }
-
-    public UriBuilder withQueryParameters(MultiValueListMapImpl<String, String> queryParameters) {
-        setQueryParameters(queryParameters);
-        return this;
+        return StringUtil.notEmptyAndNotNull(userInfo())
+                || StringUtil.notEmptyAndNotNull(host())
+                || port() != null;
     }
 
     public URI toUri() {
         try {
-            return new URI(getScheme(),
-                           getUserInfo(),
-                           getHost(),
-                           port == null ? -1 : getPort(),
-                           hasAuthority() ? ( isEmptyOrNull(getPath()) ? "" : ensureHasPrefix(getPath(), "/")) : getPath(),
-                           queryParameters == null ? null : queryParameters.entrySet()
-                                                                           .stream()
-                                                                           .map(e -> e.getValue()
-                                                                                      .stream()
-                                                                                      .map(v -> encode(e.getKey())+"="+encode(v))
-                                                                                      .collect(Collectors.joining("&")))
-                                                                           .collect(Collectors.joining("&")),
-                           getFragment());
+            return new URI(scheme(),
+                    userInfo(),
+                    host(),
+                    port == null ? -1 : port(),
+                    hasAuthority() ? (isEmptyOrNull(path()) ? "" : ensureHasPrefix(path(), "/")) : path(),
+                    queryParameters == null ? null : queryParameters.entrySet()
+                                                                    .stream()
+                                                                    .map(e -> e.getValue()
+                                                                               .stream()
+                                                                               .map(v -> encode(e.getKey()) + "=" + encode(v))
+                                                                               .collect(Collectors.joining("&")))
+                                                                    .collect(Collectors.joining("&")),
+                    fragment());
         } catch (URISyntaxException e) {
             throw new NetworkException(format("An attempt was made to create an incomplete or invalid URI from a built version [%s]", toString()), e);
         }
+    }
+
+    public URI build() {
+        return toUri();
     }
 
     public String toString() {

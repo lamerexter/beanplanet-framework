@@ -48,16 +48,21 @@ import java.net.URL;
  * </p>
  *
  * @author Gary Watson
- *
  */
 public class ByteArrayResource extends AbstractResource implements ReadableResource {
-    /** The byte array backing this resource. */
+    /**
+     * The byte array backing this resource.
+     */
     private final byte[] byteArray;
 
-    /** The starting offset within the byte array backing this resource. */
+    /**
+     * The starting offset within the byte array backing this resource.
+     */
     private int offset;
 
-    /** The number of bytes within the array backing this resource, from the offset specified. */
+    /**
+     * The number of bytes within the array backing this resource, from the offset specified.
+     */
     private int length;
 
     private static byte[] EMPTY_ARRAY = {};
@@ -84,8 +89,8 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
      * and number of bytes.
      *
      * @param byteArray the byte array to back this resource.
-     * @param offset the starting offset within the byte array backing this resource.
-     * @param length the number of bytes within the array backing this resource, from the offset specified.
+     * @param offset    the starting offset within the byte array backing this resource.
+     * @param length    the number of bytes within the array backing this resource, from the offset specified.
      */
     public ByteArrayResource(byte[] byteArray, int offset, int length) {
         this.byteArray = byteArray;
@@ -103,15 +108,25 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
     }
 
     /**
+     * Gets the length of the byte array backing this resource.
+     *
+     * @return the length of the backing byte array.
+     */
+    @Override
+    public long getContentLength() {
+        return byteArray == null ? -1 : length;
+    }
+
+    /**
      * Always throws an <code>UnsupportedOperationException</code> as this is an in-memory resource.
      *
      * @return never returns but always throws an <code>UnsupportedOperationException</code>
-     * @exception UnsupportedOperationException always thrown as this resource is an in-memory resource.
+     * @throws UnsupportedOperationException always thrown as this resource is an in-memory resource.
      */
     @Override
     public URL getUrl() throws UnsupportedOperationException {
         throw new UnsupportedOperationException(getBaseName(ByteArrayResource.class)
-            + " are in-memory resources and have no URL");
+                + " are in-memory resources and have no URL");
     }
 
     /**
@@ -121,7 +136,8 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
      */
     @Override
     public boolean canRead() {
-        return byteArray != null; }
+        return byteArray != null;
+    }
 
     /**
      * Determines whether this resource can be written to, either as byte or character-orientated stream.
@@ -159,16 +175,17 @@ public class ByteArrayResource extends AbstractResource implements ReadableResou
 
     private class ByteArrayBackedOutputStream extends OutputStream {
         private int writeIndex = offset;
-        private int lastIndexExcluding = offset+length;
+        private int lastIndexExcluding = offset + length;
 
         @Override
         public void write(int b) throws IOException {
             checkIndexOutOfBounds();
-            byteArray[writeIndex++] = (byte)b;
+            byteArray[writeIndex++] = (byte) b;
         }
 
         private void checkIndexOutOfBounds() {
-            if (writeIndex >= lastIndexExcluding) throw new IndexOutOfBoundsException("Index "+writeIndex+" out of bounds of bye array backed output stream, offset="+offset+", length="+length);
+            if (writeIndex >= lastIndexExcluding)
+                throw new IndexOutOfBoundsException("Index " + writeIndex + " out of bounds of bye array backed output stream, offset=" + offset + ", length=" + length);
         }
     }
 }

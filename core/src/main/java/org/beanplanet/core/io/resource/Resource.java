@@ -61,6 +61,24 @@ import java.nio.charset.CharsetEncoder;
  */
 public interface Resource extends Cloneable {
     /**
+     * <p>Gets the length of content backing this resource, which will always be either a positive amount, zero to indicate
+     * none or -1 to indicate the length is unknown or cannot be determined owing to the nature of the resource.</p>
+     *
+     * <p>The default implementation reads the input stream (via {@link #getInputStream()}) fully in order to determine
+     * the content length. It is highly recommended to override the default to determine the content length more
+     * efficiently, based on the type if resource. All known subclasses backing 'real' world resources provide more
+     * efficient and direct resource-related mechanisms for determining the content length. For example, a {@link FileResource}
+     * simple returns the size of the underlying Operating System file.</p>
+     *
+     * @return the content length of this resource: zero, a positive amount or -1 to indicate the content length is
+     * either unknown or cannot be determined at the tome of the call.
+     *
+     */
+    default long getContentLength() {
+        return IoUtil.contentLength(getInputStream());
+    }
+
+    /**
      * Whether this resource is absolute. A resource is absolute if it is a path-based resource and it does not need any
      * further information in order to locate or resolve it.
      *

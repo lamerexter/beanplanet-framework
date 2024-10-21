@@ -27,6 +27,7 @@
 package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.io.IoException;
+import org.beanplanet.core.io.IoUtil;
 import org.beanplanet.core.lang.Assert;
 import org.beanplanet.core.lang.TypeUtil;
 import org.beanplanet.core.models.path.NamePath;
@@ -102,6 +103,17 @@ public class FileResource extends AbstractResource implements ReadableResource, 
     @Override
     public int hashCode() {
         return Objects.hash(getFile());
+    }
+
+    /**
+     * Gets the length of the file backing this resource.
+     *
+     * @return the content length of the file backing this resource, otherwise zero or
+     * -1 if the file does not exist or is a directory.
+     */
+    @Override
+    public long getContentLength() {
+        return file == null || !file.exists() || file.isDirectory() ? -1 : file.length();
     }
 
     /**

@@ -29,10 +29,7 @@ package org.beanplanet.core.util;
 import org.beanplanet.core.beans.JavaBean;
 import org.beanplanet.core.models.Value;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -103,5 +100,18 @@ public class ObjectUtil {
         if (obj1ComparableValue == null && obj2ComparableValue != null) return -1;
         if (obj1ComparableValue != null && obj2ComparableValue == null) return 1;
         return obj1ComparableValue.compareTo(obj2ComparableValue);
+    }
+
+    /**
+     * Returns the first non-null value supplied from a list.
+     *
+     * @param suppliers the suppliers of possible non-null values.
+     * @return the first non-null value supplied, or null indicating all that were supplied were null.
+     */
+    @SafeVarargs
+    public static <T> T firstNonNull(Supplier<T> ... suppliers) {
+        return suppliers == null ? null : Arrays.stream(suppliers)
+                                                .map(Supplier::get)
+                                                .filter(Objects::nonNull).findFirst().orElse(null);
     }
 }

@@ -31,10 +31,20 @@ import org.beanplanet.core.models.Factory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Arrays.asList;
 
 public class MultiValueListMapImpl<K, V> extends MultiValueCollectionMapImpl<K, V, List<V>> implements MultiValueListMap<K, V> {
+    private static final MultiValueListMapImpl<?, ?> _EMPTY = new MultiValueListMapImpl<>();
+
     public MultiValueListMapImpl() {
         super();
+    }
+
+    @SuppressWarnings("unchecked, rawtypes")
+    public static <K, V> MultiValueListMapImpl<K, V> fromMappedArrayValues(Map<K, V[]> from) {
+        return new MultiValueListMapImpl<>((Map) from.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> asList(e.getValue()))));
     }
 
     public MultiValueListMapImpl(Map<K, List<V>> backingMap) {
@@ -44,5 +54,10 @@ public class MultiValueListMapImpl<K, V> extends MultiValueCollectionMapImpl<K, 
     @SuppressWarnings("unchecked")
     public <C extends List<V>> MultiValueListMapImpl(Map<K, C> backingMap, Factory<C> listFactory) {
         super((Map<K, List<V>>)backingMap, listFactory);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <KK, VV> MultiValueListMap<KK, VV> empty() {
+        return (MultiValueListMap<KK, VV>) _EMPTY;
     }
 }

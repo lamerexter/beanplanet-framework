@@ -26,22 +26,16 @@
 
 package org.beanplanet.core.models;
 
-import org.beanplanet.core.models.lifecycle.StartupShutdownLifecycle;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public class AbstractRegistry<K, T> implements Registry<K, T>, StartupShutdownLifecycle {
+public abstract class AbstractRegistry<K, T> extends AbstractLoadedRegistry<K, T> {
     private boolean loaded;
 
     private ConcurrentHashMap<K, T> catalog = new ConcurrentHashMap<>();
 
-    private RegistryLoader<Registry<K, T>> registryLoader;
-
-    public AbstractRegistry() {}
-
     public AbstractRegistry(RegistryLoader<Registry<K, T>> registryLoader) {
-        this.registryLoader = registryLoader;
+       super(registryLoader);
     }
 
     @Override
@@ -54,78 +48,22 @@ public class AbstractRegistry<K, T> implements Registry<K, T>, StartupShutdownLi
         return catalog.remove(key) != null;
     }
 
-    @Override
-    public T lookup(K key) {
-        checkLoaded();
-        return catalog.get(key);
-    }
-
     @SuppressWarnings("unchecked")
     @Override
-    public <E> Stream<E> findEntriesOfType(Class<E> entryType) {
+    public <E> Stream<E> doFindEntriesOfTypeInternal(Class<E> entryType) {
         return catalog.values().stream()
                 .filter(v -> entryType.isAssignableFrom(v.getClass()))
                 .map(v -> (E)v);
     }
 
     @Override
-    public int size() {
-        checkLoaded();
+    public int sizeInternal() {
         return catalog.size();
     }
 
-    protected synchronized void checkLoaded() {
-        if ( loaded ) return;
-
-        boolean initialLoadingStatus = loaded;
-        try {
-            loaded = true; // Indicate loading, even to this thread
-            loadResources();
-        } catch (Throwable th) {
-            loaded = initialLoadingStatus;
-            throw th;
-        }
-    }
-
-    private synchronized void loadResources() {
-        registryLoader.loadIntoRegistry(this);
-    }
-
-    /**
-     * Invoked when this object is started-up.
-     *
-     * <p>Implementers should encapsulate startup behaviour in this method, perhaps creating or referencing the required
-     * system resources for use later.</p>
-     *
-     * <p>While this method does not force this behaviour on implementations, it is
-     * strongly recommended that implementations are capable of handling successive calls to this method: either by
-     * dealing with the first and ignoring subsequent calls or by dealing with the first and then shutting down, if appropriate, before
-     * dealing with each successive call. This will ensure graceful restart behaviour.</p>
-     *
-     * @throws Exception if an error occurs during startup to
-     *                   let the receiver know the component could not be started.
-     */
     @Override
-    public void startup() throws Exception {
-        checkLoaded();
+    public T doLookupInternal(K key) {
+        return catalog.get(key);
     }
 
-    /**
-     * Invoked when this object is shutdown.
-     *
-     * <p>Implementers should encapsulate shutdown behaviour in this method, perhaps releasing system resources or references to
-     * resources created at startup.</p>
-     *
-     * <p>While this method does not force this behaviour on implementations, it is
-     * strongly recommended that implementations are capable of handling successive calls to this method: either by
-     * dealing with the first and ignoring subsequent calls or by dealing with the first and then starting-up, if appropriate, before
-     * dealing with each successive call. This will ensure graceful restart behaviour.</p>
-     *
-     * @throws Exception if an error occurs during startup to
-     *                   let the receiver know the component could not be started
-     */
-    @Override
-    public void shutdown() {
-
-    }
 }

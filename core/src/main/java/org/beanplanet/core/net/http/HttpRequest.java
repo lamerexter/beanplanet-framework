@@ -26,112 +26,135 @@
 
 package org.beanplanet.core.net.http;
 
-import org.beanplanet.core.io.resource.Resource;
-import org.beanplanet.core.mediatypes.MediaType;
 import org.beanplanet.core.net.UriBuilder;
-import org.beanplanet.core.util.MultiValueListMapImpl;
+import org.beanplanet.core.util.MultiValueListMap;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 
-import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static org.beanplanet.core.net.http.Request.Method.*;
+import static org.beanplanet.core.net.http.Request.Version.HTTP_1_1;
 
 
 /**
  * A model of an HTTP request.
- *
- * @author Gary Watson
  */
-public class HttpRequest extends HttpMessage {
-    /** The HTTP method. */
+public class HttpRequest extends AbstractHttpMessage implements Request {
+    /**
+     * The HTTP method.
+     */
     private String method;
-    /** The request URI being built */
-    private UriBuilder requestUriBuilder;
-    /** The HTTP protocol version. */
-    private BigDecimal httpVersion;
+    /**
+     * The URI of the HTTP request.
+     */
+    private URI uri;
+    /**
+     * The HTTP protocol version.
+     */
+    private Version httpVersion;
 
-    public HttpRequest() {
+    public HttpRequest(final String method,
+                       final URI uri,
+                       final Version httpVersion,
+                       final HttpHeaders headers) {
+        super(headers, null);
+        this.method = method;
+        this.uri = uri;
+        this.httpVersion = httpVersion;
     }
 
-    public HttpRequest withEntity(HttpEntity entity) { super.withEntity(entity); return this; }
+    public HttpRequest(final String method,
+                       final URI uri,
+                       final Version httpVersion) {
+        this(method, uri, httpVersion, null);
+    }
+
+    public HttpRequest(final Method method,
+                       final URI uri,
+                       final Version httpVersion,
+                       final HttpHeaders headers) {
+        this(method.name(), uri, httpVersion, headers);
+    }
+
+    public HttpRequest(final Method method,
+                       final URI uri,
+                       final Version httpVersion) {
+        this(method, uri, httpVersion, null);
+    }
+
+    public HttpRequest(final Request other) {
+        super(other.getHeaders(), other.getBody());
+        this.method = other.getMethod();
+        this.uri = other.getUri();
+        this.httpVersion = other.getHttpVersion();
+    }
+
+    public HttpRequest() {
+        this(GET, URI.create("/"), HTTP_1_1);
+    }
+
+
+    private HttpRequest(final HttpRequestBuilder<?, ?> builder) {
+        super(builder);
+        this.method = builder.method;
+        this.uri = builder.uri;
+        this.httpVersion = builder.httpVersion;
+    }
+
+    public static HttpRequestBuilder<?, ?> builder() {
+        return new HttpRequestBuilderImpl();
+    }
+
+    public HttpRequest merge(final Request other) {
+        HttpRequest copy = new HttpRequest(this);
+
+        if ( other.getMethod() != null ) copy.method = other.getMethod();
+        if ( other.getUri() != null ) {
+            if ( copy.uri == null ) {
+                copy.uri = other.getUri();
+            } else {
+                UriBuilder copyUriBuilder = new UriBuilder(copy.uri);
+                copy.uri = copyUriBuilder.merge(new UriBuilder(other.getUri())).build();
+            }
+        }
+        if ( other.getHttpVersion() != null ) copy.httpVersion = other.getHttpVersion();
+        copy.headers = copy.getHeaders().merge(other.getHeaders());
+        if ( other.getBody() != null ) copy.body = other.getBody();
+
+        return copy;
+    }
 
     public String getMethod() {
         return method;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
+    public URI getUri() {
+        return uri;
     }
 
-    public HttpRequest withMethod(String method) { setMethod(method); return this; }
-
-    public UriBuilder getRequestUriBuilder() {
-        return requestUriBuilder;
-    }
-
-    public void setRequestUriBuidler(UriBuilder requestUriBuidler) {
-        this.requestUriBuilder = requestUriBuidler;
-    }
-
-    public HttpRequest withRequestUriBuilder(UriBuilder requestUri) {
-        setRequestUriBuidler(requestUriBuilder);
-        return this;
-    }
-
-    public URI getRequestUri() {
-        return requestUriBuilder == null ? null : requestUriBuilder.toUri();
-    }
-
-    public void setRequestUri(URI requestUri) {
-        this.requestUriBuilder = new UriBuilder(requestUri);
-    }
-
-    public HttpRequest withRequestUri(URI requestUri) {
-        setRequestUri(requestUri);
-        return this;
-    }
-
-    public HttpRequest withRequestUri(String requestUri) {
-        return withRequestUri(URI.create(requestUri));
-    }
-
-    public BigDecimal getHttpVersion() {
+    public Version getHttpVersion() {
         return httpVersion;
     }
 
-    public void setHttpVersion(BigDecimal httpVersion) {
-        this.httpVersion = httpVersion;
-    }
-
-    public HttpRequest withHttpVersion(BigDecimal httpVersion) {
-        setHttpVersion(httpVersion);
-        return this;
-    }
-
-    public HttpRequest withHeaders(Map<String, Object> headers) {
-        return (HttpRequest)super.withHeaders(headers);
-    }
-
-    public HttpRequest withHeader(String name, String value) {
-       return (HttpRequest)super.withHeader(name, value);
-    }
-
     public HttpRequest withContentType(MediaType contentType) {
-        return (HttpRequest)super.withContentType(contentType);
+        return (HttpRequest) super.withContentType(contentType);
     }
+
     public HttpRequest withContentType(String contentType) {
-        return (HttpRequest)super.withContentType(contentType);
+        return (HttpRequest) super.withContentType(contentType);
     }
 
     public HttpRequest withContentLength(int contentLength) {
-        return (HttpRequest)super.withContentLength(contentLength);
+        return (HttpRequest) super.withContentLength(contentLength);
     }
 
     public boolean hasQueryParameter(String name) {
-        return requestUriBuilder != null && requestUriBuilder.hasQueryParameter(name);
+        return uri != null && new UriBuilder(uri).hasQueryParameter(name);
     }
 
     /**
@@ -141,15 +164,15 @@ public class HttpRequest extends HttpMessage {
      * @return the cookies associated with this message, or an empty list of there are none.
      */
     public List<Cookie> getCookies() {
-        final MultiValueListMapImpl<String, String> headers = getHeaders();
-        if ( headers == null ) return Collections.emptyList();
+        final MultiValueListMap<String, String> headers = getHeaders().getAll();
+        if (headers == null) return Collections.emptyList();
 
         return headers.entrySet().stream()
-                .filter(e -> Cookie.HTTP_REQUEST_HEADER_NAME.equalsIgnoreCase(e.getKey()))
-                .map(Map.Entry::getValue)
-                .flatMap(List::stream)
-                .map(Cookie::fromHttpHeaderValue)
-                .collect(Collectors.toList());
+                      .filter(e -> Cookie.HTTP_REQUEST_HEADER_NAME.equalsIgnoreCase(e.getKey()))
+                      .map(Map.Entry::getValue)
+                      .flatMap(List::stream)
+                      .map(Cookie::fromHttpHeaderValue)
+                      .collect(Collectors.toList());
     }
 
     /**
@@ -159,10 +182,191 @@ public class HttpRequest extends HttpMessage {
      * @return this message for method chaining.
      */
     public HttpRequest withCookie(final Cookie cookie) {
-        return (HttpRequest)super.withHeader(Cookie.HTTP_REQUEST_HEADER_NAME, cookie.toHttpRequestHeaderValue());
+        getHeaders().set(Cookie.HTTP_REQUEST_HEADER_NAME, cookie.toHttpRequestHeaderValue());
+        return this;
     }
 
     public String toString() {
-        return new PropertyBasedToStringBuilder(this).build();
+        return new PropertyBasedToStringBuilder(
+                this,
+                "method", this::getMethod,
+                "uri", this::getUri,
+                "httpVersion", this::getHttpVersion,
+                "headers", super::getHeaders,
+                "body", super::getBody
+        ).build();
+    }
+
+    public static abstract class HttpRequestBuilder<C extends HttpRequest, B extends HttpRequestBuilder<C, B>> extends HttpMessageBuilder<C, B> {
+        /**
+         * The HTTP method.
+         */
+        protected String method;
+        /**
+         * The request URI
+         */
+        protected URI uri;
+        /**
+         * The HTTP protocol version.
+         */
+        protected Version httpVersion;
+        /**
+         * The HTTP headers.
+         */
+        protected HttpHeaders headers = new HttpHeaders();
+
+        protected abstract B self();
+
+        public B connect(final String uri) {
+            method(CONNECT);
+            return uri(uri);
+        }
+
+        public B connect(final URI uri) {
+            method(CONNECT);
+            return uri(uri);
+        }
+
+        public B connect() {
+            method(CONNECT);
+            return self();
+        }
+
+        public B delete(final String uri) {
+            method(DELETE);
+            return uri(uri);
+        }
+
+        public B delete(final URI uri) {
+            method(DELETE);
+            return uri(uri);
+        }
+
+        public B delete() {
+            method(DELETE);
+            return self();
+        }
+
+        public B get(final String uri) {
+            method(GET);
+            return uri(uri);
+        }
+
+        public B get(final URI uri) {
+            method(GET);
+            return uri(uri);
+        }
+
+        public B get() {
+            method(GET);
+            return self();
+        }
+
+        public B options(final String uri) {
+            method(OPTIONS);
+            return uri(uri);
+        }
+
+        public B options(final URI uri) {
+            method(OPTIONS);
+            return uri(uri);
+        }
+
+        public B options() {
+            method(OPTIONS);
+            return self();
+        }
+
+        public B post(final String uri) {
+            method(POST);
+            return uri(uri);
+        }
+
+        public B post(final URI uri) {
+            method(POST);
+            return uri(uri);
+        }
+
+        public B post() {
+            method(POST);
+            return self();
+        }
+
+        public B put(final String uri) {
+            method(PUT);
+            return uri(uri);
+        }
+
+        public B put(final URI uri) {
+            method(PUT);
+            return uri(uri);
+        }
+
+        public B put() {
+            method(PUT);
+            return self();
+        }
+
+        public B trace(final String uri) {
+            method(TRACE);
+            return uri(uri);
+        }
+
+        public B trace(final URI uri) {
+            method(TRACE);
+            return uri(uri);
+        }
+
+        public B trace() {
+            method(TRACE);
+            return self();
+        }
+
+        public B method(final HttpRequest.Method method) {
+            this.method = method.name();
+            return self();
+        }
+
+        public B method(final String methodOrExtension) {
+            this.method = methodOrExtension;
+            return self();
+        }
+
+        public B uri(final Consumer<UriBuilder> uriBuilderConsumer) {
+            UriBuilder uriBuilder = new UriBuilder();
+            uriBuilderConsumer.accept(uriBuilder);
+            this.uri = uriBuilder.toUri();
+            return self();
+        }
+
+        public B uri(final URI uri) {
+            this.uri = uri;
+            return self();
+        }
+
+        public B uri(final String uri) {
+            this.uri = URI.create(uri);
+            return self();
+        }
+
+        public B version(final Version version) {
+            this.httpVersion = version;
+            return self();
+        }
+
+        public abstract C build();
+    }
+
+    private static final class HttpRequestBuilderImpl extends HttpRequestBuilder<HttpRequest, HttpRequestBuilderImpl> {
+        private HttpRequestBuilderImpl() {
+        }
+
+        protected HttpRequestBuilderImpl self() {
+            return this;
+        }
+
+        public HttpRequest build() {
+            return new HttpRequest(this);
+        }
     }
 }

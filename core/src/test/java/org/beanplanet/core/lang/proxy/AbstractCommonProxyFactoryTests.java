@@ -30,10 +30,14 @@ import org.beanplanet.testing.core.ACheckedException;
 import org.beanplanet.testing.core.ARuntimeException;
 import org.beanplanet.testing.proxies.*;
 import org.junit.Assert;
+import org.junit.Test;
 
-public abstract class AbstractCommonProxyFactoryTests extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public abstract class AbstractCommonProxyFactoryTests {
     protected ProxyFactory proxyFactory;
 
+    @Test
     public void testExtendedSingleInterfaceProxyInterceptor() {
         ProxiedClass target = new ProxiedClass() {
             public int getTestMethodCallCount() {
@@ -52,6 +56,7 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
         assertEquals(10, target.getTestMethodCallCount());
     }
 
+    @Test
     public void testExactMultipleInterfaceProxyInterceptor() {
         ABProxiedClassImpl target = new ABProxiedClassImpl();
         Object proxy = proxyFactory.dynamicProxy(new Class<?>[]{IA.class, IB.class, IProxiedClass.class},
@@ -76,6 +81,7 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
         assertEquals(1, target.getTestMethodCallCount());
     }
 
+    @Test
     public void testSubsetMultipleInterfaceProxyInterceptor() {
         ABProxiedClassImpl target = new ABProxiedClassImpl();
         Object proxy = proxyFactory.dynamicProxy(new Class<?>[]{IA.class, IB.class},
@@ -97,6 +103,7 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
         assertEquals(0, target.getTestMethodCallCount());
     }
 
+    @Test
     public void testInvocationOfMethodWithNoDeclaredExceptionsThrowingUncheckedException() {
         IProxiedClass target = new ProxiedClass();
         IProxiedClass proxy = proxyFactory.dynamicProxy(IProxiedClass.class, new TargetInvokingMethodCallInterceptor(target));
@@ -109,6 +116,7 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
         }
     }
 
+    @Test
     public void testSimpleSingleInterfaceProxyInterceptor() {
         ProxiedClass target = new ProxiedClass();
         IProxiedClass proxy = proxyFactory.dynamicProxy(IProxiedClass.class,
@@ -130,6 +138,7 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
         Assert.assertTrue(proxy.hashCode() == target.hashCode());
     }
 
+    @Test
     public void testInvocationOfCheckedExceptionThrowingMethod() {
         IProxiedClass target = new ProxiedClass();
         IProxiedClass proxy = proxyFactory.dynamicProxy(IProxiedClass.class, new TargetInvokingMethodCallInterceptor(target));
@@ -142,6 +151,7 @@ public abstract class AbstractCommonProxyFactoryTests extends TestCase {
         }
     }
 
+    @Test
     public void testInvocationOfUncheckedExceptionThrowingMethod() {
         IProxiedClass target = new ProxiedClass();
         IProxiedClass proxy = proxyFactory.dynamicProxy(IProxiedClass.class, new TargetInvokingMethodCallInterceptor(target));

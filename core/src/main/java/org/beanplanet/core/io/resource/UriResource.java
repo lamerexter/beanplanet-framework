@@ -160,7 +160,7 @@ public class UriResource extends AbstractUriBasedResource implements UriCapableR
         final List<String> joinPath = new ArrayList<>(parentPathElements);
         joinPath.addAll(otherPathElements);
         return new UriResource(new UriBuilder(getUri())
-                                       .withPath(joinPath.stream().collect(Collectors.joining("/"))).toUri());
+                                       .path(joinPath.stream().collect(Collectors.joining("/"))).toUri());
     }
 
     /**

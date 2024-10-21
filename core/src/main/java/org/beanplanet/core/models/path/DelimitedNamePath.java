@@ -55,6 +55,15 @@ public class DelimitedNamePath implements NamePath {
         this.delimiter = delimiter;
     }
 
+    /**
+     * Gets the delimiter configured on this instance.
+     *
+     * return the delimiter of this name path.
+     */
+    public String getDelimiter() {
+        return delimiter.get();
+    }
+
     @Override
     public List<String> getElements() {
         String pathString = path.get();
@@ -114,7 +123,7 @@ public class DelimitedNamePath implements NamePath {
     }
 
     @Override
-    public Path<String> join(Path<String> other) {
+    public DelimitedNamePath join(Path<String> other) {
         if ( other == null ) return this;
 
         return new DelimitedNamePath(() -> {
@@ -146,5 +155,13 @@ public class DelimitedNamePath implements NamePath {
 
     public int hashCode() {
         return Objects.hash(getElements());
+    }
+
+    /**
+     * Joins this name path into a single path string, with path elements delimited by the delimiter.
+     * @return a path string of all elements, delimited by the delimiter of this instance.
+     */
+    public String join() {
+        return NamePath.super.join(this.delimiter.get());
     }
 }

@@ -45,20 +45,25 @@ public class TypeConvertingValue implements Value {
     /** The type converter used by this instance to convert its value to the types required by clients. */
     protected TypeConverter typeConverter;
 
-    protected Object value;
-    protected Object defaultValue;
-    protected boolean hasDefaultValue = false;
+    protected Supplier<Object> valueProvider;
+    protected Supplier<Object> defaultValueProvider;
 
     public TypeConvertingValue(TypeConverter typeConverter, Object value) {
-        this.typeConverter = typeConverter;
-        this.value = value;
+        this(typeConverter, () -> value, null);
     }
 
     public TypeConvertingValue(TypeConverter typeConverter, Object value, Object defaultValue) {
+        this(typeConverter, () -> value, () -> defaultValue);
+    }
+
+    public TypeConvertingValue(TypeConverter typeConverter, Supplier<Object> valueProvider) {
+        this(typeConverter, valueProvider, null);
+    }
+
+    public TypeConvertingValue(TypeConverter typeConverter, Supplier<Object> valueProvider, Supplier<Object> defaultValueProvider) {
         this.typeConverter = typeConverter;
-        this.value = value;
-        this.defaultValue = defaultValue;
-        this.hasDefaultValue = true;
+        this.valueProvider = valueProvider;
+        this.defaultValueProvider = defaultValueProvider;
     }
 
     public boolean equals(Object o) {
@@ -89,15 +94,15 @@ public class TypeConvertingValue implements Value {
      * @see #as(Class)
      */
     public Object getValue() {
-        return value;
+        return valueProvider.get();
     }
 
     public Object getDefaultValue() {
-        return defaultValue;
+        return defaultValueProvider.get();
     }
 
     public boolean getHasDefaultValue() {
-        return hasDefaultValue;
+        return defaultValueProvider != null;
     }
 
     /**
@@ -109,6 +114,7 @@ public class TypeConvertingValue implements Value {
      * @exception DataAccessException thrown if an error occurs during conversion of the result to the required type.
      */
     public <T> T as(Class<T> targetType) throws DataAccessException {
+        final Object value = valueProvider.get();
         return value == null ? null : typeConverter.convert(value, targetType);
     }
 
@@ -124,6 +130,7 @@ public class TypeConvertingValue implements Value {
      * @exception DataAccessException thrown if an error occurs accessing or converting the value.
      */
     public <T, C extends Collection<T>> C asCollectionTypeOf(Supplier<C> supplier, Class<T> elementType) throws DataAccessException {
+        final Object value = valueProvider.get();
         if (value == null) return null;
 
         Collection<?> convertedValue = typeConverter.convert(value, Collection.class);
@@ -141,6 +148,7 @@ public class TypeConvertingValue implements Value {
      * @return the value of the result, which could be null.
      */
     public <K, V> Map<K, V> asMapTypeOf(Supplier<Map<K, V>> supplier, Class<K> keyType, Class<V> valueType) {
+        final Object value = valueProvider.get();
         if (value == null) return null;
 
         Map<K, V> newMap = supplier.get();

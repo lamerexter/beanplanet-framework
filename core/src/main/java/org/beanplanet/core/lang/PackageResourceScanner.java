@@ -52,4 +52,6 @@ public interface PackageResourceScanner<R> {
     * @return a set of the resources found in the given packages, or the empty set if no resources were found.
     */
    Set<R> findResourcesInPackages(String... packageNames);
+
+   Set<R> findResourcesInPackage(String packageName, ClassLoader classLoader);
 }

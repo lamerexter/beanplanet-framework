@@ -142,58 +142,66 @@ public class FilteringPackageClassScanner implements PackageResourceScanner<Clas
 
       return resources;
    }
-   
+
+   @Override
+   public Set<Class<?>> findResourcesInPackage(String packageName, ClassLoader classLoader) {
+      Set<Class<?>> resources = new LinkedHashSet<Class<?>>();
+      packageName = StringUtil.replaceAllRegex(packageName, "\\.", "/");
+      filterResources(resources, filter, packageName, classLoader);
+
+      return resources;
+   }
+
    protected void filterResources(Set<Class<?>> resources, Predicate<Class<?>> filter, String packageName) {
       Set<ClassLoader> classLoaders = (this.classLoaders != null ? this.classLoaders : getDefaultClassLoaders());
       
       for (ClassLoader classLoader : classLoaders) {
-         try {
-            filterResources(resources, filter, packageName, classLoader);
-         }
-         catch (IOException ioEx) {
-            warning("Error scanning package [package="+packageName+", classLoader="+classLoader+"] for resources: ", ioEx);
-         }
+         filterResources(resources, filter, packageName, classLoader);
       }
    }
 
-   protected void filterResources(Set<Class<?>> resources, Predicate<Class<?>> filter, String packageName, ClassLoader classLoader) throws IOException {
-      for (Enumeration<URL> resourceURLs = getClassLoaderResources(classLoader, packageName); resourceURLs.hasMoreElements(); ) {
-         URL resourceURL = resourceURLs.nextElement();
-         
-         String resourcePath = resourceURL.getPath(); //NetworkUtil.URLDecode(resourceURL.getPath(), "UTF-8");
-         if ( "file".equals(resourceURL.getProtocol()) ) {
-            // Decode resource path using the URI class - it provides better decoding that URLDecoder. For example, the
-            // plus (+) character is decoded by URLDecoder but not by URI.getPath(); + is a valid character in
-            // some file-systems such as MacOS.
-            try {
-               resourcePath = new URI(resourcePath).getPath();
+   protected void filterResources(Set<Class<?>> resources, Predicate<Class<?>> filter, String packageName, ClassLoader classLoader) {
+      try {
+         for (Enumeration<URL> resourceURLs = getClassLoaderResources(classLoader, packageName); resourceURLs.hasMoreElements(); ) {
+            URL resourceURL = resourceURLs.nextElement();
+
+            String resourcePath = resourceURL.getPath(); //NetworkUtil.URLDecode(resourceURL.getPath(), "UTF-8");
+            if ( "file".equals(resourceURL.getProtocol()) ) {
+               // Decode resource path using the URI class - it provides better decoding that URLDecoder. For example, the
+               // plus (+) character is decoded by URLDecoder but not by URI.getPath(); + is a valid character in
+               // some file-systems such as MacOS.
+               try {
+                  resourcePath = new URI(resourcePath).getPath();
+               }
+               catch (URISyntaxException ignoredEx) {
+                  // Handled below using the original resourcePath above.
+               }
+
+               File packageFile = new File(resourcePath);
+               if ( !packageFile.isDirectory() ) {
+                  warning("Skipping package file [file="+packageFile.getAbsolutePath()+", URL="+resourceURL+"] which does not exist, could not be read or is not a directory.");
+                  continue;
+               }
+
+               if ( isDebugEnabled() ) {
+                  debug("Looking for classes in package directory ["+packageFile.getAbsolutePath()+"] recursively ...");
+               }
+               loadResourcesInDirectory(resources, filter, packageName, classLoader, packageFile);
             }
-            catch (URISyntaxException ignoredEx) {
-               // Handled below using the original resourcePath above.
+            else {
+               // Assume it's a JAR or Zip file
+               if ( resourcePath.indexOf('!') > 0 ) {
+                  resourcePath = resourcePath.substring(0, resourcePath.indexOf('!'));
+               }
+               if ( isDebugEnabled() ) {
+                  debug("Looking for classes in archive [archive="+resourcePath+"] recursively ...");
+               }
+               URL archiveURL = new URL(resourcePath);
+               loadResourcesInArchive(resources, filter, packageName, classLoader, archiveURL.openStream());
             }
-            
-            File packageFile = new File(resourcePath);
-            if ( !packageFile.isDirectory() ) {
-               warning("Skipping package file [file="+packageFile.getAbsolutePath()+", URL="+resourceURL+"] which does not exist, could not be read or is not a directory.");
-               continue;
-            }
-            
-            if ( isDebugEnabled() ) {
-               debug("Looking for classes in package directory ["+packageFile.getAbsolutePath()+"] recursively ...");
-            }
-            loadResourcesInDirectory(resources, filter, packageName, classLoader, packageFile);
          }
-         else {
-            // Assume it's a JAR or Zip file
-            if ( resourcePath.indexOf('!') > 0 ) {
-               resourcePath = resourcePath.substring(0, resourcePath.indexOf('!'));
-            }
-            if ( isDebugEnabled() ) {
-               debug("Looking for classes in archive [archive="+resourcePath+"] recursively ...");
-            }
-            URL archiveURL = new URL(resourcePath);
-            loadResourcesInArchive(resources, filter, packageName, classLoader, archiveURL.openStream());
-         }
+      } catch (IOException ioEx) {
+         warning("Error scanning package [package="+packageName+", classLoader="+classLoader+"] for resources: ", ioEx);
       }
    }
    

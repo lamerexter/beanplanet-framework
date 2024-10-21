@@ -98,6 +98,16 @@ public class CharSequenceResource extends AbstractResource implements ReadableRe
     }
 
     /**
+     * Gets the length of the character sequence backing this resource.
+     *
+     * @return the length of the character sequence.
+     */
+    @Override
+    public long getContentLength() {
+        return characterSequence == null ? -1 : characterSequence.length();
+    }
+
+    /**
      * A string resource always exists.
      *
      * @return always true.

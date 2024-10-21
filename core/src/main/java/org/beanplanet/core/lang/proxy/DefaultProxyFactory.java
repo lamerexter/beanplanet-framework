@@ -34,7 +34,7 @@ import java.lang.reflect.Proxy;
  * 
  * <p>
  * This implementation creates either a standard Java 1.3+ dynamic <code>{@link Proxy}</code> or a <a
- * href="http://cglib.sourceforge.net/">CGLIB</a> proxy. Where a proxy based solely on java interfaces is required a
+ * href="https://bytebuddy.net">ByteBuddy</a> proxy. Where a proxy based solely on java interfaces is required a
  * Java dynamic proxy is sufficient; for proxies via a concrete class a CGLIB proxy is created.
  * </p>
  * 
@@ -54,14 +54,14 @@ public class DefaultProxyFactory implements ProxyFactory {
 
       try {
          subclassProxyFactoryLoadProblem = "This proxy factory ["+DefaultProxyFactory.class.getName()+"] is unable to proxy concrete types "
-                                           + "because CGLib was not detected on the classpath. To rectify this please add the CGLib library (available from http://cglib.sourceforge.net/ or Maven Central) or "
+                                           + "because ByteBuddy was not detected on the classpath. To rectify this please add the ByteBuddy library (available from https://bytebuddy.net or Maven Central) or "
                                            + "add the beanplanet-proxy module library to this application.";
-         // Determine if CGLib library is on the classpath.
-         TypeUtil.loadClass("net.sf.cglib.proxy.Enhancer");
+         // Determine if concrete library is on the classpath.
+         TypeUtil.loadClass("net.bytebuddy.ByteBuddy");
 
-         // Determine if beanplanet-proxy module (with CGLib support) is on the classpath also.
+         // Determine if beanplanet-proxy module (with ByteBuddy support) is on the classpath also.
          Class<ProxyFactory> proxyFactoryClass = (Class<ProxyFactory>) TypeUtil
-               .loadClass("org.beanplanet.proxy.cglib.CGLibProxyFactory");
+               .loadClass("org.beanplanet.proxy.bytebuddy.ByteBuddyProxyFactory");
          subclassCapableProxyFactory = proxyFactoryClass.newInstance();
       } catch (Exception ignoreEx) {
       }

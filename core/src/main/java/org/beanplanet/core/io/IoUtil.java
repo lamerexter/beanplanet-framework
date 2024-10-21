@@ -229,19 +229,42 @@ public class IoUtil {
      * @param os the output stream where the data will be written.
      * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
      * @poram callback optional callback invoked on successive reads from the source stream, which may be null
+     * @return the total number of bytes read, which may be zero.
      * @exception IOException thrown if an error occurs during the transfer.
      */
-    public static void transfer(InputStream is, OutputStream os, int bufferSize, final ByteArrayReadCallback callback) throws IoException {
+    public static long transfer(InputStream is, OutputStream os, int bufferSize, final ByteArrayReadCallback callback) throws IoException {
         byte transferBuf[] = new byte[bufferSize];
+        long totalBytesRead = 0;
         int readCount;
         try {
             while ((readCount = is.read(transferBuf)) != -1) {
+                totalBytesRead += readCount;
                 if ( callback != null ) callback.bytesRead(transferBuf, 0, readCount);
                 os.write(transferBuf, 0, readCount);
             }
+            return totalBytesRead;
         } catch (IOException e) {
             throw new IoException("An error occurred during transfer: ", e);
         }
+    }
+
+    /**
+     * Automatically transfers data from the specified <code>InputStream</code> to the <code>OutputStream</code> until
+     * End-Of-File (EOF) is encountered on the input stream. This implementation, if successful in reading all content,
+     * closes the unpout stream.
+     * <p>
+     *
+     * @param is the input stream from which the data will be read
+     * @param os the output stream where the data will be written.
+     * @param bufferSize the transfer buffer length of the buffer to use during the transfer for efficiency.
+     * @poram callback optional callback invoked on successive reads from the source stream, which may be null
+     * @return the total number of bytes read, which may be zero.
+     * @exception IOException thrown if an error occurs during the transfer.
+     */
+    public static long transferAndClose(InputStream is, OutputStream os, int bufferSize, final ByteArrayReadCallback callback) throws IoException {
+        final long totalBytesRead = transfer(is, os, bufferSize, callback);
+        closeIgnoringErrors(is);
+        return totalBytesRead;
     }
 
     /**
@@ -455,10 +478,11 @@ public class IoUtil {
      * @param is the input stream from which the data will be read
      * @param os the output stream where the data will be written.
      * @poram callback optional callback invoked on successive reads from the source stream, which may be null
+     * @return the total number of bytes read, which may be zero.
      * @exception IoException thrown if an error occurs during the transfer.
      */
-    public static void transfer(InputStream is, OutputStream os, final ByteArrayReadCallback callback) throws IoException {
-        transfer(is, os, DEFAULT_TRANSFER_BUF_SIZE, callback);
+    public static long transfer(InputStream is, OutputStream os, final ByteArrayReadCallback callback) throws IoException {
+        return transfer(is, os, DEFAULT_TRANSFER_BUF_SIZE, callback);
     }
 
     /**
@@ -493,13 +517,14 @@ public class IoUtil {
      * @param is the input stream from which the data will be read
      * @param os the output stream where the data will be written.
      * @poram callback optional callback invoked on successive reads from the source stream, which may be null
+     * @return the total number of bytes read, which may be zero.
      * @exception IoException thrown if an error occurs during the transfer.
      * @see #transfer(java.io.InputStream, java.io.OutputStream)
      * @see #transferAndClose(java.io.InputStream, java.io.OutputStream, int)
      */
-    public static void transferAndClose(InputStream is, OutputStream os, final ByteArrayReadCallback callback) throws IoException {
+    public static long transferAndClose(InputStream is, OutputStream os, final ByteArrayReadCallback callback) throws IoException {
         try {
-            transfer(is, os, callback);
+            return transfer(is, os, callback);
         } finally {
             closeIgnoringErrors(is);
             closeIgnoringErrors(os);
@@ -834,5 +859,14 @@ public class IoUtil {
                 throw new IoException(ioEx);
             }
         }
+    }
+
+    /**
+     * Determines the content length behind an input stream. Note, this is a very inefficient method to determine the
+     * content length and is only intended as a last resort. The act of reading until EOF will result in the closure of
+     * the input stream.
+     */
+    public static long contentLength(final InputStream inputStream) {
+        return transferAndClose(inputStream, OutputStream.nullOutputStream(), (buffer, fromindex, bytesRead) -> {});
     }
 }

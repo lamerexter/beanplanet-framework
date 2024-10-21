@@ -29,4 +29,7 @@ package org.beanplanet.core.util;
 import java.util.List;
 
 public interface MultiValueListMap<K, V> extends MultiValueCollectionMap<K, V, List<V>> {
+    static <KK, VV> MultiValueListMap<KK, VV> empty() {
+        return MultiValueListMapImpl.empty();
+    }
 }

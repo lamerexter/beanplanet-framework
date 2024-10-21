@@ -27,14 +27,16 @@
 package org.beanplanet.core.util;
 
 import org.beanplanet.core.beans.BeanUtil;
+import org.beanplanet.core.beans.JavaBean;
 import org.beanplanet.core.lang.Assert;
 import org.beanplanet.core.models.Builder;
+import org.beanplanet.core.models.Pair;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
 import static org.beanplanet.core.lang.TypeUtil.getBaseName;
 import static org.beanplanet.core.util.StringUtil.asDelimitedString;
 
@@ -46,8 +48,12 @@ import static org.beanplanet.core.util.StringUtil.asDelimitedString;
  * @author Gary Watson
  */
 public class PropertyBasedToStringBuilder implements Builder<String> {
-    /** The source object whose <code>toString()</code> is to built. */
+    /**
+     * The source object whose <code>toString()</code> is to built.
+     */
     protected Object source;
+
+    protected List<Pair<String, Supplier<Object>>> nameValueSuppliers;
 
     /**
      * Returns a list of the properties the builder uses to create the string
@@ -67,16 +73,224 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
      */
     protected boolean ignoresErrors = true;
 
-    /** Whether only one property is to be printed per line; defaults to false. */
+    /**
+     * Whether only one property is to be printed per line; defaults to false.
+     */
     protected boolean onePropertyPerLine = false;
 
-    /** Whether properties with null values are to be displayed; defaults to true. */
+    /**
+     * Whether properties with null values are to be displayed; defaults to true.
+     */
     protected boolean showPropetiesWithNullValues = true;
+
+    /**
+     * Constructs a PropertyBasedToStringBuilder based on the given source object and
+     * supplied named properties.
+     *
+     * @param source             the source object.
+     * @param nameValueSuppliers the names and supplied values of the properties to build.
+     */
+    @SafeVarargs
+    public PropertyBasedToStringBuilder(final Object source,
+                                        final Pair<String, Supplier<Object>>... nameValueSuppliers) {
+        this.source = source;
+        this.nameValueSuppliers = nameValueSuppliers == null ? Collections.emptyList() : asList(nameValueSuppliers);
+    }
+
+    /**
+     * Constructs a PropertyBasedToStringBuilder based on the given source object and
+     * supplied named properties.
+     *
+     * @param source         the source object.
+     * @param name1          the name of the property #1.
+     * @param valueSupplier1 the supplied value of property #1.
+     */
+    public PropertyBasedToStringBuilder(final Object source,
+                                        final String name1,
+                                        final Supplier<Object> valueSupplier1) {
+        this(source, Pair.of(name1, valueSupplier1));
+    }
+
+    /**
+     * Constructs a PropertyBasedToStringBuilder based on the given source object and
+     * supplied named properties.
+     *
+     * @param source         the source object.
+     * @param name1          the name of the property #1.
+     * @param valueSupplier1 the supplied value of property #1.
+     * @param name2          the name of the property #2.
+     * @param valueSupplier2 the supplied value of property #2.
+     */
+    public PropertyBasedToStringBuilder(final Object source,
+                                        final String name1,
+                                        final Supplier<Object> valueSupplier1,
+                                        final String name2,
+                                        final Supplier<Object> valueSupplier2) {
+        this(
+                source,
+                Pair.of(name1, valueSupplier1),
+                Pair.of(name2, valueSupplier2)
+        );
+    }
+
+    /**
+     * Constructs a PropertyBasedToStringBuilder based on the given source object and
+     * supplied named properties.
+     *
+     * @param source         the source object.
+     * @param name1          the name of the property #1.
+     * @param valueSupplier1 the supplied value of property #1.
+     * @param name2          the name of the property #2.
+     * @param valueSupplier2 the supplied value of property #2.
+     * @param name3          the name of the property #3.
+     * @param valueSupplier3 the supplied value of property #3.
+     */
+    public PropertyBasedToStringBuilder(final Object source,
+                                        final String name1,
+                                        final Supplier<Object> valueSupplier1,
+                                        final String name2,
+                                        final Supplier<Object> valueSupplier2,
+                                        final String name3,
+                                        final Supplier<Object> valueSupplier3) {
+        this(
+                source,
+                Pair.of(name1, valueSupplier1),
+                Pair.of(name2, valueSupplier2),
+                Pair.of(name3, valueSupplier3)
+        );
+    }
+
+    /**
+     * Constructs a PropertyBasedToStringBuilder based on the given source object and
+     * supplied named properties.
+     *
+     * @param source         the source object.
+     * @param name1          the name of the property #1.
+     * @param valueSupplier1 the supplied value of property #1.
+     * @param name2          the name of the property #2.
+     * @param valueSupplier2 the supplied value of property #2.
+     * @param name3          the name of the property #3.
+     * @param valueSupplier3 the supplied value of property #3.
+     * @param name4          the name of the property #4.
+     * @param valueSupplier4 the supplied value of property #4.
+     */
+    public PropertyBasedToStringBuilder(final Object source,
+                                        final String name1,
+                                        final Supplier<Object> valueSupplier1,
+                                        final String name2,
+                                        final Supplier<Object> valueSupplier2,
+                                        final String name3,
+                                        final Supplier<Object> valueSupplier3,
+                                        final String name4,
+                                        final Supplier<Object> valueSupplier4) {
+        this(
+                source,
+                Pair.of(name1, valueSupplier1),
+                Pair.of(name2, valueSupplier2),
+                Pair.of(name3, valueSupplier3),
+                Pair.of(name4, valueSupplier4)
+        );
+    }
+
+    /**
+     * Constructs a PropertyBasedToStringBuilder based on the given source object and
+     * supplied named properties.
+     *
+     * @param source         the source object.
+     * @param name1          the name of the property #1.
+     * @param valueSupplier1 the supplied value of property #1.
+     * @param name2          the name of the property #2.
+     * @param valueSupplier2 the supplied value of property #2.
+     * @param name3          the name of the property #3.
+     * @param valueSupplier3 the supplied value of property #3.
+     * @param name4          the name of the property #4.
+     * @param valueSupplier4 the supplied value of property #4.
+     * @param name5          the name of the property #5.
+     * @param valueSupplier5 the supplied value of property #5.
+     */
+    public PropertyBasedToStringBuilder(final Object source,
+                                        final String name1,
+                                        final Supplier<Object> valueSupplier1,
+                                        final String name2,
+                                        final Supplier<Object> valueSupplier2,
+                                        final String name3,
+                                        final Supplier<Object> valueSupplier3,
+                                        final String name4,
+                                        final Supplier<Object> valueSupplier4,
+                                        final String name5,
+                                        final Supplier<Object> valueSupplier5) {
+        this(
+                source,
+                Pair.of(name1, valueSupplier1),
+                Pair.of(name2, valueSupplier2),
+                Pair.of(name3, valueSupplier3),
+                Pair.of(name4, valueSupplier4),
+                Pair.of(name5, valueSupplier5)
+        );
+    }
+
+    /**
+     * Constructs a PropertyBasedToStringBuilder based on the given source object and
+     * supplied named properties.
+     *
+     * @param source         the source object.
+     * @param name1          the name of the property #1.
+     * @param valueSupplier1 the supplied value of property #1.
+     * @param name2          the name of the property #2.
+     * @param valueSupplier2 the supplied value of property #2.
+     * @param name3          the name of the property #3.
+     * @param valueSupplier3 the supplied value of property #3.
+     * @param name4          the name of the property #4.
+     * @param valueSupplier4 the supplied value of property #4.
+     * @param name5          the name of the property #5.
+     * @param valueSupplier5 the supplied value of property #5.
+     * @param name6          the name of the property #6.
+     * @param valueSupplier6 the supplied value of property #6.
+     */
+    public PropertyBasedToStringBuilder(final Object source,
+                                        final String name1,
+                                        final Supplier<Object> valueSupplier1,
+                                        final String name2,
+                                        final Supplier<Object> valueSupplier2,
+                                        final String name3,
+                                        final Supplier<Object> valueSupplier3,
+                                        final String name4,
+                                        final Supplier<Object> valueSupplier4,
+                                        final String name5,
+                                        final Supplier<Object> valueSupplier5,
+                                        final String name6,
+                                        final Supplier<Object> valueSupplier6) {
+        this(
+                source,
+                Pair.of(name1, valueSupplier1),
+                Pair.of(name2, valueSupplier2),
+                Pair.of(name3, valueSupplier3),
+                Pair.of(name4, valueSupplier4),
+                Pair.of(name5, valueSupplier5),
+                Pair.of(name6, valueSupplier6)
+        );
+    }
+
+    /**
+     * Constructs a PropertyBasedToStringBuilder based on the given source object.
+     *
+     * @param source the source object.
+     */
+    public PropertyBasedToStringBuilder(final Object source,
+                                        final String... propertyNames) {
+        this.source = source;
+        this.propertyNames = propertyNames == null ? null : asList(propertyNames);
+
+        final JavaBean<?> bean = new JavaBean<>(source);
+        this.nameValueSuppliers = Arrays.stream(propertyNames).map(p -> Pair.of(p, (Supplier<Object>) () -> bean.get(p).getValue())).collect(Collectors.toList());
+    }
 
     /**
      * Constructs a PropertyBasedToStringBuilder.
      */
-    public PropertyBasedToStringBuilder(){}
+    public PropertyBasedToStringBuilder() {
+        this.nameValueSuppliers = Collections.emptyList();
+    }
 
     /**
      * Constructs a PropertyBasedToStringBuilder based on the given source object.
@@ -84,18 +298,18 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
      * @param source the source object.
      */
     public PropertyBasedToStringBuilder(Object source) {
-        withSource(source);
+        this(source, BeanUtil.getPropertyNames(source));
     }
 
     /**
      * Sets the source object whose string representation is sought.
      *
-     * @param source
-     *           the source object.
+     * @param source the source object.
      * @return the builder again for chaining reuse.
      */
     public PropertyBasedToStringBuilder withSource(Object source) {
         this.source = source;
+        this.nameValueSuppliers = Collections.emptyList();
         return this;
     }
 
@@ -130,11 +344,11 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
      * @param propertyNames the list of property names to add.
      * @return the builder again for chaining reuse.
      */
-    public PropertyBasedToStringBuilder withProperties(String...propertyNames) {
+    public PropertyBasedToStringBuilder withProperties(String... propertyNames) {
         if (this.propertyNames == null) {
             this.propertyNames = new LinkedList<String>();
         }
-        this.propertyNames.addAll(Arrays.asList(propertyNames));
+        this.propertyNames.addAll(asList(propertyNames));
         return this;
     }
 
@@ -145,11 +359,11 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
      * @param propertyNames the list of property names to exclude.
      * @return the builder again for chaining reuse.
      */
-    public PropertyBasedToStringBuilder withoutProperties(String...propertyNames) {
+    public PropertyBasedToStringBuilder withoutProperties(String... propertyNames) {
         if (this.excludePropertyNames == null) {
             this.excludePropertyNames = new LinkedHashSet<String>();
         }
-        this.excludePropertyNames.addAll(Arrays.asList(propertyNames));
+        this.excludePropertyNames.addAll(asList(propertyNames));
         return this;
     }
 
@@ -168,11 +382,10 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
      * Configures this builder to ignore errors when accessing source bean
      * properties.
      *
-     * @param ignored
-     *           the ignored
+     * @param ignored the ignored
      * @return the builder again for chaining reuse.
      * @ignored true if all errors are to be ignored, false if errors are to be
-     *          propagated up.
+     * propagated up.
      */
     public PropertyBasedToStringBuilder withErrorsIgnored(boolean ignored) {
         this.ignoresErrors = ignored;
@@ -192,8 +405,7 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
     /**
      * Configures the builder to print one property per line.
      *
-     * @param onePropertyPerLine
-     *           the one property per line
+     * @param onePropertyPerLine the one property per line
      * @return the builder again for chaining reuse.
      */
     public PropertyBasedToStringBuilder withOnePropertyPerLine(boolean onePropertyPerLine) {
@@ -223,10 +435,9 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
 
     /**
      * Builds the string representation of the source object, based on the
-     * configured properties or all properties if none have been configured.
+     * configured name/value suppliers (properties or all properties if none have been configured).
      *
-     * @return the string representation of the source object, based on its
-     *         properties.
+     * @return the string representation of the source object, based on the supplied names and values.
      */
     public String build() {
         Assert.notNull(source, "The source object may not be null");
@@ -234,17 +445,16 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
         int n = 0;
         StringBuilder s = new StringBuilder();
         s.append(getBaseName(source.getClass())).append("[").append(onePropertyPerLine ? "\n" : "");
-        for (String propertyName : (propertyNames != null ? propertyNames : Arrays.asList(BeanUtil.getPropertyNames(source)))) {
-            if (excludePropertyNames != null && excludePropertyNames.contains(propertyName)) continue;
+        for (Pair<String, Supplier<Object>> nameValueSupplier : nameValueSuppliers) {
 
-            Object propertyValue = null;
+            Object propertyValue;
             try {
-                propertyValue = BeanUtil.getPropertyValue(source, propertyName);
-                if ( !showPropetiesWithNullValues && propertyValue == null ) {
+                propertyValue = nameValueSupplier.getRight().get();
+                if (!showPropetiesWithNullValues && propertyValue == null) {
                     continue;
                 }
             } catch (RuntimeException runtimeEx) {
-                if ( !ignoresErrors ) {
+                if (!ignoresErrors) {
                     throw runtimeEx;
                 }
                 propertyValue = "...error accessing property...";
@@ -253,10 +463,10 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
             if (n++ > 0) {
                 s.append(onePropertyPerLine ? "\n   " : ", ");
             }
-            s.append(propertyName).append("=");
+            s.append(nameValueSupplier.getLeft()).append("=");
 
             if (propertyValue instanceof Object[]) {
-                s.append("{").append(asDelimitedString((Object[])propertyValue, ",")).append("}");
+                s.append("{").append(asDelimitedString((Object[]) propertyValue, ",")).append("}");
             } else {
                 s.append(propertyValue);
             }
@@ -271,7 +481,52 @@ public class PropertyBasedToStringBuilder implements Builder<String> {
      * configured properties or all properties if none have been configured.
      *
      * @return the string representation of the source object, based on its
-     *         properties.
+     * properties.
+     */
+    public String build_DEL_ME() {
+        Assert.notNull(source, "The source object may not be null");
+
+        int n = 0;
+        StringBuilder s = new StringBuilder();
+        s.append(getBaseName(source.getClass())).append("[").append(onePropertyPerLine ? "\n" : "");
+        for (String propertyName : (propertyNames != null ? propertyNames : asList(BeanUtil.getPropertyNames(source)))) {
+            if (excludePropertyNames != null && excludePropertyNames.contains(propertyName)) continue;
+
+            Object propertyValue = null;
+            try {
+                propertyValue = BeanUtil.getPropertyValue(source, propertyName);
+                if (!showPropetiesWithNullValues && propertyValue == null) {
+                    continue;
+                }
+            } catch (RuntimeException runtimeEx) {
+                if (!ignoresErrors) {
+                    throw runtimeEx;
+                }
+                propertyValue = "...error accessing property...";
+            }
+
+            if (n++ > 0) {
+                s.append(onePropertyPerLine ? "\n   " : ", ");
+            }
+            s.append(propertyName).append("=");
+
+            if (propertyValue instanceof Object[]) {
+                s.append("{").append(asDelimitedString((Object[]) propertyValue, ",")).append("}");
+            } else {
+                s.append(propertyValue);
+            }
+        }
+
+        s.append("]");
+        return s.toString();
+    }
+
+    /**
+     * Builds the string representation of the source object, based on the
+     * configured properties or all properties if none have been configured.
+     *
+     * @return the string representation of the source object, based on its
+     * properties.
      */
     public String toString() {
         return build();

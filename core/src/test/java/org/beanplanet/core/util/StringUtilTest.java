@@ -28,10 +28,13 @@ package org.beanplanet.core.util;
 
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.beanplanet.core.Predicates.falsePredicate;
 import static org.beanplanet.core.Predicates.truePredicate;
 import static org.beanplanet.core.util.StringUtil.*;
@@ -59,6 +62,66 @@ public class StringUtilTest {
     public void toUppercase() {
         assertThat(StringUtil.toUppercase("   "), equalTo("   "));
         assertThat(StringUtil.toUppercase("AbC dEF"), equalTo("ABC DEF"));
+    }
+
+    @Test
+    public void asCsvString_null() {
+        assertThat(asCsvString(null), nullValue());
+    }
+
+    @Test
+    public void asCsvString_empty() {
+        assertThat(asCsvString(Collections.emptyList()), equalTo(""));
+    }
+
+    @Test
+    public void asCsvString_single() {
+        assertThat(asCsvString(singletonList("a")), equalTo("a"));
+    }
+
+    @Test
+    public void asCsvString_multiple() {
+        assertThat(asCsvString(asList("a", "b", "c")), equalTo("a,b,c"));
+    }
+
+    @Test
+    public void asCsvList_null() {
+        assertThat(asCsvList(null), nullValue());
+    }
+
+    @Test
+    public void asCsvList_empty() {
+        assertThat(asCsvList(""), equalTo(Collections.emptyList()));
+    }
+
+    @Test
+    public void asCsvList_single() {
+        assertThat(asCsvList("a"), equalTo(asList("a")));
+    }
+
+    @Test
+    public void asCsvList_multiple() {
+        assertThat(asCsvList("a,b,c"), equalTo(asList("a", "b", "c")));
+    }
+
+    @Test
+    public void asCsvSet_null() {
+        assertThat(asCsvSet(null), nullValue());
+    }
+
+    @Test
+    public void asCsvSet_empty() {
+        assertThat(asCsvSet(""), equalTo(Collections.emptySet()));
+    }
+
+    @Test
+    public void asCsvSet_single() {
+        assertThat(asCsvSet("a"), equalTo(new LinkedHashSet<>(asList("a"))));
+    }
+
+    @Test
+    public void asCsvSet_multiple() {
+        assertThat(asCsvSet("a,b,c,b,a"), equalTo(new LinkedHashSet(asList("a", "b", "c"))));
     }
 
     @Test

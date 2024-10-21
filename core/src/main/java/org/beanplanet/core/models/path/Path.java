@@ -248,6 +248,7 @@ public interface Path<T> extends Iterable<T>, Streamable<T> {
     default boolean hasRoot() {
         return getRoot() != null;
     }
+
     /**
      * <p>
      * Constructs a relative path between this path and a given path.

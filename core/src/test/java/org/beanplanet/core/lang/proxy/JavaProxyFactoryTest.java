@@ -26,12 +26,18 @@
 package org.beanplanet.core.lang.proxy;
 
 import org.beanplanet.testing.proxies.ABProxiedClassImpl;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.fail;
 
 public class JavaProxyFactoryTest extends AbstractCommonProxyFactoryTests {
+   @Before
    public void setUp() {
       proxyFactory = new JavaProxyFactory();
    }
 
+   @Test
    public void testUnsupportedProxyOperations() {
       ABProxiedClassImpl target = new ABProxiedClassImpl();
 

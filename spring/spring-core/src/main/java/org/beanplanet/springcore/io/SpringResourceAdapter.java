@@ -23,6 +23,20 @@ public class SpringResourceAdapter extends AbstractResource {
         return adaptedResource;
     }
 
+    /**
+     * Gets the length of the Spring resource backing this resource.
+     *
+     * @return the content length of the Spring resource, via a call to {@link org.springframework.core.io.Resource#contentLength()}.
+     */
+    @Override
+    public long getContentLength() {
+        try {
+            return adaptedResource == null ? -1 : adaptedResource.contentLength();
+        } catch (IOException e) {
+            return -1;
+        }
+    }
+
     @Override
     public boolean exists() {
         return adaptedResource.exists();
