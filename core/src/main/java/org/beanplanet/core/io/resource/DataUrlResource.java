@@ -126,12 +126,10 @@ public class DataUrlResource extends UrlResource {
             mediatypeStr = DEFAULT_MEDIA_TYPE.getName();
             charset = DEFAULT_CHARSET;
         }
-        if (charset == null) {
-            charset = DEFAULT_CHARSET;
-        }
+        final Charset charsetOrDefault = charset == null ? Charset.defaultCharset() : charset;
 
         MediaType mediaType = new MediaType(mediatypeStr + (charset != null && MediaTypes.isText(mediatypeStr) ? "; charset=" + charset.name() : ""));
-        byte[] byteData = isBase64Encoded ? Base64Decoder.decode(data) : urlPercentDecode(data, charset).getBytes(charset);
+        byte[] byteData = isBase64Encoded ? Base64Decoder.decode(data) : urlPercentDecode(data, charsetOrDefault).getBytes(charsetOrDefault);
         return new DataUrlElements(mediaType, isBase64Encoded, charset, new ByteArrayResource(byteData));
     }
 
@@ -270,10 +268,10 @@ public class DataUrlResource extends UrlResource {
     }
 
     private static String urlPercentEncode(final String str, final Charset charset) {
-        return URLEncoder.encode(str, charset).replace("+", "%20");
+        return URLEncoder.encode(str, charset == null ? Charset.defaultCharset() : charset).replace("+", "%20");
     }
 
     private static String urlPercentDecode(final String str, final Charset charset) {
-        return URLDecoder.decode(str, charset);
+        return URLDecoder.decode(str, charset == null ? Charset.defaultCharset() : charset);
     }
 }

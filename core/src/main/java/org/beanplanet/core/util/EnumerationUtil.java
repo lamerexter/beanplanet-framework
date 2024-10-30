@@ -28,9 +28,14 @@ package org.beanplanet.core.util;
 
 import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class EnumerationUtil {
     public static final <T> List<T> toList(Enumeration<T> enumeration) {
         return IteratorUtil.toList(new EnumerationIterator<T>(enumeration));
+    }
+
+    public static final <T> Stream<T> asStream(Enumeration<T> enumeration) {
+        return IterableUtil.asStream(new EnumerationIterable<>(enumeration));
     }
 }

@@ -5,7 +5,7 @@ import org.beanplanet.core.util.StringUtil;
 
 import java.util.*;
 
-import static org.beanplanet.core.net.http.HttpHeaders.DATE_VALLUE_FORMAT;
+import static org.beanplanet.core.net.http.HttpHeaders.DATE_VALUE_FORMAT;
 
 /**
  * Represents a cookie, as specified by RFC 2109.
@@ -129,7 +129,7 @@ public class Cookie {
      * @return the expiry date/time of the cookie in the default timezone.
      */
     public Date getExpiryDate() {
-        return getAttribute(EXPIRES).map(dateStr -> DateUtil.parse(dateStr, DATE_VALLUE_FORMAT)).orElse(null);
+        return getAttribute(EXPIRES).map(dateStr -> DateUtil.parse(dateStr, DATE_VALUE_FORMAT)).orElse(null);
     }
 
     /**
@@ -140,7 +140,7 @@ public class Cookie {
      * @paran expires the expiry date/time of the cookie in the default timezone.
      */
     public void setExpiryDate(Date expires) {
-        setAttribute(EXPIRES, DateUtil.toString(expires, DATE_VALLUE_FORMAT));
+        setAttribute(EXPIRES, DateUtil.toString(expires, DATE_VALUE_FORMAT));
     }
 
     /**

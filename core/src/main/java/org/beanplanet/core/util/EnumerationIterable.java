@@ -37,6 +37,10 @@ public class EnumerationIterable<T> implements Iterable<T> {
         this.enumerationSupplier = enumerationSupplier;
     }
 
+    public EnumerationIterable(final Enumeration<T> enumeration) {
+        this(() -> enumeration);
+    }
+
     @Override
     public Iterator<T> iterator() {
         return new EnumerationIterator<>(enumerationSupplier.get());

@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.beanplanet.core.util.StringUtil.asDsvList;
 import static org.beanplanet.core.util.StringUtil.isEmptyOrNull;
@@ -43,8 +45,8 @@ import static org.beanplanet.core.util.StringUtil.isEmptyOrNull;
  * this path implementation is never absolute and does not have any root.
   */
 public class DelimitedNamePath implements NamePath {
-    private final Supplier<String> path;
-    private final Supplier<String> delimiter;
+    protected final Supplier<String> path;
+    protected final Supplier<String> delimiter;
 
     public DelimitedNamePath(String path, String delimiter) {
         this(() -> path, () -> delimiter);
@@ -126,18 +128,11 @@ public class DelimitedNamePath implements NamePath {
     public DelimitedNamePath join(Path<String> other) {
         if ( other == null ) return this;
 
-        return new DelimitedNamePath(() -> {
-            final StringBuilder s = new StringBuilder();
-            final String thisPathString = path.get();
-            final String delimiterString = delimiter.get();
-            final String otherPathString = path.get() + other.getElements().stream().collect(Collectors.joining(delimiter.get()));
-            if (thisPathString != null)
-                s.append(thisPathString);
-            if (otherPathString != null)
-                s.append(delimiterString).append(otherPathString);
-
-            return s.toString();
-        }, delimiter);
+        return new DelimitedNamePath(() ->
+                Stream.concat(getElements().stream(), other.getElements().stream())
+                      .collect(Collectors.joining(delimiter.get())),
+                delimiter
+        );
     }
 
     @Override
@@ -150,11 +145,12 @@ public class DelimitedNamePath implements NamePath {
         if ( !(other instanceof NamePath) ) return false;
 
         NamePath that = (NamePath)other;
-        return Objects.equals(this.getElements(), that.getElements());
+        return Objects.equals(this.isAbsolute(), that.isAbsolute())
+        && Objects.equals(this.getElements(), that.getElements());
     }
 
     public int hashCode() {
-        return Objects.hash(getElements());
+        return Objects.hash(isAbsolute(), getElements());
     }
 
     /**

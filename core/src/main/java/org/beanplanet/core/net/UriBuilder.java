@@ -109,15 +109,7 @@ public class UriBuilder {
         if ( isNotBlank(override.host) ) copy.host = override.host;
         if ( override.port >=0 ) copy.port = override.port;
 
-        if ( isNotBlank(override.path)) {
-            if ( isBlank(copy.path) ) {
-                copy.path = override.path;
-            } else if ( isNotBlank(override) ) {
-                DelimitedNamePath copyPath = new DelimitedNamePath(copy.path, "/");
-                DelimitedNamePath subPath = new DelimitedNamePath(override.path, "/");
-                copy.path = copyPath.join(subPath).join();
-            }
-        }
+        copy.path = UriUtil.mergePaths(copy.path, override.path);
 
         return copy;
     }

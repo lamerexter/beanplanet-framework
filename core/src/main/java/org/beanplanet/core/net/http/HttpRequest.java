@@ -201,7 +201,7 @@ public class HttpRequest extends AbstractHttpMessage implements Request {
         /**
          * The HTTP method.
          */
-        protected String method;
+        protected String method = GET.name();
         /**
          * The request URI
          */
@@ -210,10 +210,6 @@ public class HttpRequest extends AbstractHttpMessage implements Request {
          * The HTTP protocol version.
          */
         protected Version httpVersion;
-        /**
-         * The HTTP headers.
-         */
-        protected HttpHeaders headers = new HttpHeaders();
 
         protected abstract B self();
 
@@ -352,6 +348,10 @@ public class HttpRequest extends AbstractHttpMessage implements Request {
         public B version(final Version version) {
             this.httpVersion = version;
             return self();
+        }
+
+        public B cookie(final Cookie cookie) {
+            return header(Cookie.HTTP_REQUEST_HEADER_NAME, cookie.toHttpRequestHeaderValue());
         }
 
         public abstract C build();

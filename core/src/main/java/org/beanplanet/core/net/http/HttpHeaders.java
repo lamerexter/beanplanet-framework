@@ -14,7 +14,7 @@ public class HttpHeaders {
     public static final String CONTENT_LENGTH = "Content-Length";
     public static final String CONTENT_TYPE = "Content-Type";
 
-    public static final String DATE_VALLUE_FORMAT = "EEE, dd MM yyyy HH:mm:ss GMT";
+    public static final String DATE_VALUE_FORMAT = "EEE, dd MM yyyy HH:mm:ss GMT";
 
     private final MultiValueListMap<String, String> headers;
 
@@ -27,12 +27,12 @@ public class HttpHeaders {
     }
 
     public HttpHeaders(final HttpHeaders other) {
-        this(other.headers);
+        this(new MultiValueListMapImpl<>(other.headers));
     }
 
     public HttpHeaders merge(final HttpHeaders other) {
         HttpHeaders copy = new HttpHeaders(this);
-        copy.setAll(other);
+        copy.addAll(other);
         return copy;
     }
 
@@ -76,7 +76,7 @@ public class HttpHeaders {
         headers.addValue(name, value);
     }
 
-    public void add(final HttpHeaders other) {
+    public void addAll(final HttpHeaders other) {
         other.headers.entrySet().forEach(e -> headers.addAllValues(e.getKey(), e.getValue()));
     }
 
@@ -88,6 +88,10 @@ public class HttpHeaders {
 
     public void setAll(final HttpHeaders other) {
         other.headers.keySet().forEach( otherHeaderName-> this.set(otherHeaderName, other.getLast(otherHeaderName) ));
+    }
+
+    public void setAll(final Map<String, String> other) {
+        other.forEach(this::set);
     }
 
     public static HttpHeadersBuilder builder() {
@@ -104,7 +108,7 @@ public class HttpHeaders {
         }
 
         public HttpHeadersBuilder add(final HttpHeaders other) {
-            httpHeaders.add(other);
+            httpHeaders.addAll(other);
             return this;
         }
 
@@ -113,9 +117,18 @@ public class HttpHeaders {
             return this;
         }
 
-        public HttpHeadersBuilder contentType(final MediaType mediaType) {
-            httpHeaders.add(HttpHeaders.CONTENT_TYPE, mediaType.getCanonicalForm());
+        public HttpHeadersBuilder setAll(final Map<String, String> other) {
+            httpHeaders.setAll(other);
             return this;
+        }
+
+        public HttpHeadersBuilder contentType(final String mediaType) {
+            httpHeaders.add(HttpHeaders.CONTENT_TYPE, mediaType);
+            return this;
+        }
+
+        public HttpHeadersBuilder contentType(final MediaType mediaType) {
+            return contentType(mediaType.getCanonicalForm());
         }
 
         public HttpHeadersBuilder contentType(final MediaType mediaType, final Charset charset) {

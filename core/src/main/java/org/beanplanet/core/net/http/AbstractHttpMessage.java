@@ -37,6 +37,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * A model of an HTTP message, common to both request and response.
@@ -168,8 +169,13 @@ public abstract class AbstractHttpMessage implements HttpMessage {
          */
         private Resource body;
 
+        public B headers(final Consumer<HttpHeaders.HttpHeadersBuilder> headersBuilderConsumer) {
+            headersBuilderConsumer.accept(this.headersBuilder);
+            return self();
+        }
+
         public B headers(final HttpHeaders headers) {
-            this.headersBuilder = HttpHeaders.builder().add(headers);
+            this.headersBuilder.add(headers);
             return self();
         }
 
@@ -188,21 +194,31 @@ public abstract class AbstractHttpMessage implements HttpMessage {
             return self();
         }
 
+        public B contentType(final String mediaType) {
+            this.headersBuilder.contentType(mediaType);
+            return self();
+        }
+
         public B contentLength(final long length) {
             this.headersBuilder.contentLength(length);
             return self();
         }
 
         public B body(final Resource body, final MediaType mediaType, final Charset charset) {
-            this.headersBuilder.contentType(mediaType, charset);
+            if (mediaType != null) {
+                this.headersBuilder.contentType(mediaType, charset != null ? charset : mediaType.getParameters().getCharset().orElse(Charset.defaultCharset()));
+            }
             this.body = body;
             return self();
         }
 
-        public B body(final CharSequence string) {
-            return body(string == null ? null : new CharSequenceResource(string), MediaTypes.Text.PLAIN, Charset.defaultCharset());
+        public B body(final Resource body, final MediaType mediaType) {
+            return body(body, mediaType, Charset.defaultCharset());
         }
 
+        public B body(final CharSequence string) {
+            return body(string == null ? null : new CharSequenceResource(string), null, null);
+        }
 
         public B body(final Resource body) {
             this.body = body;

@@ -4,6 +4,7 @@ import org.beanplanet.core.models.Pair;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 import org.beanplanet.core.util.Streamable;
 
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -84,5 +85,9 @@ public class Parameters implements Iterable<Pair<String, String>>, Streamable<Pa
 
     public boolean hasCharset() {
         return isNotBlank(get("charset").orElse(null));
+    }
+
+    public Optional<Charset> getCharset() {
+        return get("charset").map(Charset::forName);
     }
 }

@@ -26,9 +26,14 @@
 
 package org.beanplanet.core.net;
 
+import org.beanplanet.core.models.path.Path;
+import org.beanplanet.core.models.path.UriPath;
+import org.beanplanet.core.util.StringUtil;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -58,5 +63,40 @@ public class UriUtil {
         } catch (UnsupportedEncodingException e) {
             throw new NetworkException(format("An error occurred URL decoding [%s]: ", encoded), e);
         }
+    }
+
+    /**
+     * <p>
+     * Merges the path elements of URIs to form a combined hierarchical path, following
+     * the specification of URIs outlined in <a href="https://www.rfc-editor.org/rfc/rfc3986">URI:
+     * General Syntax</a>
+     * </p>
+     * <p>
+     * Examples:
+     * <pre>
+     * null + null = null
+     * "" + null = ""
+     * "" + "" = ""
+     * / + null = /
+     * / + / = /
+     * /a + / = /          // Second is absolute, overriding first
+     * /a + /b = /b
+     * /a + b = /a/b
+     * </pre>
+     * </p>
+     * @param path1 the first path, which may be null, an absolute or relative URI path.
+     * @param path2 the second path, which may be null, an absolute or relative URI path.
+     * @return
+     */
+    public static String mergePaths(final String path1, final String path2) {
+        if (path1 == null && path2 == null) return null;
+        if (path1 != null && StringUtil.isBlank(path2)) return path1;
+
+        UriPath uriPath1 = new UriPath(path1);
+        UriPath uriPath2 = new UriPath(path2);
+        Path<String> resolved = uriPath1.resolve(uriPath2);
+        if ( resolved == null ) return null;
+
+        return (uriPath1.isAbsolute() || uriPath2.isAbsolute() ? "/" : "")+ String.join("/", resolved.getElements());
     }
 }
