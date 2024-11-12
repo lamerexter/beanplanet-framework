@@ -30,7 +30,6 @@ import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.io.resource.UrlResource;
 import org.beanplanet.core.logging.Logger;
-import org.beanplanet.core.models.Registry;
 import org.beanplanet.core.models.RegistryLoader;
 import org.beanplanet.core.util.EnumerationUtil;
 import org.beanplanet.core.util.StringUtil;
@@ -40,9 +39,11 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.*;
 
-public class MediaTypesLoader implements RegistryLoader<Registry<String, MediaType>>, Logger {
+import static org.beanplanet.core.util.StringUtil.isNotBlank;
+
+public class MediaTypesLoader implements RegistryLoader<MediaTypeRegistry>, Logger {
     @Override
-    public void loadIntoRegistry(Registry<String, MediaType> registry) {
+    public void loadIntoRegistry(MediaTypeRegistry registry) {
         for (Resource mediaTypeResource : mediaTypeResources()) {
             int numberOfMediaTypesLoaded = 0;
             Properties mediaTypeProperties = new Properties();
@@ -58,8 +59,8 @@ public class MediaTypesLoader implements RegistryLoader<Registry<String, MediaTy
                         continue;
                     }
 
-                    // TODO: Add back description and known file extensions here.
-                    registry.addToRegistry(mediaTypeName, new MediaType(mediaTypeName));
+                    List<String> fileExtensions = isNotBlank(mediaTypeInfoDetails.get(1)) ? StringUtil.asCsvList(mediaTypeInfoDetails.get(1)) : Collections.emptyList();
+                    registry.addToRegistry(mediaTypeName, new MediaType(mediaTypeName), fileExtensions);
                     numberOfMediaTypesLoaded++;
                 }
             } catch (IOException ioEx) {

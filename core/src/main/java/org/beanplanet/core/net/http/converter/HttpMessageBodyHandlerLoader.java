@@ -24,22 +24,19 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-package org.beanplanet.core.net.http.handler;
+package org.beanplanet.core.net.http.converter;
 
 import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.io.IoUtil;
-import org.beanplanet.core.io.resource.Resource;
-import org.beanplanet.core.io.resource.UrlResource;
 import org.beanplanet.core.lang.FilteringPackageClassScanner;
 import org.beanplanet.core.lang.PackageResourceScanner;
 import org.beanplanet.core.lang.TypeUtil;
 import org.beanplanet.core.lang.conversion.TypeConversionException;
-import org.beanplanet.core.lang.conversion.TypeConverter;
 import org.beanplanet.core.logging.Logger;
 import org.beanplanet.core.models.Registry;
 import org.beanplanet.core.models.RegistryLoader;
 import org.beanplanet.core.net.http.MediaType;
-import org.beanplanet.core.net.http.handler.annotations.HttpMessageBodyHandler;
+import org.beanplanet.core.net.http.converter.annotations.HttpMessageBodyConverter;
 import org.beanplanet.core.util.EnumerationUtil;
 
 import java.io.BufferedReader;
@@ -53,36 +50,36 @@ import java.util.stream.Collectors;
 import static org.beanplanet.core.util.CollectionUtil.nullSafe;
 import static org.beanplanet.core.util.StringUtil.asCsvList;
 
-public class HttpMessageBodyHandlerLoader implements RegistryLoader<Registry<MediaType, HttpMessageBodyInputOutputHandler<?>>>, Logger {
-    public static final String HANDLER_PACKAGES_RESOURCE = "META-INF/services/org/beanplanet/net/http/message-body-handler-packages.txt";
+public class HttpMessageBodyHandlerLoader implements RegistryLoader<Registry<MediaType, org.beanplanet.core.net.http.converter.HttpMessageBodyConverter<?>>>, Logger {
+    public static final String HANDLER_PACKAGES_RESOURCE = "META-INF/services/org/beanplanet/net/http/message-body-converter-packages.txt";
 
-    protected static final Predicate<Class<?>> HANDLER_ANNOTATED_TYPE_FILTER = type -> type.isAnnotationPresent(HttpMessageBodyHandler.class);
+    protected static final Predicate<Class<?>> HANDLER_ANNOTATED_TYPE_FILTER = type -> type.isAnnotationPresent(HttpMessageBodyConverter.class);
 
     protected PackageResourceScanner<Class<?>> packageScanner = new FilteringPackageClassScanner(HANDLER_ANNOTATED_TYPE_FILTER);
 
     @SuppressWarnings("unchecked")
     @Override
-    public void loadIntoRegistry(Registry<MediaType, HttpMessageBodyInputOutputHandler<?>> registry) {
+    public void loadIntoRegistry(Registry<MediaType, org.beanplanet.core.net.http.converter.HttpMessageBodyConverter<?>> registry) {
         Set<Class<?>> discoveredHandlerClasses = messageBodyHandlerPackageResources();
 
-        List<HttpMessageBodyInputOutputHandler> handlers = discoveredHandlerClasses.stream()
-                                                                                  .map(handlerClazz -> {
+        List<org.beanplanet.core.net.http.converter.HttpMessageBodyConverter> handlers = discoveredHandlerClasses.stream()
+                                                                                                                 .map(handlerClazz -> {
                                                                                       try {
                                                                                           Object o = TypeUtil.instantiateClass(handlerClazz);
-                                                                                          if (!(o instanceof HttpMessageBodyInputOutputHandler)) {
+                                                                                          if (!(o instanceof org.beanplanet.core.net.http.converter.HttpMessageBodyConverter)) {
                                                                                               warning("Ignoring apparent configured HTTP message body I/O handler [{0}]: as it is not an instance of one! ", handlerClazz);
                                                                                               return null;
                                                                                           }
 
-                                                                                          return (HttpMessageBodyInputOutputHandler)o;
+                                                                                          return (org.beanplanet.core.net.http.converter.HttpMessageBodyConverter)o;
                                                                                       } catch (Exception ex) {
                                                                                           warning("Unable to instantiate HTTP message body I/O handler [{0}]: does it exist and have a no-arg constructor? Further information: ", handlerClazz, ex.getMessage());
                                                                                           return null;
                                                                                       }
                                                                                   })
-                                                                                  .filter(Objects::nonNull)
-                                                                                  .map(HttpMessageBodyInputOutputHandler.class::cast)
-                                                                                  .collect(Collectors.toList());
+                                                                                                                 .filter(Objects::nonNull)
+                                                                                                                 .map(org.beanplanet.core.net.http.converter.HttpMessageBodyConverter.class::cast)
+                                                                                                                 .collect(Collectors.toList());
         handlers.forEach(h -> h.getSupportedMediaTypes().forEach(m -> registry.addToRegistry((MediaType) m, h)));
     }
 

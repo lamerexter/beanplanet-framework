@@ -1,18 +1,16 @@
-package org.beanplanet.core.net.http.handler;
+package org.beanplanet.core.net.http.converter;
 
-import org.beanplanet.core.net.http.AbstractHttpMessage;
-import org.beanplanet.core.net.http.HttpMessage;
-import org.beanplanet.core.net.http.MediaType;
-import org.beanplanet.core.net.http.MediaTypes;
+import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.net.http.*;
 
 import java.util.Set;
 
 /**
- * Handler strategy for reading from and writing to Http messages.
+ * Handler strategy for converting between Java and MediaTypes in HTTP messages.
  *
  * @see AbstractHttpMessage
  */
-public interface HttpMessageBodyInputOutputHandler<T> {
+public interface HttpMessageBodyConverter<T> {
     /**
      * Returns the set of media types this handler can read and write.
      *
@@ -31,14 +29,15 @@ public interface HttpMessageBodyInputOutputHandler<T> {
     }
 
     /**
-     * Whether this handler can read an instance of the given type from a source of the given media type.
+     * Whether this handler can convert an HTTP message containing the given media type to an instance of the given type.
      *
      * @param type      the type to be read from the source.
      * @param mediaType the media type associated with the source.
      * @return true if this handler can read the type from a source with the given media type; defaults to true if
      * the given media type is in the set of media types returned by {@link #getSupportedMediaTypesFor(Class)}.
      */
-    default boolean canRead(Class<?> type, MediaType mediaType) {
+    default boolean canConvertFrom(Class<?> type, MediaType mediaType) {
+//        return supportedMediaTypes.contains(type) || supportedMediaTypes.stream().filter(m -> m.isCompatibleWith());
         return supports(type)
                 && (getSupportedMediaTypesFor(type).contains(mediaType)
                 || getSupportedMediaTypesFor(type).contains(MediaTypes.allForType(mediaType.getType()))
@@ -46,18 +45,20 @@ public interface HttpMessageBodyInputOutputHandler<T> {
     }
 
     /**
-     * Whether this handler can write an instance of the given type to a source of the given media type.
+     * Whether this handler can convert an instance of the given type to an HTTP message of the given media type.
      *
      * @param type      the type to be read from the source.
      * @param mediaType the media type associated with the source.
      * @return true if this handler can write the type to a source with the given media type;  defaults to true if
      * the given media type is in the set of media types returned by {@link #getSupportedMediaTypesFor(Class)}.
      */
-    default boolean canWrite(Class<?> type, MediaType mediaType) {
+    default boolean canConvertTo(Class<?> type, MediaType mediaType) {
         return supports(type)
-                && (getSupportedMediaTypesFor(type).contains(mediaType)
+                && (mediaType == null
+                || (getSupportedMediaTypesFor(type).contains(mediaType)
                         || getSupportedMediaTypesFor(type).contains(MediaTypes.allForType(mediaType.getType()))
-                        || getSupportedMediaTypesFor(type).contains(MediaTypes.ALL));
+                        || getSupportedMediaTypesFor(type).contains(MediaTypes.ALL)
+                        || getSupportedMediaTypesFor(type).stream().anyMatch(m -> m.isCompatibleWith(mediaType))));
     }
 
     /**
@@ -75,13 +76,13 @@ public interface HttpMessageBodyInputOutputHandler<T> {
      * @param message the request message from which te object is to be read.
      * @return the object read.
      */
-    T read(Class<T> type, HttpMessage message);
+    T convertFrom(Class<T> type, HttpMessage message);
 
     /**
      * Writes the given object to the output message.
      *
-     * @param object  the object to be written.
-     * @param message the response message where the object is to be written.
+     * @param object         the object to be written.
+     * @param messageHeaders the headers of the message where the object is to be written.
      */
-    void write(T object, HttpMessage message);
+    Resource convertTo(T object, HttpMessageHeaders messageHeaders);
 }

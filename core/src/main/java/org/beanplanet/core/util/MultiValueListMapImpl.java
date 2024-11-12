@@ -65,4 +65,30 @@ public class MultiValueListMapImpl<K, V> extends MultiValueCollectionMapImpl<K, 
     public static <KK, VV> MultiValueListMap<KK, VV> empty() {
         return (MultiValueListMap<KK, VV>) _EMPTY;
     }
+
+    public static <KK, VV> MultiValueListMapImplBuilder<KK, VV> builder() {
+        return new MultiValueListMapImplBuilder<>();
+    }
+
+    public static class MultiValueListMapImplBuilder<K, V> implements MultiValueListMapBuilder<K, V> {
+        private MultiValueListMapImpl<K, V> map = new MultiValueListMapImpl<>();
+
+        @Override
+        public <KK extends K, VV extends V> MultiValueListMapBuilder<K, V> add(KK key, VV values) {
+            map.addValue(key, values);
+            return this;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <KK extends K, VV extends V> MultiValueListMapBuilder<K, V> setEntries(KK key, List<VV> values) {
+            map.put(key, (List<V>)values);
+            return this;
+        }
+
+        @Override
+        public MultiValueListMap<K, V> build() {
+            return map;
+        }
+    }
 }

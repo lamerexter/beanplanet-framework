@@ -28,7 +28,6 @@ package org.beanplanet.core.net.http;
 
 import org.beanplanet.core.io.resource.CharSequenceResource;
 import org.beanplanet.core.io.resource.Resource;
-import org.beanplanet.core.io.resource.StringResource;
 import org.beanplanet.core.models.Pair;
 import org.beanplanet.core.util.MultiValueListMapImpl;
 import org.beanplanet.core.util.PropertyBasedToStringBuilder;
@@ -158,12 +157,11 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         ).build();
     }
 
-
-    public static abstract class HttpMessageBuilder<C extends HttpMessage, B extends HttpMessageBuilder<C, B>> {
+    public static abstract class HttpMessageBuilder<C extends HttpMessage, B extends HttpMessageBuilder<C, B>> implements HttpMessageHeadersBuilderSpec<B> {
         /**
          * The headers associated with the message.
          */
-        private HttpHeaders.HttpHeadersBuilder headersBuilder = HttpHeaders.builder();
+        private HttpHeaders.HttpHeadersBuilder<HttpHeaders, ?> headersBuilder = HttpHeaders.builder();
         /**
          * The body of the message.
          */
@@ -196,6 +194,11 @@ public abstract class AbstractHttpMessage implements HttpMessage {
 
         public B contentType(final String mediaType) {
             this.headersBuilder.contentType(mediaType);
+            return self();
+        }
+
+        public B contentType(final MediaType mediaType, final Charset charset) {
+            this.headersBuilder.contentType(mediaType, charset);
             return self();
         }
 

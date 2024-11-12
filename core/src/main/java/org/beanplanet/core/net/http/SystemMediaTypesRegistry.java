@@ -28,6 +28,8 @@ package org.beanplanet.core.net.http;
 
 import org.beanplanet.core.UncheckedException;
 import org.beanplanet.core.models.AbstractRegistry;
+import org.beanplanet.core.models.Registry;
+import org.beanplanet.core.models.RegistryLoader;
 import org.beanplanet.core.util.MultiValueListMap;
 import org.beanplanet.core.util.MultiValueListMapImpl;
 
@@ -48,8 +50,9 @@ public class SystemMediaTypesRegistry extends AbstractRegistry<String, MediaType
         }
 
     }
+    @SuppressWarnings("unchecked,rawtypes")
     private SystemMediaTypesRegistry() {
-        super(new MediaTypesLoader());
+        super((RegistryLoader)new MediaTypesLoader());
     }
 
     public static MediaTypeRegistry getInstance() {
@@ -60,7 +63,7 @@ public class SystemMediaTypesRegistry extends AbstractRegistry<String, MediaType
     public List<MediaType> findMediaTypesForFileExtension(String extension) {
         checkLoaded();
 
-        return fileExtensionToMediaType.getOrDefault(extension, Collections.emptyList());
+        return fileExtensionToMediaType.getOrDefault(extension.toLowerCase(), Collections.emptyList());
     }
 
     @Override
@@ -74,10 +77,14 @@ public class SystemMediaTypesRegistry extends AbstractRegistry<String, MediaType
 
     @Override
     public boolean addToRegistry(String key, MediaType mediaType) {
-        boolean added = super.addToRegistry(key, mediaType);
-        throw new UnsupportedOperationException();
-//        mediaType.getFileExtensions().forEach(ext ->fileExtensionToMediaType.addValue(ext, mediaType));
-//        return added;
+        return super.addToRegistry(key, mediaType);
+    }
+
+    @Override
+    public boolean addToRegistry(String key, MediaType mediaType, List<String> fileExtensions) {
+        boolean added = addToRegistry(key, mediaType);
+        fileExtensions.stream().map(String::toLowerCase).forEach(ext -> fileExtensionToMediaType.addValue(ext, mediaType));
+        return added;
     }
 
     @Override

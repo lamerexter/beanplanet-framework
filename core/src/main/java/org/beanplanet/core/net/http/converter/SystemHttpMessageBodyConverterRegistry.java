@@ -1,4 +1,4 @@
-package org.beanplanet.core.net.http.handler;
+package org.beanplanet.core.net.http.converter;
 
 import org.beanplanet.core.models.AbstractLoadedRegistry;
 import org.beanplanet.core.net.http.MediaType;
@@ -11,16 +11,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public class SystemHttpMessageBodyHandlerRegistry extends AbstractLoadedRegistry<MediaType, HttpMessageBodyInputOutputHandler<?>> implements HttpMessageBodyHandlerRegistry {
-    private static SystemHttpMessageBodyHandlerRegistry _instance = new SystemHttpMessageBodyHandlerRegistry();
+public class SystemHttpMessageBodyConverterRegistry extends AbstractLoadedRegistry<MediaType, HttpMessageBodyConverter<?>> implements HttpMessageBodyConverterRegistry {
+    private static SystemHttpMessageBodyConverterRegistry _instance = new SystemHttpMessageBodyConverterRegistry();
 
-    private Map<String, MultiValueListMap<String, HttpMessageBodyInputOutputHandler<?>>> entries = new ConcurrentHashMap<>();
+    private Map<String, MultiValueListMap<String, HttpMessageBodyConverter<?>>> entries = new ConcurrentHashMap<>();
 
-    public static HttpMessageBodyHandlerRegistry getInstance() {
+    public static HttpMessageBodyConverterRegistry getInstance() {
         return _instance;
     }
 
-    public SystemHttpMessageBodyHandlerRegistry() {
+    public SystemHttpMessageBodyConverterRegistry() {
         super(new HttpMessageBodyHandlerLoader());
     }
 
@@ -37,12 +37,12 @@ public class SystemHttpMessageBodyHandlerRegistry extends AbstractLoadedRegistry
     }
 
     @Override
-    protected HttpMessageBodyInputOutputHandler<?> doLookupInternal(MediaType key) {
+    protected HttpMessageBodyConverter<?> doLookupInternal(MediaType key) {
         return null;
     }
 
     @Override
-    public boolean addToRegistry(MediaType mediaType, HttpMessageBodyInputOutputHandler<?> item) {
+    public boolean addToRegistry(MediaType mediaType, HttpMessageBodyConverter<?> item) {
         return entries.computeIfAbsent(mediaType.getType(), k -> new MultiValueListMapImpl<>())
                       .addValue(mediaType.getSubtype(), item);
     }
@@ -65,15 +65,15 @@ public class SystemHttpMessageBodyHandlerRegistry extends AbstractLoadedRegistry
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Stream<HttpMessageBodyInputOutputHandler<T>> findReadHandlers(MediaType mediaType, Class<T> type) {
+    public <T> Stream<HttpMessageBodyConverter<T>> findFromConverters(MediaType mediaType, Class<T> type) {
         checkLoaded();
         return Stream.concat(
                              Stream.concat(
                                      handlersFor(mediaType.getType(), mediaType.getSubtype()),
                                      handlersFor(mediaType.getType(), "*")),
                              handlersFor("*", "*"))
-                     .filter(h -> h.canRead(type, mediaType))
-                     .map(h -> (HttpMessageBodyInputOutputHandler<T>) h);
+                     .filter(h -> h.canConvertFrom(type, mediaType))
+                     .map(h -> (HttpMessageBodyConverter<T>) h);
     }
 
     /**
@@ -86,19 +86,20 @@ public class SystemHttpMessageBodyHandlerRegistry extends AbstractLoadedRegistry
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Stream<HttpMessageBodyInputOutputHandler<T>> findWriteHandlers(MediaType mediaType, Class<T> type) {
+    public <T> Stream<HttpMessageBodyConverter<T>> findToConverters(MediaType mediaType, Class<T> type) {
         checkLoaded();
         return Stream.concat(
+                             (mediaType == null ? Stream.empty() :
                              Stream.concat(
                                      handlersFor(mediaType.getType(), mediaType.getSubtype()),
-                                     handlersFor(mediaType.getType(), "*")),
+                                     handlersFor(mediaType.getType(), "*"))),
                              handlersFor("*", "*"))
-                     .filter(h -> h.canWrite(type, mediaType))
-                     .map(h -> (HttpMessageBodyInputOutputHandler<T>) h);
+                     .filter(h -> h.canConvertTo(type, mediaType))
+                     .map(h -> (HttpMessageBodyConverter<T>) h);
     }
 
-    private Stream<HttpMessageBodyInputOutputHandler<?>> handlersFor(final String mediaType,
-                                                                     final String mediaSubtype) {
+    private Stream<HttpMessageBodyConverter<?>> handlersFor(final String mediaType,
+                                                            final String mediaSubtype) {
         return entries.getOrDefault(mediaType, MultiValueListMap.empty())
                       .getOrDefault(mediaSubtype, Collections.emptyList()).stream();
     }

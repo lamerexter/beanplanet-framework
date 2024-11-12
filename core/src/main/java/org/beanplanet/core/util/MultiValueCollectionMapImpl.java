@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 public class MultiValueCollectionMapImpl<K, V, C extends Collection<V>> extends AbstractMultiValueMap<K, V, C> {
     public MultiValueCollectionMapImpl() {
-        this(new HashMap<>());
+        this(new LinkedHashMap<>());
     }
 
     public MultiValueCollectionMapImpl(Map<K, C> backingMap) {

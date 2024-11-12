@@ -369,4 +369,115 @@ public class HttpRequest extends AbstractHttpMessage implements Request {
             return new HttpRequest(this);
         }
     }
+
+    public interface HttpRequestMethodBuilderSpec<B extends HttpMessageHeadersBuilderSpec<B>> {
+        default B connect() {
+            return method(CONNECT);
+        }
+
+        default B delete() {
+            return method(DELETE);
+        }
+
+        default B get() {
+            return method(GET);
+        }
+
+        default B options() {
+            return method(OPTIONS);
+        }
+
+        default B post() {
+            return method(POST);
+        }
+
+        default B put() {
+            return method(PUT);
+        }
+
+        default B trace() {
+            return method(TRACE);
+        }
+
+        default B method(final HttpRequest.Method method) {
+            return method(method.name());
+        }
+
+        B method(final String methodOrExtension);
+    }
+
+    public interface HttpRequestUriBuilderSpec<B extends HttpRequestUriBuilderSpec> {
+        B uri(final URI uri);
+
+        default B uri(final String uri) {
+            return uri(URI.create(uri));
+        }
+
+        default B uri(final Consumer<UriBuilder> uriBuilderConsumer) {
+            UriBuilder uriBuilder = new UriBuilder();
+            uriBuilderConsumer.accept(uriBuilder);
+            return uri(uriBuilder.toUri());
+        }
+
+    }
+
+    public interface HttpRequestBuilderSpec<B extends HttpRequestBuilderSpec<B>>
+            extends HttpRequestMethodBuilderSpec<B>, HttpRequestUriBuilderSpec<B>, HttpMessageHeadersBuilderSpec<B> {
+
+        default B connect(final String uri) {
+            return method(CONNECT).uri(uri);
+        }
+
+        default B connect(final URI uri) {
+            return method(CONNECT).uri(uri);
+        }
+
+        default B delete(final String uri) {
+            return method(DELETE).uri(uri);
+        }
+
+        default B delete(final URI uri) {
+            return method(DELETE).uri(uri);
+        }
+
+        default B get(final String uri) {
+            return method(GET).uri(uri);
+        }
+
+        default B get(final URI uri) {
+            return method(GET).uri(uri);
+        }
+
+        default B options(final String uri) {
+            return method(OPTIONS).uri(uri);
+        }
+
+        default B options(final URI uri) {
+            return method(OPTIONS).uri(uri);
+        }
+
+        default B post(final String uri) {
+            return method(POST).uri(uri);
+        }
+
+        default B post(final URI uri) {
+            return method(POST).uri(uri);
+        }
+
+        default B put(final String uri) {
+            return method(PUT).uri(uri);
+        }
+
+        default B put(final URI uri) {
+            return method(PUT).uri(uri);
+        }
+
+        default B trace(final String uri) {
+            return method(TRACE).uri(uri);
+        }
+
+        default B trace(final URI uri) {
+            return method(TRACE).uri(uri);
+        }
+    }
 }

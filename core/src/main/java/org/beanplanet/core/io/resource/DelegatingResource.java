@@ -1,65 +1,53 @@
-
-/*
- *  MIT Licence:
- *
- *  Copyright (C) 2018 Beanplanet Ltd
- *  Permission is hereby granted, free of charge, to any person
- *  obtaining a copy of this software and associated documentation
- *  files (the "Software"), to deal in the Software without restriction
- *  including without limitation the rights to use, copy, modify, merge,
- *  publish, distribute, sublicense, and/or sell copies of the Software,
- *  and to permit persons to whom the Software is furnished to do so,
- *  subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be
- *  included in all copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
- *  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
- *  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
- *  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- *  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- *  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- *  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- *  DEALINGS IN THE SOFTWARE.
- */
-
 package org.beanplanet.core.io.resource;
 
 import org.beanplanet.core.io.IoException;
-import org.beanplanet.core.io.IoUtil;
-import org.beanplanet.core.lang.TypeUtil;
 import org.beanplanet.core.models.path.NamePath;
 import org.beanplanet.core.models.path.Path;
 
-import java.io.*;
-import java.net.MalformedURLException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.function.Supplier;
 
-/**
- * A model of a system resource, such as a file, URL, input stream or output stream.
- *
- * <p>
- * For completeness, a resource purports to support read, write and random access operations. However, resources that
- * can be read from, written to and accessed in a random access manner implement the <code>{@link ReadableResource}</code>, <code>{@link WritableResource}</code>
- * and <code>{@link RandomAccessResource}</code>
- * tagging interfaces respectively and clients should call the <code>{@link #canRead()}</code> and
- * <code>{@link #canWrite()}</code> methods to determine if an operation is permissible on the resource at that moment
- * or under current circumstances.
- * </p>
- *
- * @author Gary Watson
- * @see ReadableResource
- * @see WritableResource
- * @see #canRead()
- * @see #canWrite()
- */
-public interface Resource extends Cloneable {
+public class DelegatingResource extends AbstractResource {
+    /** A supplier of the resource to delegate to. */
+    private final Supplier<Resource> delegateSupplier;
+
+    /** Whether this delegating resource should cache the supplied delegate on first resource delegation operation.*/
+    private final boolean cacheDelegate;
+
+    private Resource delegate;
+
+    /**
+     * Constructs a new delegating resource with the given delegate supplier and caching strategy. Depending on the
+     * ability to cache supplied delegates, the supplier may be called to supply the delegate once (on first resource
+     * operation) or multiple times (once on each resource operation).
+     *
+     * @param delegateSupplier a supplier of the instance to which operations will be delegated.
+     * @param cacheDelegate whether this delegating resource may cache the supplied delegate (on first operation).
+     */
+    public DelegatingResource(final Supplier<Resource> delegateSupplier, final boolean cacheDelegate) {
+        this.delegateSupplier = delegateSupplier;
+        this.cacheDelegate = cacheDelegate;
+    }
+
+    /**
+     * Constructs a new delegating resource with the given delegate supplier. The supplier will only be called once, on
+     * first resource operation, and cached thereafter, for use in subsequent resource operations.
+     *
+     * @param delegateSupplier a supplier of the instance to which operations will be delegated.
+     * @see #DelegatingResource(Supplier, boolean)
+     */
+    public DelegatingResource(final Supplier<Resource> delegateSupplier) {
+        this(delegateSupplier, true);
+    }
+
     /**
      * <p>Gets the length of content backing this resource, which will always be either a positive amount, zero to indicate
      * none or -1 to indicate the length is unknown or cannot be determined owing to the nature of the resource.</p>
@@ -74,8 +62,17 @@ public interface Resource extends Cloneable {
      * either unknown or cannot be determined at the tome of the call.
      *
      */
-    default long getContentLength() {
-        return IoUtil.contentLength(getInputStream());
+    public long getContentLength() {
+        return delegate().getContentLength();
+    }
+
+    private Resource delegate() {
+        if ( delegate != null ) return delegate;
+
+        Resource newDelegate = delegateSupplier.get();
+        if (cacheDelegate) this.delegate = newDelegate;
+
+        return newDelegate;
     }
 
     /**
@@ -84,8 +81,9 @@ public interface Resource extends Cloneable {
      *
      * @return true if the resource is absolute, false otherwise.
      */
-    default boolean isAbsolute() {
-        return false;
+    public boolean isAbsolute() {
+        return delegate().isAbsolute();
+
     }
 
     /**
@@ -96,8 +94,8 @@ public interface Resource extends Cloneable {
      * @return the resource canonical form, useful for logging, debugging, display to a user and for configuration of
      * a resource. Guaranteed to be non-null.
      */
-    default String getCanonicalForm() {
-        return toString();
+    public String getCanonicalForm() {
+        return delegate().getCanonicalForm();
     }
 
     /**
@@ -105,8 +103,8 @@ public interface Resource extends Cloneable {
      *
      * @return true, if and only if this resource exists in some physical form, false otherwise.
      */
-    default boolean exists() {
-        return false;
+    public boolean exists() {
+        return delegate().exists();
     }
 
     /**
@@ -114,8 +112,8 @@ public interface Resource extends Cloneable {
      *
      * @return true is this resource supports reading, false otherwise.
      */
-    default boolean canRead() {
-        return false;
+    public boolean canRead() {
+        return delegate().canRead();
     }
 
     /**
@@ -123,8 +121,8 @@ public interface Resource extends Cloneable {
      *
      * @return true is this resource supports writing, false otherwise.
      */
-    default boolean canWrite() {
-        return false;
+    public boolean canWrite() {
+        return delegate().canWrite();
     }
 
     /**
@@ -138,27 +136,27 @@ public interface Resource extends Cloneable {
      *
      * @return true, if this type of resource supports random access, false otherwise.
      */
-    default boolean supportsRandomAccess() {
-        return false;
+    public boolean supportsRandomAccess() {
+        return delegate().supportsRandomAccess();
     }
 
     /**
      * Returns the name-path to this resource.
      *
-     * @return name-path of this resource, or the empty path is this resource is not name-path based.
+     * @return nsme-path of this resource, or the empty path is this resource is not name-path based.
      */
-    default NamePath getNamePath() {
-        return NamePath.EMPTY_NAME_PATH;
+    public  NamePath getNamePath() {
+        return delegate().getNamePath();
     }
 
     /**
      * Returns the name of this resource. Where this resource is also path-based, this will return the last name in the path.
      * For example the resource <code>a/b/d.pdf</code> would return <code>d.pdf</code>.
      *
-     * @return name of this resource.
+     * @return nsme of this resource.
      */
-    default String getName() {
-        return NamePath.EMPTY_NAME_PATH.equals(getNamePath()) ? null : getNamePath().getLastElement();
+    public String getName() {
+        return delegate().getName();
     }
 
     /**
@@ -167,12 +165,8 @@ public interface Resource extends Cloneable {
      * @return the full path of the resource, or null if the path is null or if this is not a path based resource.
      * @throws UnsupportedOperationException if this resource is not a path-based resource.
      */
-    default Path<Resource> getPath() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("This resource ["+ TypeUtil.getBaseName(getClass())
-                +"] is not a path-based resource and therefore does not support path-based operations. Did you check instanceof "
-                +TypeUtil.getBaseName(PathBasedResource.class)
-                +" prior to calling getPath() ?"
-        );
+    public Path<Resource> getPath() {
+        return delegate().getPath();
     }
 
     /**
@@ -181,10 +175,8 @@ public interface Resource extends Cloneable {
      *
      * @return the URI of the resource, or null if the URI is null or if this is not a URI based resource.
      */
-    default URI getUri() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("This resource ["+ TypeUtil.getBaseName(getClass())
-                +"] does not have or support a URI"
-        );
+    public URI getUri() {
+        return delegate().getUri();
     }
 
     /**
@@ -193,13 +185,8 @@ public interface Resource extends Cloneable {
      *
      * @return the URL of the resource, or null if the URL is null or if this is not a URL based resource.
      */
-    default URL getUrl() throws UnsupportedOperationException {
-        try {
-            return getUri().toURL();
-        } catch (MalformedURLException malformedURLEx) {
-            throw new UnsupportedOperationException("The resource [" + getCanonicalForm()
-                    + "] is not suitable for reference as a URL: ", malformedURLEx);
-        }
+    public URL getUrl() {
+        return delegate().getUrl();
     }
 
     /**
@@ -210,8 +197,8 @@ public interface Resource extends Cloneable {
      * @throws UnsupportedOperationException if this resource is not readable or the operation is not supported
      * @throws IoException if an error occurs creating the stream.
      */
-    default InputStream getInputStream() throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not readable.");
+    public InputStream getInputStream() throws UnsupportedOperationException, IoException {
+        return delegate().getInputStream();
     }
 
     /**
@@ -231,8 +218,8 @@ public interface Resource extends Cloneable {
      * @see #getReader(Charset)
      * @see #getReader(CharsetDecoder)
      */
-    default Reader getReader() throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not readable.");
+    public Reader getReader() throws UnsupportedOperationException, IoException {
+        return delegate().getReader();
     }
 
     /**
@@ -247,9 +234,8 @@ public interface Resource extends Cloneable {
      * @see #getReader(Charset)
      * @see #getReader(CharsetDecoder)
      */
-    default Reader getReader(String charSetName) throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not readable.");
-
+    public Reader getReader(String charSetName) throws UnsupportedOperationException, IoException {
+        return delegate().getReader(charSetName);
     }
 
     /**
@@ -264,8 +250,8 @@ public interface Resource extends Cloneable {
      * @see #getReader(String)
      * @see #getReader(CharsetDecoder)
      */
-    default Reader getReader(Charset charSet) throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not readable.");
+    public Reader getReader(Charset charSet) throws UnsupportedOperationException, IoException {
+        return delegate().getReader(charSet);
     }
 
     /**
@@ -280,8 +266,8 @@ public interface Resource extends Cloneable {
      * @see #getReader(String) as an alternative to specify an appropriate character set encoding
      * @see #getReader(Charset) as an alternative to specify an appropriate character set encoding
      */
-    default Reader getReader(CharsetDecoder charSetDecoder) throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not readable.");
+    public Reader getReader(CharsetDecoder charSetDecoder) throws UnsupportedOperationException, IoException {
+        return delegate().getReader(charSetDecoder);
     }
 
     /**
@@ -292,8 +278,8 @@ public interface Resource extends Cloneable {
      * @throws UnsupportedOperationException if this resource is not readable or the operation is not supported
      * @throws IoException if an error occurs creating the stream.
      */
-    default OutputStream getOutputStream() throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not writable.");
+    public OutputStream getOutputStream() throws UnsupportedOperationException, IoException {
+        return delegate().getOutputStream();
     }
 
     /**
@@ -313,8 +299,8 @@ public interface Resource extends Cloneable {
      * @see #getWriter(Charset)
      * @see #getWriter(CharsetEncoder)
      */
-    default Writer getWriter() throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not writable.");
+    public Writer getWriter() throws UnsupportedOperationException, IoException {
+        return delegate().getWriter();
     }
 
     /**
@@ -328,8 +314,8 @@ public interface Resource extends Cloneable {
      * @see #getWriter(Charset)
      * @see #getWriter(CharsetEncoder)
      */
-    default Writer getWriter(String charsetName) throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not writable.");
+    public Writer getWriter(String charsetName) throws UnsupportedOperationException, IoException {
+        return delegate().getWriter(charsetName);
     }
 
     /**
@@ -344,8 +330,8 @@ public interface Resource extends Cloneable {
      * @see #getWriter(String)
      * @see #getWriter(CharsetEncoder)
      */
-    default Writer getWriter(Charset charSet) throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not writable.");
+    public Writer getWriter(Charset charSet) throws UnsupportedOperationException, IoException {
+        return delegate().getWriter(charSet);
     }
 
     /**
@@ -360,8 +346,8 @@ public interface Resource extends Cloneable {
      * @see #getWriter(String)
      * @see #getWriter(Charset)
      */
-    default Writer getWriter(CharsetEncoder charSetEncoder) throws UnsupportedOperationException, IoException {
-        throw new UnsupportedOperationException("This resource is not writable.");
+    public Writer getWriter(CharsetEncoder charSetEncoder) throws UnsupportedOperationException, IoException {
+        return delegate().getWriter(charSetEncoder);
     }
 
     /**
@@ -379,8 +365,8 @@ public interface Resource extends Cloneable {
      * @throws UnsupportedOperationException if this resource is not randomly accessible or the operation is not supported
      * @throws IoException if an I/O error occurs creating the random accessor
      */
-    default RandomAccessor getRandomReadAccessor() throws IoException {
-        throw new UnsupportedOperationException("This resource is not randomly accessible.");
+    public RandomAccessor getRandomReadAccessor() throws IoException {
+        return delegate().getRandomReadAccessor();
     }
 
     /**
@@ -396,8 +382,8 @@ public interface Resource extends Cloneable {
      * @throws UnsupportedOperationException if this resource is not randomly accessible or the operation is not supported
      * @throws IoException if an I/O error occurs creating the random accessor
      */
-    default RandomAccessor getRandomReadWriteAccessor() throws IoException {
-        throw new UnsupportedOperationException("This resource is not randomly accessible.");
+    public RandomAccessor getRandomReadWriteAccessor() throws IoException {
+        return delegate().getRandomReadWriteAccessor();
     }
 
     /**
@@ -408,8 +394,8 @@ public interface Resource extends Cloneable {
      * @param charset the character set which will be used to read the resource content, which may be null in which case the system-default character set will be used.
      * @return the string of the contents of the resource.
      */
-    default String readFullyAsString(final Charset charset) {
-        return IoUtil.transferAndClose(charset == null ? this.getReader() : this.getReader(charset), new StringWriter()).toString();
+    public String readFullyAsString(final Charset charset) {
+        return delegate().readFullyAsString(charset);
     }
 
     /**
@@ -420,8 +406,8 @@ public interface Resource extends Cloneable {
      * @param charset the character set which will be used to read the resource content, which may be null in which case the system-default character set will be used.
      * @return the string of the contents of the resource.
      */
-    default String readFullyAsString(final String charset) {
-        return readFullyAsString(charset != null ? Charset.forName(charset) : null);
+    public String readFullyAsString(final String charset) {
+        return delegate().readFullyAsString(charset);
     }
 
     /**
@@ -431,8 +417,8 @@ public interface Resource extends Cloneable {
      *
      * @return the string of the contents of the resource.
      */
-    default String readFullyAsString() {
-        return readFullyAsString((Charset)null);
+    public String readFullyAsString() {
+        return delegate().readFullyAsString();
     }
 
     /**
@@ -441,10 +427,8 @@ public interface Resource extends Cloneable {
      *
      * @return a byte array of the contents of the resource.
      */
-    default byte[] readFullyAsBytes() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        IoUtil.transferAndClose(this.getInputStream(), baos);
-        return baos.toByteArray();
+    public byte[] readFullyAsBytes() {
+        return delegate().readFullyAsBytes();
     }
 
     /**
@@ -468,8 +452,8 @@ public interface Resource extends Cloneable {
      * @throws UnsupportedOperationException if this resource is not a path-based resource or if the operation is not
      * supported on this type of resource.
      */
-    default Resource resolve(Path<Resource> path) {
-        throw new UnsupportedOperationException("Path resolution is not supported by this resource");
+    public Resource resolve(Path<Resource> path) {
+        return delegate().resolve(path);
     }
 
     /**
@@ -478,7 +462,7 @@ public interface Resource extends Cloneable {
      *
      * @return the parent resource or null if there is no such parent.
      */
-    default Resource getParentResource() {
-        return null;
+    public Resource getParentResource() {
+        return delegate().getParentResource();
     }
 }

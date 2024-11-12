@@ -1,20 +1,20 @@
-package org.beanplanet.core.net.http.handler;
+package org.beanplanet.core.net.http.converter;
 
-import org.beanplanet.core.io.IoException;
+import org.beanplanet.core.io.resource.ByteArrayResource;
+import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.net.http.HttpHeaders;
 import org.beanplanet.core.net.http.HttpMessage;
+import org.beanplanet.core.net.http.HttpMessageHeaders;
 import org.beanplanet.core.net.http.MediaTypes;
-import org.beanplanet.core.net.http.handler.annotations.HttpMessageBodyHandler;
+import org.beanplanet.core.net.http.converter.annotations.HttpMessageBodyConverter;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-@HttpMessageBodyHandler
-public class ByteArrayHttpMessageBodyHandler extends AbstractHttpMessageBodyHandler<byte[]> implements HttpMessageBodyInputOutputHandler<byte[]> {
+@HttpMessageBodyConverter
+public class ByteArrayHttpMessageBodyConverter extends AbstractHttpMessageBodyConverter<byte[]> implements org.beanplanet.core.net.http.converter.HttpMessageBodyConverter<byte[]> {
     /**
      * Creates a new byte array based HTTP message body handler capable of reading arrays of bytes from all media types
      * (<code>&#42;/*</code>) and writing byte arrays as the generic media type (<code>application/octet-stream</code>).
      */
-    public ByteArrayHttpMessageBodyHandler() {
+    public ByteArrayHttpMessageBodyConverter() {
         super(MediaTypes.Application.OCTET_STREAM, MediaTypes.ALL);
     }
 
@@ -37,7 +37,7 @@ public class ByteArrayHttpMessageBodyHandler extends AbstractHttpMessageBodyHand
      * @return the byte array representation of the message body.
      */
     @Override
-    public byte[] read(Class<byte[]> type, HttpMessage message) {
+    public byte[] convertFrom(Class<byte[]> type, HttpMessage message) {
         return message.getBody().readFullyAsBytes();
     }
 
@@ -45,14 +45,14 @@ public class ByteArrayHttpMessageBodyHandler extends AbstractHttpMessageBodyHand
      * Writes the given object to the output message.
      *
      * @param object the object to be written.
-     * @param message the response message where the object is to be written.
+     * @param messageHeaders the headers of the message where the object is to be written.
      */
     @Override
-    public void write(byte[] object, HttpMessage message) {
-        try (OutputStream os = message.getBody().getOutputStream()) {
-            os.write(object);
-        } catch (IOException ioEx) {
-            throw new IoException(ioEx);
+    public Resource convertTo(byte[] object, HttpMessageHeaders messageHeaders) {
+        if ( messageHeaders.doesNotHaveHeader(HttpHeaders.CONTENT_TYPE) ) {
+            messageHeaders.setHeader(HttpHeaders.CONTENT_TYPE, MediaTypes.Application.OCTET_STREAM.getCanonicalForm());
         }
+
+        return new ByteArrayResource(object);
     }
 }

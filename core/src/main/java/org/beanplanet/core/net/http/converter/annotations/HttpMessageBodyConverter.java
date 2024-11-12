@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.beanplanet.core.net.http.handler.annotations;
+package org.beanplanet.core.net.http.converter.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,9 +23,9 @@ import java.lang.annotation.Target;
 /**
  * A class tagging annotation for marking I/O handlers of HTTP message bodies.
  * 
- * @see org.beanplanet.core.net.http.handler.HttpMessageBodyInputOutputHandler
+ * @see org.beanplanet.core.net.http.converter.HttpMessageBodyConverter
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HttpMessageBodyHandler {
+public @interface HttpMessageBodyConverter {
 }

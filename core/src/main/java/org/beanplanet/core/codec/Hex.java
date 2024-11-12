@@ -64,4 +64,8 @@ public class Hex implements Encoder, Decoder {
             throw new IoException(ioEx);
         }
     }
+
+    public static char hexDigit(int b) {
+        return Character.toUpperCase(Character.forDigit(b & 0xF, 16));
+    }
 }

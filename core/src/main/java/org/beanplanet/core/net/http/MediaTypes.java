@@ -36,11 +36,18 @@ public interface MediaTypes {
         MediaType ALL = new MediaType("application/*");
 
         MediaType ATOM_XML = new MediaType("application/atom+xml");
+        MediaType FORM_URLENCODED = new MediaType("application/x-www-form-urlencoded");
         MediaType JSON = new MediaType("application/json");
         MediaType OCTET_STREAM = new MediaType("application/octet-stream");
         MediaType PDF = new MediaType("application/pdf");
         MediaType XHTML_XML = new MediaType("application/xhtml+xml");
         MediaType XML = new MediaType("application/xml");
+    }
+
+    interface Multipart {
+        MediaType FORM_DATA = new MediaType("multipart/form-data");
+        MediaType MIXED = new MediaType("multipart/mixed");
+        MediaType RELATED = new MediaType("multipart/related");
     }
 
     interface Text {

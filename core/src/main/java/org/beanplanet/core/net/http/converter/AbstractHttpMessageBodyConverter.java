@@ -1,5 +1,6 @@
-package org.beanplanet.core.net.http.handler;
+package org.beanplanet.core.net.http.converter;
 
+import org.beanplanet.core.net.http.HttpMessageHeaders;
 import org.beanplanet.core.net.http.MediaType;
 import org.beanplanet.core.net.http.HttpMessage;
 import org.beanplanet.core.util.ObjectUtil;
@@ -11,22 +12,22 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 
-public abstract class AbstractHttpMessageBodyHandler<T> implements HttpMessageBodyInputOutputHandler<T> {
+public abstract class AbstractHttpMessageBodyConverter<T> implements HttpMessageBodyConverter<T> {
     /** The default character applied by this handler to textual messages, when no other is specified. */
     private final Charset defaultCharset;
     /** The set of media types this handler can read and write. */
     private final Set<MediaType> supportedMediaTypes;
 
-    protected AbstractHttpMessageBodyHandler(final Charset defaultCharset,
-                                             final Set<MediaType> supportedMediaTypes) {
+    protected AbstractHttpMessageBodyConverter(final Charset defaultCharset,
+                                               final Set<MediaType> supportedMediaTypes) {
         this.defaultCharset = defaultCharset;
         this.supportedMediaTypes = Collections.unmodifiableSet(supportedMediaTypes);
     }
 
-    protected AbstractHttpMessageBodyHandler(Set<MediaType> supportedMediaTypes) {
+    protected AbstractHttpMessageBodyConverter(Set<MediaType> supportedMediaTypes) {
         this(null, Collections.unmodifiableSet(supportedMediaTypes));
     }
-    protected AbstractHttpMessageBodyHandler(MediaType ... supportedMediaTypes) {
+    protected AbstractHttpMessageBodyConverter(MediaType ... supportedMediaTypes) {
         this(new LinkedHashSet<>(asList(supportedMediaTypes)));
     }
 
@@ -47,12 +48,12 @@ public abstract class AbstractHttpMessageBodyHandler<T> implements HttpMessageBo
      *     <li>from the system default</li>
      * </o1>
      *
-     * @param message the HTTP message from which to determine the applicable character set.
+     * @param messageHeaders the headers of the HTTP message from which to determine the applicable character set.
      * @return the default character set used by the handler, which may be null if none has been specified.
      */
-    public Charset charsetFor(final HttpMessage message) {
+    public Charset charsetFor(final HttpMessageHeaders messageHeaders) {
         return ObjectUtil.firstNonNull(
-                () -> message.getContentType()
+                () -> messageHeaders.getContentType()
                              .flatMap(m -> m.getParameters().get("charset").map(Charset::forName))
                              .orElse(null),
                 () -> defaultCharset,

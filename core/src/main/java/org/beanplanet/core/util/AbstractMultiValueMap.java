@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public abstract class AbstractMultiValueMap<K, V, C extends Collection<V>> implements Map<K, C>{
+public abstract class AbstractMultiValueMap<K, V, C extends Collection<V>> implements MultiValueMap<K, V, C> {
     private Map<K, C> backingMap;
     private Factory<C> factory;
 

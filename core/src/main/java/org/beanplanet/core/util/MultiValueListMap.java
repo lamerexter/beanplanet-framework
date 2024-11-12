@@ -32,4 +32,21 @@ public interface MultiValueListMap<K, V> extends MultiValueCollectionMap<K, V, L
     static <KK, VV> MultiValueListMap<KK, VV> empty() {
         return MultiValueListMapImpl.empty();
     }
+
+    static <KK, VV> MultiValueListMapBuilder<KK, VV> builder() {
+        return MultiValueListMapImpl.builder();
+    }
+
+    interface MultiValueListMapBuilder<K, V> {
+        <KK extends K, VV extends V> MultiValueListMapBuilder<K, V> add(KK key, VV value);
+
+        default <KK extends K, VV extends V> MultiValueListMapBuilder<K, V> addAll(KK key, List<VV> values) {
+            values.forEach(v -> add(key, v));
+            return this;
+        }
+
+        <KK extends K, VV extends V> MultiValueListMapBuilder<K, V> setEntries(KK key, List<VV> values);
+
+        MultiValueListMap<K, V> build();
+    }
 }

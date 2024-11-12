@@ -32,7 +32,7 @@ import java.util.Map;
 
 import static org.beanplanet.core.util.CollectionUtil.nullSafe;
 
-public interface MultiValueCollectionMap<K, V, C extends Collection<V>> extends Map<K, C> {
+public interface MultiValueCollectionMap<K, V, C extends Collection<V>> extends MultiValueMap<K, V, C> {
     boolean addValue(K key, V value);
     default boolean addAllValues(K key, List<V> values) {
         boolean allAdded = true;

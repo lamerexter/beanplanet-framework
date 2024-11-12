@@ -35,6 +35,8 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.beanplanet.core.util.StringUtil.isNotBlank;
+
 public class FileUtil {
     public static Stream<File> listFiles(File from) {
         try {
@@ -160,14 +162,25 @@ public class FileUtil {
     }
 
     /**
+     * Determines whether a given filename has a filename extension/suffix.
+
+     * @param fileSpec a file path specification, which may be null.
+     * @return the file suffix, not including any leading dot, or null if the provided file
+     *         specification was null or does not have a file extension.
+     */
+    public static boolean hasFilenameExtension(String fileSpec) {
+        return isNotBlank(getFilenameSuffix(fileSpec));
+    }
+
+    /**
      * Returns the suffix name of a filename specification. The suffix name of a file is defined to be the characters
      * from the last dot (".") to the end of the filename specified;
      * <p>
      * For example, given a file "MyDoc.doc" this method will return "doc".
      *
      * @param fileSpec a file path specification, which may be null.
-     * @return the file suffix, which may be empty and will not include the leading dot, or null if the provided file
-     *         specification was null.
+     * @return the file suffix, not including any leading dot, or null if the provided file
+     *         specification was null or does not have a file extension.
      */
     public static final String getFilenameSuffix(String fileSpec) {
         if (fileSpec == null) {
@@ -180,7 +193,7 @@ public class FileUtil {
             return fileSpec.substring(suffixIndex + 1);
         }
         else {
-            return "";
+            return null;
         }
     }
 

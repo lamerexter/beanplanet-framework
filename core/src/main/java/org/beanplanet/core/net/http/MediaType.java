@@ -44,6 +44,9 @@ import static org.beanplanet.core.util.StringUtil.isBlank;
  * most widely-known types of content such as text (text/plain), HTML (text/html), images (image/png amongst others) and more.
  */
 public class MediaType implements Named {
+    /** The wildcard type/subtype, matching all types/subtypes. */
+    protected static final String WILDCARD_TYPE = "*";
+
     /**
      * The base type of the media, such as "text" in "text/html".
      */
@@ -163,6 +166,34 @@ public class MediaType implements Named {
         return Objects.hash(type, subtype, parameters);
     }
 
+    /**
+     * Determines whether this media type is the 'all' media type, <code>{@literal *}/{@literal *}</code>, as specified
+     * by {@link MediaTypes#ALL}.
+     *
+     * @return true if this media type is the wildcard media type, false otherwise.
+     */
+    private boolean isWildcardMediaType() {
+        return MediaTypes.ALL.equals(this);
+    }
+
+    /**
+     * Determines whether this media type has a wildcard base type, <code>{@literal *}</code>.
+     *
+     * @return true if this media type has the wildcard base type, false otherwise.
+     */
+    private boolean hasWildcardType() {
+        return WILDCARD_TYPE.equals(getType());
+    }
+
+    /**
+     * Determines whether this media type has a wildcard subtype, <code>{@literal *}</code>.
+     *
+     * @return true if this media type has the wildcard subtype, false otherwise.
+     */
+    private boolean hasWildcardSubtype() {
+        return WILDCARD_TYPE.equals(getSubtype());
+    }
+
     public String getCanonicalForm() {
         StringBuilder s = new StringBuilder();
         s.append(getName());
@@ -193,6 +224,30 @@ public class MediaType implements Named {
      */
     public MediaType charset(final Charset charset) {
         return new MediaType(type, subtype, Parameters.singleton("charset", charset.name()));
+    }
+
+    /**
+     * <p>
+     * Whether this media type is compatible with the given media type. Compatibility is determined by exact equality
+     * or by the presence of wildcards in media type names. For example, <code>text/*</code> is compatible with
+     * <code>text/plain</code>, <code>text/html</code> and <code>text/xml</code>.
+     * </p>
+     * <p>
+     * Compatibiity is commutative and symmetric.
+     * i.e. <code>text/html</code> is compatible with <code>text/*</code>.
+     * </p>
+     *
+     * @param other the media type to determine as compatible with this instance.
+     * @return true if the given media type is compatible with this one, false otherwise.
+     */
+    public boolean isCompatibleWith(final MediaType other) {
+        if (other == null) return false;
+
+        return this.equals(other)
+                || this.isWildcardMediaType()
+                || other.isWildcardMediaType()
+                || hasWildcardSubtype()
+                || other.hasWildcardSubtype();
     }
 }
 

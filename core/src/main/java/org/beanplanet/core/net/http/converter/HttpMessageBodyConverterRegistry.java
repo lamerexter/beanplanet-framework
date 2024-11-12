@@ -1,11 +1,11 @@
-package org.beanplanet.core.net.http.handler;
+package org.beanplanet.core.net.http.converter;
 
 import org.beanplanet.core.models.Registry;
 import org.beanplanet.core.net.http.MediaType;
 
 import java.util.stream.Stream;
 
-public interface HttpMessageBodyHandlerRegistry extends Registry<MediaType, HttpMessageBodyInputOutputHandler<?>> {
+public interface HttpMessageBodyConverterRegistry extends Registry<MediaType, HttpMessageBodyConverter<?>> {
 
     /**
      * Find handlers that support read the given media type and class.
@@ -15,7 +15,7 @@ public interface HttpMessageBodyHandlerRegistry extends Registry<MediaType, Http
      * @return a list of the read handlers, which will never be null but may be empty.
      * @param <T> the type of object the handler will support reading.
      */
-    <T> Stream<HttpMessageBodyInputOutputHandler<T>> findReadHandlers(MediaType mediaType, Class<T> type);
+    <T> Stream<HttpMessageBodyConverter<T>> findFromConverters(MediaType mediaType, Class<T> type);
 
     /**
      * Find handlers that support writing the given media type and class.
@@ -25,5 +25,5 @@ public interface HttpMessageBodyHandlerRegistry extends Registry<MediaType, Http
      * @return a list of the write handlers, which will never be null but may be empty.
      * @param <T> the type of object the handler will support writing.
      */
-    <T> Stream<HttpMessageBodyInputOutputHandler<T>> findWriteHandlers(MediaType mediaType, Class<T> type);
+    <T> Stream<HttpMessageBodyConverter<T>> findToConverters(MediaType mediaType, Class<T> type);
 }
