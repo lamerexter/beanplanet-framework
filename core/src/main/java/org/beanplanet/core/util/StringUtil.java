@@ -1003,4 +1003,105 @@ public class StringUtil {
 
         return false;
     }
+
+    /**
+     * Appends to a given string builder a comma-separated list (CSV) of the computed string values of the given collection.
+     *
+     * @param buf the string builder where the delimited values are to be written.
+     * @param elements the collection of elements whose string values are to be written; may be null.
+     * @param toStringConverter a function capable of converting from the given array value type to string.
+     * @return the string builder for chaining.
+     * @param <T> the type of elements of the collection.
+     */
+    public static <T> StringBuilder asCsvAppendedTo(final StringBuilder buf,
+                                                    final Collection<T> elements,
+                                                    final Function<T, String> toStringConverter) {
+        return asDsvAppendedTo(buf, ",", elements, toStringConverter);
+    }
+
+    /**
+     * Appends to a given string builder a comma-separated list (CSV) of the computed string values of the given array.
+     *
+     * @param buf the string builder where the delimited values are to be written.
+     * @param elements the array of elements whose string values are to be written; may be null.
+     * @param toStringConverter a function capable of converting from the given array value type to string.
+     * @return the string builder for chaining.
+     * @param <T> the type of elements of the array.
+     */
+    public static <T> StringBuilder asCsvAppendedTo(final StringBuilder buf,
+                                                    final T[] elements,
+                                                    final Function<T, String> toStringConverter) {
+        return asDsvAppendedTo(buf, ",", elements, toStringConverter);
+    }
+
+    /**
+     * Appends to a given string builder a comma-separated list (CSV) of the computed string values of the given stream.
+     *
+     * @param buf the string builder where the delimited values are to be written.
+     * @param elements the stream of elements whose string values are to be written; which may be null.
+     * @param toStringConverter a function capable of converting from the given stream value type to string.
+     * @return the string builder for chaining.
+     * @param <T> the type of elements of the stream.
+     */
+    public static <T> StringBuilder asCsvAppendedTo(final StringBuilder buf,
+                                                    final Stream<T> elements,
+                                                    final Function<T, String> toStringConverter) {
+        return asDsvAppendedTo(buf, ",", elements, toStringConverter);
+    }
+
+    /**
+     * Appends to a given string builder a delimiter-separated list (DSV) of the computed string values of the given collection.
+     *
+     * @param buf the string builder where the delimited values are to be written.
+     * @param delimiter the delimiter with which to separate values.
+     * @param elements the collection of elements whose string values are to be written; may be null.
+     * @param toStringConverter a function capable of converting from the given array value type to string.
+     * @return the string builder for chaining.
+     * @param <T> the type of elements of the collection.
+     */
+    public static <T> StringBuilder asDsvAppendedTo(final StringBuilder buf,
+                                                    final CharSequence delimiter,
+                                                    final Collection<T> elements,
+                                                    final Function<T, String> toStringConverter) {
+        return elements == null ? buf : asDsvAppendedTo(buf, delimiter, elements.stream(), toStringConverter);
+    }
+
+    /**
+     * Appends to a given string builder a delimiter-separated list (CSV) of the computed string values of the given array.
+     *
+     * @param buf the string builder where the delimited values are to be written.
+     * @param delimiter the delimiter with which to separate values.
+     * @param elements the array of elements whose string values are to be written; may be null.
+     * @param toStringConverter a function capable of converting from the given array value type to string.
+     * @return the string builder for chaining.
+     * @param <T> the type of elements of the array.
+     */
+    public static <T> StringBuilder asDsvAppendedTo(final StringBuilder buf,
+                                                    final CharSequence delimiter,
+                                                    final T[] elements,
+                                                    final Function<T, String> toStringConverter) {
+        return elements == null ? buf : asDsvAppendedTo(buf, delimiter, Stream.of(elements), toStringConverter);
+    }
+
+    /**
+     * Appends to a given string builder a delimiter-separated list (CSV) of the computed string values of the given stream.
+     *
+     * @param buf the string builder where the delimited values are to be written.
+     * @param delimiter the delimiter with which to separate values.
+     * @param elements the stream of elements whose string values are to be written; which may be null.
+     * @param toStringConverter a function capable of converting from the given stream value type to string.
+     * @return the string builder for chaining.
+     * @param <T> the type of elements of the stream.
+     */
+    public static <T> StringBuilder asDsvAppendedTo(final StringBuilder buf,
+                                                    final CharSequence delimiter,
+                                                    final Stream<T> elements,
+                                                    final Function<T, String> toStringConverter) {
+        if (elements != null) {
+            final int[] idx = { 0 };
+            elements.forEach(e -> buf.append(idx[0]++ == 0 ? "" : delimiter).append(toStringConverter.apply(e)));
+        }
+
+        return buf;
+    }
 }

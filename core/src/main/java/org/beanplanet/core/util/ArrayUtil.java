@@ -150,4 +150,18 @@ public class ArrayUtil {
     public static int determineArraySize(final Object array) {
         return determineArraySize(array, 1);
     }
+
+    /**
+     * Creates a new instance of an array whose component type and content are that of the given singleton.
+     *
+     * @param singleton the array's only element
+     * @param componentType the type of the singleton element.
+     * @return a new array contaning the given element.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] singletonArray(T singleton, Class<T> componentType) {
+        final T[] arr = (T[])Array.newInstance(componentType, 1);
+        arr[0] = singleton;
+        return arr;
+    }
 }

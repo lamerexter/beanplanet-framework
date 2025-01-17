@@ -42,6 +42,7 @@ public interface MediaTypes {
         MediaType PDF = new MediaType("application/pdf");
         MediaType XHTML_XML = new MediaType("application/xhtml+xml");
         MediaType XML = new MediaType("application/xml");
+        MediaType YAML = new MediaType("application/yaml");  // Defined by RFC 9512
     }
 
     interface Multipart {

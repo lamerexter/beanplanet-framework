@@ -6,6 +6,7 @@ import org.beanplanet.core.util.MultiValueListMapImpl;
 
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.beanplanet.core.util.StringUtil.isBlank;
 import static org.beanplanet.core.util.StringUtil.isNotBlank;
@@ -152,6 +153,15 @@ public class HttpHeaders implements HttpMessageHeaders {
      */
     public boolean doesNotHave(String name) {
         return isBlank(get(name).orElse(null));
+    }
+
+    /**
+     * Streams the names of all headers associated with this HTTP message.
+     *
+     * @return a stream of all the headers in this message.
+     */
+    public Stream<String> streamHeaderNames() {
+        return headers.keySet().stream();
     }
 
     public static class HttpHeadersBuilderImpl implements HttpHeadersBuilder<HttpHeaders, HttpHeadersBuilderImpl> {

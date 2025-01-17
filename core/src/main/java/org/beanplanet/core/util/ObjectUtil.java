@@ -45,7 +45,7 @@ public class ObjectUtil {
     }
 
     public static final <S, T> T nvl2(S value, Function<S, T> notNullExpr, Supplier<T> nullExpr) {
-        return value != null ? notNullExpr.apply(value) : nullExpr.get();
+        return value != null ? notNullExpr.apply(value) : (nullExpr == null ? null : nullExpr.get());
     }
 
     public static final boolean equalByProperties(Object obj1, Object obj2, String ... propertyNames) {

@@ -1,5 +1,6 @@
 package org.beanplanet.core.net.http;
 
+import org.beanplanet.core.models.Pair;
 import org.beanplanet.core.util.CollectionUtil;
 
 import java.nio.charset.Charset;
@@ -7,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.beanplanet.core.net.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.beanplanet.core.net.http.HttpHeaders.CONTENT_TYPE;
@@ -141,5 +143,21 @@ public interface HttpMessageHeaders {
      */
     default void setContentDisposition(String contentDisposition) {
         setHeader(CONTENT_DISPOSITION, contentDisposition);
+    }
+
+    /**
+     * Streams the names of all headers associated with this HTTP message.
+     *
+     * @return a stream of all the headers in this message.
+     */
+    Stream<String> streamHeaderNames();
+
+    /**
+     * Streams the names and, possibly multiple values, of all headers associated with this HTTP message.
+     *
+     * @return a stream of name and list of value(s) of all the headers in this message.
+     */
+    default Stream<Pair<String, List<String>>> streamAll() {
+        return streamHeaderNames().map(h -> Pair.of(h, getHeaderValues(h).orElse(Collections.emptyList())));
     }
 }

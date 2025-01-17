@@ -40,9 +40,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.Arrays.*;
 import static java.util.Arrays.stream;
 import static java.util.Objects.isNull;
+import static org.beanplanet.core.util.StringUtil.asCsvAppendedTo;
+import static org.beanplanet.core.util.StringUtil.asDsvAppendedTo;
 
 /**
  * A static utility class for the everything <code>type-related</code> related.
@@ -139,7 +140,8 @@ public final class TypeUtil {
         NUMERIC_TYPES.add(Short.class);
     }
 
-    private TypeUtil() {}
+    private TypeUtil() {
+    }
 
     /**
      * Determines the common superclass (not superinterfaces or any other type hierarchy) of a number of classes. This
@@ -221,7 +223,7 @@ public final class TypeUtil {
             return type;
         }
 
-        if ( isVoidtype(className) ) return void.class;
+        if (isVoidtype(className)) return void.class;
 
         try {
             type = Class.forName(className);
@@ -258,7 +260,7 @@ public final class TypeUtil {
             return type;
         }
 
-        if ( isVoidtype(className) ) return void.class;
+        if (isVoidtype(className)) return void.class;
 
         try {
             type = Class.forName(className);
@@ -300,7 +302,7 @@ public final class TypeUtil {
             return type;
         }
 
-        if ( isVoidtype(className) ) return void.class;
+        if (isVoidtype(className)) return void.class;
 
         try {
             type = Class.forName(className, initialiseClass, classLoader);
@@ -339,7 +341,8 @@ public final class TypeUtil {
             type = loadClass(typeName);
             Constructor<?> ctor = type.getConstructor(ctorArgTypes);
             return ctor.newInstance(ctorArgVals);
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
             throw new UncheckedException(e);
         }
     }
@@ -357,27 +360,27 @@ public final class TypeUtil {
     @SuppressWarnings("unchecked")
     public static <T> Optional<Constructor<T>> getCallableConstructor(Class<T> type, Object[] ctorParameterValues) {
         return stream((Constructor<T>[]) type.getDeclaredConstructors())
-                   .filter(c -> c.getParameterCount() == (ctorParameterValues == null ? 0 : ctorParameterValues.length))
-                   .filter(c -> {
-                       for (int n = 0; n < c.getParameterCount(); n++) {
-                           if (!(ctorParameterValues[n] == null || c.getParameterTypes()[n].isAssignableFrom(ctorParameterValues[n].getClass()))) {
-                               return false;
-                           }
-                       }
-                       return true;
-                   })
-                   .findFirst();
+                .filter(c -> c.getParameterCount() == (ctorParameterValues == null ? 0 : ctorParameterValues.length))
+                .filter(c -> {
+                    for (int n = 0; n < c.getParameterCount(); n++) {
+                        if (!(ctorParameterValues[n] == null || c.getParameterTypes()[n].isAssignableFrom(ctorParameterValues[n].getClass()))) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .findFirst();
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T instantiateClass(final Class<T> type, Object ctorArgVals[]) {
         try {
             return getCallableConstructor(type, ctorArgVals).orElseThrow(() -> new UncheckedException("Unable to instantiate class, type=\"" + type.getName()
-                                                                                                      + "\": no suitable constructor found"))
+                                                                    + "\": no suitable constructor found"))
                                                             .newInstance(ctorArgVals);
         } catch (InstantiationException instantiateEx) {
             throw new UncheckedException("Unable to instantiate class, type=\"" + type.getName()
-                                         + "\" - it is likely the type does not have a no-arg constructor or invalid arguments have been specified: ", instantiateEx);
+                    + "\" - it is likely the type does not have a no-arg constructor or invalid arguments have been specified: ", instantiateEx);
         } catch (IllegalAccessException accessEx) {
             throw new UncheckedException("Unable to instantiate class, \"" + type.getName() + "\" - the constructor/method is not accessible: ", accessEx);
         } catch (InvocationTargetException invocationEx) {
@@ -509,8 +512,8 @@ public final class TypeUtil {
 
     public static boolean areEquivalentPrimitiveOrPrimitiveWrappers(Class<?> aClass, Class<?> bClass) {
         return isPrimitiveTypeOrWrapperClass(aClass)
-               && isPrimitiveTypeOrWrapperClass(bClass)
-               && (aClass == bClass || PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.get(aClass) == bClass || PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.get(aClass) == bClass);
+                && isPrimitiveTypeOrWrapperClass(bClass)
+                && (aClass == bClass || PRIMITIVE_TYPE_TO_PRIMITIVE_WRAPPER_TYPE.get(aClass) == bClass || PRIMITIVE_WRAPPER_TYPE_TO_PRIMITIVE_TYPE.get(aClass) == bClass);
     }
 
     public static Object invokeStaticMethod(Class<?> type, String methodName) {
@@ -518,39 +521,39 @@ public final class TypeUtil {
     }
 
     public static Object invokeStaticMethod(Method method, Object... params) {
-        return invokeStaticMethod(method.getDeclaringClass(), method.getName(), params);
+        return invokeMethod(null, method, params);
     }
 
     public static Object invokeStaticMethod(Class<?> type, String methodName, Object... params) {
         Method method = findMethod(type, Modifier.STATIC, methodName, null, paramTypes(params))
-                            .orElseThrow(() -> new UncheckedException("Unable to invoke method, \"" + methodName
-                                                                      + "\" on target, class=\"" + type.getName()
-                                                                      + "\" - the method was not found: "));
+                .orElseThrow(() -> new UncheckedException("Unable to invoke method, \"" + methodName
+                        + "\" on target, class=\"" + type.getName()
+                        + "\" - the method was not found: "));
         return invokeMethod(null, method, params);
     }
 
     private static Class<?>[] paramTypes(Object params[]) {
-        return params == null ? null : stream(params).map(p -> p == null ? Object.class : p.getClass()).toArray(Class[]::new);
+        return params == null ? null : stream(params).map(p -> p == null ? null : p.getClass()).toArray(Class[]::new);
     }
 
     public static Stream<Method> streamMethods(Class<?> type, int modifiers, String name, Class<?> returnType, Class<?>... paramTypes) {
 
         return streamMethods(type)
-                   .filter(m -> m.getName().equals(name))
-                   .filter(m -> (m.getModifiers() & modifiers) == modifiers)
-                   .filter(m -> returnType == null || returnType.isAssignableFrom(m.getReturnType()))
-                   .filter(m -> paramTypes == null || m.getParameterCount() == paramTypes.length)
-                   .filter(m -> {
-                       if (paramTypes != null) {
-                           for (int n = 0; n < paramTypes.length; n++) {
-                               if (paramTypes[n] != null
-                                   && !m.getParameterTypes()[n].isAssignableFrom(paramTypes[n])) {
-                                   return false;
-                               }
-                           }
-                       }
-                       return true;
-                   });
+                .filter(m -> m.getName().equals(name))
+                .filter(m -> (m.getModifiers() & modifiers) == modifiers)
+                .filter(m -> returnType == null || returnType.isAssignableFrom(m.getReturnType()))
+                .filter(m -> paramTypes == null || m.getParameterCount() == paramTypes.length)
+                .filter(m -> {
+                    if (paramTypes != null) {
+                        for (int n = 0; n < paramTypes.length; n++) {
+                            if (paramTypes[n] != null
+                                    && !m.getParameterTypes()[n].isAssignableFrom(paramTypes[n])) {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                });
     }
 
     public static Stream<Constructor> streamConstructors(Class<?> type) {
@@ -560,9 +563,9 @@ public final class TypeUtil {
     public static Stream<Method> streamMethods(Class<?> type) {
 
         return new TypeTree(Object.class, type)
-                   .postorderStream()
-                   .map(TreeNode::getManagedObject)
-                   .flatMap(c -> stream(c.getDeclaredMethods()));
+                .postorderStream()
+                .map(TreeNode::getManagedObject)
+                .flatMap(c -> stream(c.getDeclaredMethods()));
     }
 
     public static List<Method> findMethods(Class<?> type, int modifiers, String name, Class<?> returnType, Class<?>... paramTypes) {
@@ -576,7 +579,7 @@ public final class TypeUtil {
     }
 
     public static Object invokeMethod(Object target, Method method, Object... params) {
-       return invokeMethod(null, target, method, params);
+        return invokeMethod(null, target, method, params);
     }
 
     public static Object invokeMethod(TypeConverter typeConverter, Object target, Method method, Object... params) {
@@ -593,48 +596,48 @@ public final class TypeUtil {
                     return method.invoke(Modifier.isStatic(method.getModifiers()) ? null : target, convertedParams);
                 } catch (IllegalAccessException accessEx1) {
                     throw new UncheckedException("Unable to invoke method, \"" + method.getName() + "\" on target bean, class=\"" + target.getClass().getName()
-                                                 + "\" - the method is not accessible: ", accessEx1);
+                            + "\" - the method is not accessible: ", accessEx1);
                 } catch (InvocationTargetException invocationEx) {
                     throw ExceptionUtil.unwindAndRethrowRuntimeException(UncheckedException.class, "Unable to invoke method, \"" + method.getName()
-                                                                                                   + "\" on target bean, class=\"" + target.getClass().getName() + "\" - the method threw an exception: ", invocationEx);
+                            + "\" on target bean, class=\"" + target.getClass().getName() + "\" - the method threw an exception: ", invocationEx);
                 }
             } else {
                 throw new UncheckedException("Unable to invoke method, \"" + method.getName() + "\" on target bean, class=\"" + target.getClass().getName()
-                                             + "\" - the method is not accessible: ", accessEx);
+                        + "\" - the method is not accessible: ", accessEx);
             }
         } catch (InvocationTargetException invocationEx) {
             throw ExceptionUtil.unwindAndRethrowRuntimeException(UncheckedException.class, "Unable to invoke method [" + method + "]"
-                                                                                           + (target == null ? "" : " on target bean [class=" + target.getClass().getName() + "]: "), invocationEx);
+                    + (target == null ? "" : " on target bean [class=" + target.getClass().getName() + "]: "), invocationEx);
         }
     }
 
     private static Object[] convertParameters(TypeConverter typeConverter, Class<?>[] parameterTypes, Object[] params) {
         // Does not handle varargs
-        if ( typeConverter == null || params == null || parameterTypes.length != params.length) return params;
+        if (typeConverter == null || params == null || parameterTypes.length != params.length) return params;
 
         final boolean conversionNeeded = IntStream.range(0, params.length)
-                .filter(n -> params[n] != null)
-                .anyMatch(n -> !parameterTypes[n].isAssignableFrom(params[n].getClass()));
-        if ( !conversionNeeded ) return params;
+                                                  .filter(n -> params[n] != null)
+                                                  .anyMatch(n -> !parameterTypes[n].isAssignableFrom(params[n].getClass()));
+        if (!conversionNeeded) return params;
 
         return IntStream.range(0, params.length)
-                .mapToObj(n -> isNull(params[n]) || parameterTypes[n].isAssignableFrom(params[n].getClass()) ? params[n] : typeConverter.convert(params[n], parameterTypes[n]))
-                .toArray(Object[]::new);
+                        .mapToObj(n -> isNull(params[n]) || parameterTypes[n].isAssignableFrom(params[n].getClass()) ? params[n] : typeConverter.convert(params[n], parameterTypes[n]))
+                        .toArray(Object[]::new);
     }
 
     public static Stream<Field> streamFields(Class<?> type) {
 
         return new TypeTree(Object.class, type)
-                   .stream()
-                   .map(TreeNode::getManagedObject)
-                   .flatMap(c -> stream(c.getDeclaredFields()));
+                .stream()
+                .map(TreeNode::getManagedObject)
+                .flatMap(c -> stream(c.getDeclaredFields()));
     }
 
     public static Stream<Field> streamFields(Class<?> type, int modifiers, String name, Class<?> fieldType) {
         return streamFields(type)
-                   .filter(f -> f.getName().equals(name))
-                   .filter(f -> (f.getModifiers() & modifiers) == modifiers)
-                   .filter(f -> fieldType == null || fieldType.isAssignableFrom(f.getType()));
+                .filter(f -> f.getName().equals(name))
+                .filter(f -> (f.getModifiers() & modifiers) == modifiers)
+                .filter(f -> fieldType == null || fieldType.isAssignableFrom(f.getType()));
     }
 
     public static List<Field> findFields(Class<?> type, int modifiers, String name, Class<?> fieldType) {
@@ -694,9 +697,9 @@ public final class TypeUtil {
 
     public static Stream<Method> getMethodsInClassHierarchy(final Class<?> specificType) {
         return new TypeTree(specificType)
-                   .preorderStream()
-                   .map(TreeNode::getManagedObject)
-                   .flatMap(type -> stream(type.getDeclaredMethods()));
+                .preorderStream()
+                .map(TreeNode::getManagedObject)
+                .flatMap(type -> stream(type.getDeclaredMethods()));
     }
 
     /**
@@ -796,5 +799,88 @@ public final class TypeUtil {
         }
         String classDescriptor = getForNameTypeDescription(type, arrayDimensions);
         return loadClass(classDescriptor);
+    }
+
+    private static String toString(Class<?> c) {
+        StringBuilder buf = new StringBuilder();
+        if (c.getEnclosingClass() != null) {
+            buf.append(toString(c.getEnclosingClass())).append('.').append(c.getSimpleName());
+        } else {
+            buf.append(c.getName());
+        }
+
+        if (c.getTypeParameters().length > 0) {
+            buf.append('<');
+            asCsvAppendedTo(buf, c.getTypeParameters(), TypeUtil::toString);
+            buf.append('>');
+        }
+
+        return buf.toString();
+    }
+
+    public static String toString(ParameterizedType pt) {
+        StringBuilder buf = new StringBuilder();
+        Type ownerType = pt.getOwnerType();
+        Class<?> raw = (Class<?>)pt.getRawType();
+        Type[] typeArguments = pt.getActualTypeArguments();
+        if (ownerType == null) {
+            buf.append(raw.getName());
+        } else {
+            buf.append(ownerType instanceof Class ? ((Class<?>)ownerType).getName() : ownerType.toString());
+        }
+
+        return asDsvAppendedTo(buf.append('<'), ", ", typeArguments, TypeUtil::toString).append('>').toString();
+    }
+
+    public static String toString(WildcardType w) {
+        StringBuilder buf = (new StringBuilder()).append('?');
+        Type[] lowerBounds = w.getLowerBounds();
+        Type[] upperBounds = w.getUpperBounds();
+        if (lowerBounds.length > 1 || lowerBounds.length == 1 && lowerBounds[0] != null) {
+            asDsvAppendedTo(buf.append(" super "), " & ", lowerBounds, TypeUtil::toString);
+        } else if (upperBounds.length > 1 || upperBounds.length == 1 && !Object.class.equals(upperBounds[0])) {
+            asDsvAppendedTo(buf.append(" extends "), " & ", upperBounds, TypeUtil::toString);
+        }
+
+        return buf.toString();
+    }
+
+    private static String toString(TypeVariable<?> v) {
+        StringBuilder buf = new StringBuilder(v.getName());
+        Type[] bounds = v.getBounds();
+        if (bounds.length > 0 && (bounds.length != 1 || !Object.class.equals(bounds[0]))) {
+            buf.append(" extends ");
+            asDsvAppendedTo(buf, " & ", v.getBounds(), TypeUtil::toString);
+        }
+
+        return buf.toString();
+    }
+
+    private static String toString(GenericArrayType g) {
+        return String.format("%s[]", toString(g.getGenericComponentType()));
+    }
+
+    /**
+     * Returns a useful {@link Object#toString()} representation of a {@link Type}.
+     *
+     * @param type the type whose {@link Object#toString()} is to be returned.
+     * @return the {@link Object#toString()} representation of the given type.
+     */
+    public static String toString(Type type) {
+        Assert.notNull(type);
+
+        if (type instanceof Class<?>) {
+            return toString((Class<?>) type);
+        } else if (type instanceof ParameterizedType) {
+            return toString((ParameterizedType) type);
+        } else if (type instanceof WildcardType) {
+            return toString((WildcardType) type);
+        } else if (type instanceof TypeVariable) {
+            return toString((TypeVariable<?>) type);
+        } else if (type instanceof GenericArrayType) {
+            return toString((GenericArrayType) type);
+        } else {
+            throw new IllegalArgumentException("Unsupported type ["+Objects.toIdentityString(type)+"] cannot be output as String");
+        }
     }
 }

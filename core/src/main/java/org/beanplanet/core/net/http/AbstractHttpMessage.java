@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * A model of an HTTP message, common to both request and response.
@@ -147,6 +148,15 @@ public abstract class AbstractHttpMessage implements HttpMessage {
      */
     public Optional<Cookie> getCookie(final String name) {
         return getCookies().stream().filter(c -> name.equalsIgnoreCase(c.getName())).findFirst();
+    }
+
+    /**
+     * Streams the names of all headers associated with this HTTP message.
+     *
+     * @return a stream of all the headers in this message.
+     */
+    public Stream<String> streamHeaderNames() {
+        return headers.streamHeaderNames();
     }
 
     public String toString() {
