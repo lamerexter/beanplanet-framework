@@ -10,15 +10,17 @@ public final class ParameterisedTypeImpl implements ParameterizedType {
     private final Type rawType;
     private final Type[] typeArguments;
 
-    private ParameterisedTypeImpl(Type rawType, Type ... typeArguments) {
-        this(null, rawType, typeArguments);
-    }
-
-    private ParameterisedTypeImpl(Type ownerType, Type rawType, Type ... typeArguments) {
-        this.ownerType = ownerType;
+    public ParameterisedTypeImpl(Type rawType, Type ... typeArguments) {
+        this.ownerType = null;
         this.rawType = rawType;
         this.typeArguments = typeArguments == null ? TypeUtil.EMPTY_TYPES:  typeArguments;
     }
+
+//    public ParameterisedTypeImpl(Class<?> ownerType, Type rawType, Type[] typeArguments) {
+//        this.ownerType = ownerType;
+//        this.rawType = rawType;
+//        this.typeArguments = typeArguments == null ? TypeUtil.EMPTY_TYPES:  typeArguments;
+//    }
 
     @Override
     public Type getOwnerType() {

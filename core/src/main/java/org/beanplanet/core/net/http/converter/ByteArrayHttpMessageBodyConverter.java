@@ -2,11 +2,14 @@ package org.beanplanet.core.net.http.converter;
 
 import org.beanplanet.core.io.resource.ByteArrayResource;
 import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.lang.ParameterisedTypeReference;
 import org.beanplanet.core.net.http.HttpHeaders;
 import org.beanplanet.core.net.http.HttpMessage;
 import org.beanplanet.core.net.http.HttpMessageHeaders;
 import org.beanplanet.core.net.http.MediaTypes;
 import org.beanplanet.core.net.http.converter.annotations.HttpMessageBodyConverter;
+
+import java.lang.reflect.Type;
 
 @HttpMessageBodyConverter
 public class ByteArrayHttpMessageBodyConverter extends AbstractHttpMessageBodyConverter<byte[]> implements org.beanplanet.core.net.http.converter.HttpMessageBodyConverter<byte[]> {
@@ -25,7 +28,7 @@ public class ByteArrayHttpMessageBodyConverter extends AbstractHttpMessageBodyCo
      * @return true if the type is byte array, false otherwise.
      */
     @Override
-    public boolean supports(Class<?> type) {
+    public boolean supports(Type type) {
         return byte[].class == type;
     }
 
@@ -37,7 +40,7 @@ public class ByteArrayHttpMessageBodyConverter extends AbstractHttpMessageBodyCo
      * @return the byte array representation of the message body.
      */
     @Override
-    public byte[] convertFrom(Class<byte[]> type, HttpMessage message) {
+    public byte[] convertFrom(ParameterisedTypeReference<byte[]> type, HttpMessage message) {
         return message.getBody().readFullyAsBytes();
     }
 

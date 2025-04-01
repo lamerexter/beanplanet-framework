@@ -1,9 +1,11 @@
 package org.beanplanet.core.net.http.converter;
 
 import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.lang.ParameterisedTypeReference;
 import org.beanplanet.core.net.http.*;
 import org.beanplanet.core.net.http.converter.annotations.HttpMessageBodyConverter;
 
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 /**
@@ -24,8 +26,8 @@ public class ResourceHttpMessageBodyConverter extends AbstractHttpMessageBodyCon
      * media types.
      */
     @Override
-    public boolean supports(Class<?> type) {
-        return Resource.class.isAssignableFrom(type);
+    public boolean supports(Type type) {
+        return type instanceof Class<?> && Resource.class.isAssignableFrom((Class<?>)type);
     }
 
     /**
@@ -36,7 +38,7 @@ public class ResourceHttpMessageBodyConverter extends AbstractHttpMessageBodyCon
      * @return the object read.
      */
     @Override
-    public Resource convertFrom(Class<Resource> type, HttpMessage message) {
+    public Resource convertFrom(ParameterisedTypeReference<Resource> type, HttpMessage message) {
         throw new UnsupportedOperationException();
     }
 

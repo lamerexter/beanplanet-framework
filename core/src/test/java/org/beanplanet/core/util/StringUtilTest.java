@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -82,6 +83,16 @@ public class StringUtilTest {
     @Test
     public void asCsvString_multiple() {
         assertThat(asCsvString(asList("a", "b", "c")), equalTo("a,b,c"));
+    }
+
+    @Test
+    public void asCsvStream_null() {
+        assertThat(asCsvStream(null), nullValue());
+    }
+
+    @Test
+    public void asCsvStream_multiple() {
+        assertThat(asCsvStream("a,b,c").collect(Collectors.toList()), equalTo(asList("a", "b", "c")));
     }
 
     @Test

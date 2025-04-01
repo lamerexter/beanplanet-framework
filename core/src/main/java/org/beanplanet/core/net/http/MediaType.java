@@ -44,7 +44,9 @@ import static org.beanplanet.core.util.StringUtil.isBlank;
  * most widely-known types of content such as text (text/plain), HTML (text/html), images (image/png amongst others) and more.
  */
 public class MediaType implements Named {
-    /** The wildcard type/subtype, matching all types/subtypes. */
+    /**
+     * The wildcard type/subtype, matching all types/subtypes.
+     */
     protected static final String WILDCARD_TYPE = "*";
 
     /**
@@ -224,6 +226,15 @@ public class MediaType implements Named {
      */
     public MediaType charset(final Charset charset) {
         return new MediaType(type, subtype, Parameters.singleton("charset", charset.name()));
+    }
+
+    /**
+     * Returns this media type but without any paraneters.
+     *
+     * @return this media type, if it has no parameters, or a new media type similar to this but without parameters.
+     */
+    public MediaType withoutParameters() {
+        return hasParameters() ? new MediaType(this.getType(), this.getSubtype()) : this;
     }
 
     /**

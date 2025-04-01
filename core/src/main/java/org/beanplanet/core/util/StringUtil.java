@@ -877,6 +877,10 @@ public class StringUtil {
         return dsvStream == null ? null : dsvStream.collect(Collectors.toList());
     }
 
+    public static Stream<String> asCsvStream(String str) {
+        return asDsvStream(str, ",");
+    }
+
     public static List<String> asCsvList(String str) {
         Stream<String> dsvStream = asDsvStream(str, ",");
         return dsvStream == null ? null : dsvStream.collect(Collectors.toList());
@@ -955,6 +959,21 @@ public class StringUtil {
         }
 
         return Arrays.stream(toLinesArray(str));
+    }
+
+    /**
+     * Splits the specified string into a list of lines. Lines can be separated by a line-feed or a carriage-return line-feed
+     * terminator.
+     *
+     * @param str the string to be split into a stream of lines.
+     * @return a list of the lines of the string, or null if the string specified was null.
+     */
+    public static List<String> toLinesList(final String str) {
+        if (str == null) {
+            return null;
+        }
+
+        return toLinesStream(str).collect(Collectors.toList());
     }
 
     /**

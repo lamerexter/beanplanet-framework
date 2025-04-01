@@ -5,6 +5,7 @@ import org.beanplanet.core.net.http.MediaType;
 import org.beanplanet.core.util.MultiValueListMap;
 import org.beanplanet.core.util.MultiValueListMapImpl;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -65,7 +66,7 @@ public class SystemHttpMessageBodyConverterRegistry extends AbstractLoadedRegist
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Stream<HttpMessageBodyConverter<T>> findFromConverters(MediaType mediaType, Class<T> type) {
+    public <T> Stream<HttpMessageBodyConverter<T>> findFromConverters(MediaType mediaType, Type type) {
         checkLoaded();
         return Stream.concat(
                              Stream.concat(
@@ -86,7 +87,7 @@ public class SystemHttpMessageBodyConverterRegistry extends AbstractLoadedRegist
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Stream<HttpMessageBodyConverter<T>> findToConverters(MediaType mediaType, Class<T> type) {
+    public <T> Stream<HttpMessageBodyConverter<T>> findToConverters(MediaType mediaType, Type type) {
         checkLoaded();
         return Stream.concat(
                              (mediaType == null ? Stream.empty() :

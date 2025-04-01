@@ -1,8 +1,10 @@
 package org.beanplanet.core.net.http.converter;
 
 import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.lang.ParameterisedTypeReference;
 import org.beanplanet.core.net.http.*;
 
+import java.lang.reflect.Type;
 import java.util.Set;
 
 /**
@@ -24,7 +26,7 @@ public interface HttpMessageBodyConverter<T> {
      * @return the media types supported by this handler; defaults to all the supported types returned by
      * {@link #getSupportedMediaTypes()}.
      */
-    default Set<MediaType> getSupportedMediaTypesFor(Class<?> type) {
+    default Set<MediaType> getSupportedMediaTypesFor(Type type) {
         return getSupportedMediaTypes();
     }
 
@@ -34,12 +36,12 @@ public interface HttpMessageBodyConverter<T> {
      * @param type      the type to be read from the source.
      * @param mediaType the media type associated with the source.
      * @return true if this handler can read the type from a source with the given media type; defaults to true if
-     * the given media type is in the set of media types returned by {@link #getSupportedMediaTypesFor(Class)}.
+     * the given media type is in the set of media types returned by {@link #getSupportedMediaTypesFor(Type)}.
      */
-    default boolean canConvertFrom(Class<?> type, MediaType mediaType) {
+    default boolean canConvertFrom(Type type, MediaType mediaType) {
 //        return supportedMediaTypes.contains(type) || supportedMediaTypes.stream().filter(m -> m.isCompatibleWith());
         return supports(type)
-                && (getSupportedMediaTypesFor(type).contains(mediaType)
+                && (getSupportedMediaTypesFor(type).contains(mediaType.withoutParameters())
                 || getSupportedMediaTypesFor(type).contains(MediaTypes.allForType(mediaType.getType()))
                 || getSupportedMediaTypesFor(type).contains(MediaTypes.ALL));
     }
@@ -50,12 +52,12 @@ public interface HttpMessageBodyConverter<T> {
      * @param type      the type to be read from the source.
      * @param mediaType the media type associated with the source.
      * @return true if this handler can write the type to a source with the given media type;  defaults to true if
-     * the given media type is in the set of media types returned by {@link #getSupportedMediaTypesFor(Class)}.
+     * the given media type is in the set of media types returned by {@link #getSupportedMediaTypesFor(Type)}.
      */
-    default boolean canConvertTo(Class<?> type, MediaType mediaType) {
+    default boolean canConvertTo(Type type, MediaType mediaType) {
         return supports(type)
                 && (mediaType == null
-                || (getSupportedMediaTypesFor(type).contains(mediaType)
+                || (getSupportedMediaTypesFor(type).contains(mediaType.withoutParameters())
                         || getSupportedMediaTypesFor(type).contains(MediaTypes.allForType(mediaType.getType()))
                         || getSupportedMediaTypesFor(type).contains(MediaTypes.ALL)
                         || getSupportedMediaTypesFor(type).stream().anyMatch(m -> m.isCompatibleWith(mediaType))));
@@ -67,7 +69,7 @@ public interface HttpMessageBodyConverter<T> {
      * @param type the type to be tested for support by this handler.
      * @return true if this handler supports reading from and writing to the given type, false otherwise.
      */
-    boolean supports(Class<?> type);
+    boolean supports(Type type);
 
     /**
      * Reads an object from the given input message.
@@ -76,7 +78,19 @@ public interface HttpMessageBodyConverter<T> {
      * @param message the request message from which te object is to be read.
      * @return the object read.
      */
-    T convertFrom(Class<T> type, HttpMessage message);
+    @SuppressWarnings("unchecked")
+    default T convertFrom(Class<T> type, HttpMessage message) {
+        return convertFrom((ParameterisedTypeReference<T>) ParameterisedTypeReference.forType(type), message);
+    }
+
+    /**
+     * Reads an object from the given input message.
+     *
+     * @param type    the type of object to be read from the input.
+     * @param message the request message from which te object is to be read.
+     * @return the object read.
+     */
+    T convertFrom(ParameterisedTypeReference<T> type, HttpMessage message);
 
     /**
      * Writes the given object to the output message.

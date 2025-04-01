@@ -36,9 +36,8 @@ import static org.beanplanet.messages.domain.MessageImpl.globalMessage;
 import static org.beanplanet.messages.domain.MessagesImpl.messages;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link CompositeValidator}.
@@ -247,6 +246,7 @@ public class CompositeValidatorTest {
             }
         };
         Validator<Object> validator2 = mock(Validator.class);
+        when(validator2.validate(any(), eq(messages))).thenReturn(messages);
         CompositeValidator<Object> composite = new CompositeValidator<>(true, validator1, validator2);
 
         // When

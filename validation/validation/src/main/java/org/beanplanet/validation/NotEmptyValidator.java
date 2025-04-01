@@ -28,6 +28,7 @@ package org.beanplanet.validation;
 
 import org.beanplanet.messages.domain.Message;
 
+import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -46,7 +47,7 @@ import static org.beanplanet.messages.domain.MessageImpl.globalMessage;
 public class NotEmptyValidator<T> extends PredicatedValidator<T> {
     public static final String DEFAULT_MESSAGE_CODE = "empty";
     public static final String DEFAULT_PARAM_MESSAGE = "Value is required and must not be empty";
-    private static final Predicate<?> VALIDATION_PREDICATE = v -> v != null && !v.toString().trim().isEmpty();
+    private static final Predicate<?> VALIDATION_PREDICATE = v -> v != null && !(v instanceof Collection ? ((Collection<?>)v).isEmpty() : v.toString().trim().isEmpty());
 
     public NotEmptyValidator() {
         this(globalMessage(DEFAULT_MESSAGE_CODE, DEFAULT_PARAM_MESSAGE));

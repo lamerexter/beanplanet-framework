@@ -880,7 +880,7 @@ public final class TypeUtil {
         } else if (type instanceof GenericArrayType) {
             return toString((GenericArrayType) type);
         } else {
-            throw new IllegalArgumentException("Unsupported type ["+Objects.toIdentityString(type)+"] cannot be output as String");
+            throw new IllegalArgumentException("Unsupported type ["+type+"] cannot be output as String");
         }
     }
 }

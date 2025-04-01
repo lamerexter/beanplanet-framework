@@ -2,11 +2,14 @@ package org.beanplanet.core.net.http.converter;
 
 import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.io.resource.StringResource;
+import org.beanplanet.core.lang.ParameterisedTypeReference;
 import org.beanplanet.core.net.http.HttpHeaders;
 import org.beanplanet.core.net.http.HttpMessage;
 import org.beanplanet.core.net.http.HttpMessageHeaders;
 import org.beanplanet.core.net.http.MediaTypes;
 import org.beanplanet.core.net.http.converter.annotations.HttpMessageBodyConverter;
+
+import java.lang.reflect.Type;
 
 import static org.beanplanet.core.net.http.MediaTypes.Text;
 
@@ -28,7 +31,7 @@ public class StringHttpMessageBodyConverter extends AbstractHttpMessageBodyConve
      * @return true if the type is {@link String}, false otherwise.
      */
     @Override
-    public boolean supports(Class<?> type) {
+    public boolean supports(Type type) {
         return String.class == type;
     }
 
@@ -41,7 +44,7 @@ public class StringHttpMessageBodyConverter extends AbstractHttpMessageBodyConve
      * @return the string representation of the message body..
      */
     @Override
-    public String convertFrom(Class<Object> type, HttpMessage message) {
+    public String convertFrom(ParameterisedTypeReference<Object> type, HttpMessage message) {
         return message.getBody().readFullyAsString(charsetFor(message));
     }
 

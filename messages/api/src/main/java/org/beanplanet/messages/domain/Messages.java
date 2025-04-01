@@ -27,12 +27,15 @@ package org.beanplanet.messages.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.beanplanet.core.collections.ListBuilder;
+import org.beanplanet.core.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Definition of standard messages container.
@@ -46,6 +49,25 @@ public interface Messages {
      * @return the list of errors, or an empty list if there are no errors.
      */
     List<Message> getErrors();
+
+    /**
+     * Get all field errors held in the messages container.
+     *
+     * @return the list of field errors, or an empty list if there are no errors associated with fields.
+     */
+    default List<Message> getFieldErrors() {
+        return getErrors().stream().filter(m -> StringUtil.isNotBlank(m.getField())).collect(Collectors.toList());
+    }
+
+    /**
+     * Get all errors relating to the given field held in the messages container.
+     *
+     * @param fieldName the name of the field for which any errors are to be returned.
+     * @return the list of field errors, or an empty list if there are no errors associated with fields.
+     */
+    default List<Message> getFieldErrors(final String fieldName) {
+        return getFieldErrors().stream().filter(m -> Objects.equals(m.getField(), fieldName)).collect(Collectors.toList());
+    }
 
     /**
      * Get all warnings held in the messages container.
@@ -305,6 +327,26 @@ public interface Messages {
     boolean hasErrors();
 
     /**
+     * Determines whether there are field errors held in the messages container.
+     *
+     * @return true if there are field errors.
+     */
+    default boolean hasFieldErrors() {
+        return getErrors().stream().anyMatch(m -> StringUtil.isNotBlank(m.getField()));
+    }
+
+    /**
+     * Determines if there are errors for the given field in the messages container.
+     *
+     * @param fieldName the name of the field for which any errors are to be determined.
+     * @return true if there are errors for the given field.
+     */
+    default boolean hasFieldErrors(final String fieldName) {
+        return getFieldErrors().stream().anyMatch(m -> StringUtil.isNotBlank(m.getField())
+                && Objects.equals(m.getField(), fieldName));
+    }
+
+    /**
      * Get whether the container holds any warning messages.
      *
      * @return true if the container holds at least one warning, or false otherwise.
@@ -317,4 +359,29 @@ public interface Messages {
      * @return true if the container holds at least one info, or false otherwise.
      */
     boolean hasInfos();
+
+    /**
+     * Merges these messages with the other messages provided, returning a new instance of {@link Messages} containing the
+     * messages from both.
+     *
+     * @param other the other messages to be combined with these messages.
+     * @return a new {@link Messages} instance containing the messages from this instance plus the messages from the other instance.
+     */
+    default Messages merge(final Messages other) {
+        return new MessagesImpl(
+                ListBuilder.<Message>builder()
+                        .addAll(this.getInfos())
+                        .addAll(other.getInfos())
+                        .build(),
+                ListBuilder.<Message>builder()
+                           .addAll(this.getWarnings())
+                           .addAll(other.getWarnings())
+                           .build(),
+                ListBuilder.<Message>builder()
+                           .addAll(this.getErrors())
+                           .addAll(other.getErrors())
+                           .build()
+        );
+
+    }
 }

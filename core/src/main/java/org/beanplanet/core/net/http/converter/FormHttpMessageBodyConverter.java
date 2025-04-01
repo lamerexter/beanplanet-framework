@@ -4,6 +4,7 @@ import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.io.IoUtil;
 import org.beanplanet.core.io.resource.ByteArrayOutputStreamResource;
 import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.lang.ParameterisedTypeReference;
 import org.beanplanet.core.net.http.*;
 import org.beanplanet.core.util.MultiValueMap;
 import org.beanplanet.core.util.StringUtil;
@@ -11,6 +12,7 @@ import org.beanplanet.core.util.StringUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -44,8 +46,8 @@ public class FormHttpMessageBodyConverter<C extends Collection<Object>> extends 
      * media types.
      */
     @Override
-    public boolean supports(Class<?> type) {
-        return MultiValueMap.class.isAssignableFrom(type);
+    public boolean supports(Type type) {
+        return type instanceof Class<?> && MultiValueMap.class.isAssignableFrom((Class<?>)type);
     }
 
     /**
@@ -56,7 +58,7 @@ public class FormHttpMessageBodyConverter<C extends Collection<Object>> extends 
      * @return the object read.
      */
     @Override
-    public MultiValueMap<String, Object, C> convertFrom(Class<MultiValueMap<String, Object, C>> type, HttpMessage message) {
+    public MultiValueMap<String, Object, C> convertFrom(ParameterisedTypeReference<MultiValueMap<String, Object, C>> type, HttpMessage message) {
         throw new UnsupportedOperationException();
     }
 

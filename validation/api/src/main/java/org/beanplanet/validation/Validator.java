@@ -28,12 +28,27 @@ package org.beanplanet.validation;
 
 import org.beanplanet.messages.domain.Messages;
 
+import static org.beanplanet.messages.domain.MessagesImpl.messages;
+
 /**
  * Definition of a simple validator.
  *
  * @param <T>   The type of the context object being validated.
  */
 public interface Validator<T> {
+
+    /**
+     * Applies the validation to the given object, with a new, initially empty, instance of messages. This default
+     * implementation simply calls {@link #validate(Object, Messages)} with a new messages instance to capture
+     * any messages output by the validator.
+     *
+     * @param object        the object being validated.
+     * @return              the messages container in its post-validation state.
+     * @see #validate(Object, Messages)
+     */
+    default Messages validate(T object) {
+        return validate(object, messages());
+    }
 
     /**
      * Applies the validation to the given object.

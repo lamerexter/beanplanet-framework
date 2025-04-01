@@ -1,9 +1,11 @@
 package org.beanplanet.core.net.http.converter;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.beanplanet.core.io.IoException;
 import org.beanplanet.core.io.resource.ByteArrayOutputStreamResource;
 import org.beanplanet.core.io.resource.Resource;
+import org.beanplanet.core.lang.ParameterisedTypeReference;
 import org.beanplanet.core.net.http.HttpMessage;
 import org.beanplanet.core.net.http.HttpMessageHeaders;
 import org.beanplanet.core.net.http.MediaTypes;
@@ -12,6 +14,7 @@ import org.beanplanet.core.net.http.converter.annotations.HttpMessageBodyConvert
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Type;
 
 @HttpMessageBodyConverter
 public class Jackson2HttpMessageBodyConverter extends AbstractHttpMessageBodyConverter<Object> implements org.beanplanet.core.net.http.converter.HttpMessageBodyConverter<Object> {
@@ -44,7 +47,7 @@ public class Jackson2HttpMessageBodyConverter extends AbstractHttpMessageBodyCon
      * media types.
      */
     @Override
-    public boolean supports(Class<?> type) {
+    public boolean supports(Type type) {
         return true;
     }
 
@@ -56,9 +59,10 @@ public class Jackson2HttpMessageBodyConverter extends AbstractHttpMessageBodyCon
      * @return the object read.
      */
     @Override
-    public Object convertFrom(Class<Object> type, HttpMessage message) {
+    public Object convertFrom(ParameterisedTypeReference<Object> type, HttpMessage message) {
         try (Reader reader = message.getBody().getReader(charsetFor(message))) {
-            return objectMapper.readValue(reader, type);
+            JavaType javaType = this.objectMapper.constructType(type.getType());
+            return objectMapper.readValue(reader, javaType);
         } catch (IOException ioEx) {
             throw new IoException(ioEx);
         }
