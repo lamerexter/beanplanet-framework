@@ -28,6 +28,7 @@ package org.beanplanet.core.util;
 
 import org.junit.Test;
 
+import static org.beanplanet.core.util.ArrayUtil.concat;
 import static org.beanplanet.core.util.ArrayUtil.determineArraySize;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.is;
@@ -104,5 +105,29 @@ public class ArrayUtilTest {
         assertThat(determineArraySize(array, 1), equalTo(2));
         assertThat(determineArraySize(array, 2), equalTo(22));
         assertThat(determineArraySize(array, 3), equalTo(222));
+    }
+
+    @Test
+    public void concat_null_null() {
+        assertThat(concat(null, null), nullValue());
+    }
+
+    @Test
+    public void concat_nonNull_null() {
+        final Integer[] arr = new Integer[] { 1,2,3 };
+        assertThat(concat(arr, null), sameInstance(arr));
+    }
+
+    @Test
+    public void concat_null_nonNull() {
+        final Integer[] arr = new Integer[] { 1,2,3 };
+        assertThat(concat(null, arr), sameInstance(arr));
+    }
+
+    @Test
+    public void concat_nonNull_nonNull() {
+        final Integer[] left = new Integer[] { 1,2,3 };
+        final Integer[] right = new Integer[] { 4,5,6 };
+        assertThat(concat(left, right), equalTo(new Integer[] { 1,2,3,4,5,6 }));
     }
 }

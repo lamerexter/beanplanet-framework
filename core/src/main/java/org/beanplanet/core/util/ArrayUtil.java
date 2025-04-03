@@ -164,4 +164,17 @@ public class ArrayUtil {
         arr[0] = singleton;
         return arr;
     }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] concat(final T[] left, final T[] right) {
+        if (left == null && right == null) return null;
+        if (left != null && right == null) return left;
+        if (left == null) return right;
+
+        final T[] newArray = (T[]) Array.newInstance(left.getClass().getComponentType(), left.length + right.length);
+        System.arraycopy(left, 0, newArray, 0, left.length);
+        System.arraycopy(right, 0, newArray, left.length, right.length);
+
+        return newArray;
+    }
 }
