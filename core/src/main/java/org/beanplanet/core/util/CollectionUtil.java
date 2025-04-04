@@ -26,6 +26,7 @@
 
 package org.beanplanet.core.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -95,6 +96,23 @@ public class CollectionUtil {
      */
     public static <T> T lastOrNull(List<T> list) {
         return list == null || list.isEmpty() ? null : list.get(list.size()-1);
+    }
+
+    /**
+     * Converts a float array to a list of float wrapper.
+     *
+     * @param floats the array of flost to be converted.
+     * @return a new List, comprised of the float array values, or null if the float array was null.
+     */
+    public static List<Float> toList(final float[] floats) {
+        if (floats == null) return null;
+
+        List<Float> floatsList = new ArrayList<>(floats.length);
+        for (int n=0; n < floats.length; n++) {
+            floatsList.add(floats[n]);
+        }
+
+        return floatsList;
     }
 }
 

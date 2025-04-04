@@ -29,6 +29,7 @@ package org.beanplanet.core.util;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.*;
@@ -54,5 +55,16 @@ public class CollectionUtilTest {
     public void lastOrNull() {
         assertThat(CollectionUtil.lastOrNull(asList(1)), equalTo(1));
         assertThat(CollectionUtil.lastOrNull(asList(1, 2, 3)), equalTo(3));
+    }
+
+    @Test
+    public void toFloatList_null() {
+        assertThat(CollectionUtil.toList(null), nullValue());
+    }
+
+    @Test
+    public void toFloatList_notNull() {
+        assertThat(CollectionUtil.toList(new float[0]), equalTo(Collections.emptyList()));
+        assertThat(CollectionUtil.toList(new float[]{ 1, 2, 3}), equalTo(List.of(1f, 2f, 3f)));
     }
 }
