@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -137,10 +138,10 @@ public class StringUtilTest {
 
     @Test
     public void asDelimitedString_Stream_Predicate_Delimiter_Function() {
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), null,",", null), equalTo("a,b,c"));
+        assertThat(asDelimitedString(asList("a", "b", "c").stream(), null, ",", null), equalTo("a,b,c"));
         assertThat(asDelimitedString(asList("a", "b", "c").stream(), e -> !"b".equals(e), ",", null), equalTo("a,c"));
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), null, ",", e -> e+"_txn"), equalTo("a_txn,b_txn,c_txn"));
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), falsePredicate(), ",", e -> e+"_txn"), equalTo(""));
+        assertThat(asDelimitedString(asList("a", "b", "c").stream(), null, ",", e -> e + "_txn"), equalTo("a_txn,b_txn,c_txn"));
+        assertThat(asDelimitedString(asList("a", "b", "c").stream(), falsePredicate(), ",", e -> e + "_txn"), equalTo(""));
     }
 
     @Test
@@ -150,7 +151,7 @@ public class StringUtilTest {
 
     @Test
     public void asDelimitedString_Stream_Delimiter_Function() {
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), ",", e -> "prefix_"+e), equalTo("prefix_a,prefix_b,prefix_c"));
+        assertThat(asDelimitedString(asList("a", "b", "c").stream(), ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
     }
 
     @Test
@@ -160,33 +161,33 @@ public class StringUtilTest {
 
     @Test
     public void asDelimitedString_Array_Predicate_Delimiter_Function() {
-        assertThat(asDelimitedString(new String[] {"a", "b", "c"}, null,",", null), equalTo("a,b,c"));
-        assertThat(asDelimitedString(new String[] {"a", "b", "c"}, e -> !"b".equals(e), ",", null), equalTo("a,c"));
-        assertThat(asDelimitedString(new String[] {"a", "b", "c"}, null, ",", e -> e+"_txn"), equalTo("a_txn,b_txn,c_txn"));
-        assertThat(asDelimitedString(new String[] {"a", "b", "c"}, falsePredicate(), ",", e -> e+"_txn"), equalTo(""));
+        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, null, ",", null), equalTo("a,b,c"));
+        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, e -> !"b".equals(e), ",", null), equalTo("a,c"));
+        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, null, ",", e -> e + "_txn"), equalTo("a_txn,b_txn,c_txn"));
+        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, falsePredicate(), ",", e -> e + "_txn"), equalTo(""));
     }
 
     @Test
     public void asDelimitedString_Array_Predicate_Delimiter() {
-        assertThat(asDelimitedString(new String[] {"a", "b", "c"}, truePredicate(), ","), equalTo("a,b,c"));
+        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, truePredicate(), ","), equalTo("a,b,c"));
     }
 
     @Test
     public void asDelimitedString_Array_Delimiter_Function() {
-        assertThat(asDelimitedString(new String[] {"a", "b", "c"}, ",", e -> "prefix_"+e), equalTo("prefix_a,prefix_b,prefix_c"));
+        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
     }
 
     @Test
     public void asDelimitedString_Array_Delimiter() {
-        assertThat(asDelimitedString(new String[] {"a", "b", "c"}, ",", e -> "prefix_"+e), equalTo("prefix_a,prefix_b,prefix_c"));
+        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
     }
 
     @Test
     public void asDelimitedString_Collection_Predicate_Delimiter_Function() {
-        assertThat(asDelimitedString(asList("a", "b", "c"), null,",", null), equalTo("a,b,c"));
+        assertThat(asDelimitedString(asList("a", "b", "c"), null, ",", null), equalTo("a,b,c"));
         assertThat(asDelimitedString(asList("a", "b", "c"), e -> !"b".equals(e), ",", null), equalTo("a,c"));
-        assertThat(asDelimitedString(asList("a", "b", "c"), null, ",", e -> e+"_txn"), equalTo("a_txn,b_txn,c_txn"));
-        assertThat(asDelimitedString(asList("a", "b", "c"), falsePredicate(), ",", e -> e+"_txn"), equalTo(""));
+        assertThat(asDelimitedString(asList("a", "b", "c"), null, ",", e -> e + "_txn"), equalTo("a_txn,b_txn,c_txn"));
+        assertThat(asDelimitedString(asList("a", "b", "c"), falsePredicate(), ",", e -> e + "_txn"), equalTo(""));
     }
 
     @Test
@@ -196,13 +197,14 @@ public class StringUtilTest {
 
     @Test
     public void asDelimitedString_Collection_Delimiter_Function() {
-        assertThat(asDelimitedString(asList("a", "b", "c"), ",", e -> "prefix_"+e), equalTo("prefix_a,prefix_b,prefix_c"));
+        assertThat(asDelimitedString(asList("a", "b", "c"), ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
     }
 
     @Test
     public void asDelimitedString_Collection_Delimiter() {
-        assertThat(asDelimitedString(asList("a", "b", "c"), ",", e -> "prefix_"+e), equalTo("prefix_a,prefix_b,prefix_c"));
+        assertThat(asDelimitedString(asList("a", "b", "c"), ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
     }
+
     @Test
     public void asDelimitedString_Map_Predicate_Delimiter_Delimiter_Function_Function() {
         Map<String, String> map = new LinkedHashMap<>();
@@ -212,17 +214,17 @@ public class StringUtilTest {
         map.put("d", "d1");
         map.put("e", "e1");
         assertThat(asDelimitedString(map,
-                                     (k, v) -> !("b".equals(k) || "d1".equals(v)),
-                                     "&", "=", k -> k+"_k", v -> v+"_v"), equalTo("a_k=a1_v&c_k=c1_v&e_k=e1_v"));
+                (k, v) -> !("b".equals(k) || "d1".equals(v)),
+                "&", "=", k -> k + "_k", v -> v + "_v"), equalTo("a_k=a1_v&c_k=c1_v&e_k=e1_v"));
         assertThat(asDelimitedString(map,
-                                     null,
-                                     "&", "=", k -> k+"_k", v -> v+"_v"), equalTo("a_k=a1_v&b_k=b1_v&c_k=c1_v&d_k=d1_v&e_k=e1_v"));
+                null,
+                "&", "=", k -> k + "_k", v -> v + "_v"), equalTo("a_k=a1_v&b_k=b1_v&c_k=c1_v&d_k=d1_v&e_k=e1_v"));
         assertThat(asDelimitedString(map,
-                                     (k, v) -> !("b".equals(k) || "d1".equals(v)),
-                                     "&", "=", null, null), equalTo("a=a1&c=c1&e=e1"));
+                (k, v) -> !("b".equals(k) || "d1".equals(v)),
+                "&", "=", null, null), equalTo("a=a1&c=c1&e=e1"));
         assertThat(asDelimitedString(map,
-                                     null,
-                                     "&", "=", null, null), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
+                null,
+                "&", "=", null, null), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
     }
 
     @Test
@@ -234,11 +236,11 @@ public class StringUtilTest {
         map.put("d", "d1");
         map.put("e", "e1");
         assertThat(asDelimitedString(map,
-                                     (k, v) -> !("b".equals(k) || "d1".equals(v)),
-                                     "&", "="), equalTo("a=a1&c=c1&e=e1"));
+                (k, v) -> !("b".equals(k) || "d1".equals(v)),
+                "&", "="), equalTo("a=a1&c=c1&e=e1"));
         assertThat(asDelimitedString(map,
-                                     null,
-                                     "&", "="), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
+                null,
+                "&", "="), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
     }
 
     @Test
@@ -250,9 +252,9 @@ public class StringUtilTest {
         map.put("d", "d1");
         map.put("e", "e1");
         assertThat(asDelimitedString(map,
-                                     "&", "=", k -> k+"_k", v -> v+"_v"), equalTo("a_k=a1_v&b_k=b1_v&c_k=c1_v&d_k=d1_v&e_k=e1_v"));
+                "&", "=", k -> k + "_k", v -> v + "_v"), equalTo("a_k=a1_v&b_k=b1_v&c_k=c1_v&d_k=d1_v&e_k=e1_v"));
         assertThat(asDelimitedString(map,
-                                     "&", "=", null, null), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
+                "&", "=", null, null), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
     }
 
     @Test
@@ -263,7 +265,7 @@ public class StringUtilTest {
         map.put("c", "c1");
         map.put("d", "d1");
         map.put("e", "e1");
-        assertThat(asDelimitedString(map,"&", "="), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
+        assertThat(asDelimitedString(map, "&", "="), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
     }
 
     @Test
@@ -340,14 +342,14 @@ public class StringUtilTest {
 
     @Test
     public void isAlphanumeric() {
-        for (int n=0; n < ALPHNUMERIC_CHARS.length(); n++) {
+        for (int n = 0; n < ALPHNUMERIC_CHARS.length(); n++) {
             assertThat(StringUtil.isAlphanumeric(ALPHNUMERIC_CHARS.charAt(n)), is(true));
         }
     }
 
     @Test
     public void isAsciiPrintableSpecial() {
-        for (int n=0; n < ASCII_PRINTABLE_SPECIAL_CHARS.length(); n++) {
+        for (int n = 0; n < ASCII_PRINTABLE_SPECIAL_CHARS.length(); n++) {
             assertThat(StringUtil.isAsciiPrintableSpecial(ASCII_PRINTABLE_SPECIAL_CHARS.charAt(n)), is(true));
         }
     }
@@ -362,7 +364,7 @@ public class StringUtilTest {
         final String randomStr = StringUtil.randomAlphaumericChars(10);
         assertThat(randomStr, notNullValue());
         assertThat(randomStr.length(), equalTo(10));
-        for (int n=0; n < randomStr.length(); n++) {
+        for (int n = 0; n < randomStr.length(); n++) {
             assertThat(StringUtil.isAlphanumeric(randomStr.charAt(n)), is(true));
         }
     }
@@ -372,7 +374,7 @@ public class StringUtilTest {
         final String randomStr = StringUtil.randomAlphanumericAsciiPrintableSpecialChars(12);
         assertThat(randomStr, notNullValue());
         assertThat(randomStr.length(), equalTo(12));
-        for (int n=0; n < randomStr.length(); n++) {
+        for (int n = 0; n < randomStr.length(); n++) {
             assertThat(StringUtil.isAlphanumericOrAsciiPrintableSpecial(randomStr.charAt(n)), is(true));
         }
     }
@@ -409,5 +411,23 @@ public class StringUtilTest {
                 return null;
             }
         }), is(true));
+    }
+
+    @Test
+    public void firstNonBlank_null() {
+        assertThat(StringUtil.firstNonBlank((String[]) null), nullValue());
+        assertThat(StringUtil.firstNonBlank((Supplier<CharSequence>[]) null), nullValue());
+    }
+
+    @Test
+    public void firstNonBlank_first() {
+        assertThat(StringUtil.firstNonBlank("1st", "2nd"), equalTo("1st"));
+        assertThat(StringUtil.firstNonBlank(() -> "1st", () -> "2nd"), equalTo("1st"));
+    }
+
+    @Test
+    public void firstNonBlank_second() {
+        assertThat(StringUtil.firstNonBlank(" ", "2nd"), equalTo("2nd"));
+        assertThat(StringUtil.firstNonBlank(() -> " ", () -> "2nd"), equalTo("2nd"));
     }
 }

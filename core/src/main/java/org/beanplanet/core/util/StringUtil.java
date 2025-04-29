@@ -1123,4 +1123,54 @@ public class StringUtil {
 
         return buf;
     }
+
+    /**
+     * Given a number of supplied character sequences, returns the first one that is not blank (i.e. does not contain only
+     * whitespace characters).
+     *
+     * @param sequenceSuppliers the character sequences whose first non-blank is to be returned, with sequence suppliers
+     *                          only called when required; may be null.
+     * @return the first non-blank of the given character sequences, or null if sequences was null or if all supplied are blank.
+     * @see #isBlank(Object)
+     */
+    @SafeVarargs
+    public static CharSequence firstNonBlank(final Supplier<CharSequence> ... sequenceSuppliers) {
+        if (sequenceSuppliers == null) return null;
+        for (Supplier<CharSequence> sequenceSupplier : sequenceSuppliers) {
+            CharSequence supplied = sequenceSupplier.get();
+            if (isNotBlank(supplied)) return supplied;
+        }
+
+        return null;
+    }
+
+    /**
+     * Given a number of character sequences, returns the first one that is not blank (i.e. does not contain only
+     * whitespace characters).
+     *
+     * @param sequences the character sequences whose first non-blank is to be returned; may be null.
+     * @return the first non-blank of the given character sequences, or null if sequences was null or if all are blank.
+     * @see #isBlank(Object)
+     */
+    public static CharSequence firstNonBlank(final CharSequence ... sequences) {
+        if (sequences == null) return null;
+        for (CharSequence sequence : sequences) {
+            if (isNotBlank(sequence)) return sequence;
+        }
+
+        return null;
+    }
+
+    /**
+     * Given a number of strings, returns the first one that is not blank (i.e. does not contain only
+     * whitespace characters).
+     *
+     * @param strings the strings whose first non-blank is to be returned; may be null.
+     * @return the first non-blank of the given strings, or null if strings was null or if all are blank.
+     * @see #isBlank(Object)
+     */
+    public static String firstNonBlank(final String ... strings) {
+        return (String)firstNonBlank((CharSequence[]) strings);
+    }
+
 }
