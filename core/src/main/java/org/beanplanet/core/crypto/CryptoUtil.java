@@ -63,6 +63,7 @@ public class CryptoUtil {
                                                  Base64Decoder.decode("74TqjEjfgrmqCfvpd2vU7A=="));
 
         // Uppercase algorithms to default key sizes map
+        defaultKeySizeMap.put("AES", new Integer(128));
         defaultKeySizeMap.put("BLOWFISH", new Integer(128));
         defaultKeySizeMap.put("DES", new Integer(56));
         defaultKeySizeMap.put("DESEDE", new Integer(128));
@@ -3878,7 +3879,7 @@ public class CryptoUtil {
     }
 
     public static void main(String ...  args) {
-        SecretKey key = CryptoUtil.generateSymmetricKey("AES", 128);
+        SecretKey key = CryptoUtil.generateSymmetricKey("AES", defaultKeySizeMap.getOrDefault("AES", 128));
 
         System.out.println(key.getAlgorithm()+":"+key.getFormat()+":"+ Hex.encodeToHexString(key.getEncoded()));
     }

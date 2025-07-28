@@ -9,63 +9,77 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * A hexadecimal codec.
+ * A hexadecimal codec which converts octets to <a href="https://en.wikipedia.org/wiki/Hexadecimal">base-16 or hexadecimal
+ * representation</a>. This codec uses a default character set of {@link java.nio.charset.StandardCharsets#US_ASCII}
+ * given that the output text is always in that character range.
  */
 public class Hex implements Encoder, Decoder {
     public static final Charset DEFAULT_CHARSET = StandardCharsets.US_ASCII;
     private static final String HEXDIGITS_STR = "0123456789ABCDEF";
-    private static final char[] HEXDIGITS = HEXDIGITS_STR.toCharArray();
+    static final char[] HEXDIGITS = HEXDIGITS_STR.toLowerCase().toCharArray(); // We produce lowercase hex text
     private static final Hex _instance = new Hex();
 
-    private Charset charset;
-
-    public Hex(final Charset charset) {
-        this.charset = charset;
+    /**
+     * Performs hexadecimal encoding of the input to a string.
+     *
+     * @param input the input whose bytes are to be read and hexadecimal encoded.
+     * @return a string of hexadecimal encoded bytes from the input.
+     */
+    public static String encodeToHexString(byte[] input) {
+        return input == null ? null : new String(_instance.encode(input), DEFAULT_CHARSET);
     }
 
-    public Hex() {
-        this(DEFAULT_CHARSET);
+    /**
+     * Performs hexadecimal decoding of the input to a byte array.
+     *
+     * @param input the input string whose bytes are to be read and hexadecimal decoded.
+     * @return hexadecimal decoded bytes from the input.
+     */
+    public static byte[] decodeFromHexString(String input) {
+        return input == null ? null : _instance.decode(input.getBytes(DEFAULT_CHARSET));
     }
 
-    public static String encodeToHexString(byte[] bytes) {
-        return bytes == null ? null : new String(_instance.encode(bytes));
-    }
-
-    public static byte[] decodeFromHexString(String hex) {
-        return hex == null ? null : _instance.decode(hex.getBytes());
-    }
-
+    /**
+     * Performs hexadecimal encoding of the input to the given output stream. All input bytes are consumed until end-of-file (EOF).
+     *
+     * @param input  the input stream whose bytes are to be read and hexadecimal encoded.
+     * @param output the output stream where hexadecimal encoded bytes are to be written.
+     * @throws IOException if an I/O error occurs reading from the input or writing to the output.
+     */
     @Override
-    public void encode(final InputStream inputStream, final OutputStream outputStream) {
-        try {
-            int b;
-            while ((b = inputStream.read()) >= 0) {
-                outputStream.write(HEXDIGITS[(b & 0xf0) >> 4]);
-                outputStream.write(HEXDIGITS[b & 0x0f]);
-            }
-        } catch (IOException ioEx) {
-            throw new IoException(ioEx);
+    public void encode(final InputStream input, final OutputStream output) throws IOException {
+        int b;
+        while ((b = input.read()) >= 0) {
+            output.write(HEXDIGITS[(b & 0xf0) >> 4]);
+            output.write(HEXDIGITS[b & 0x0f]);
         }
+        output.flush();
     }
 
+    /**
+     * Performs decoding of the input to the given output resources. An input stream is opened from the given input
+     * resource and all input bytes are consumed and decoded until end-of-file (EOF). Decoded bytes are written to
+     * an output stream opened on the given output resource.
+     *
+     * @param input  the input resource whose bytes are to be read and decoded.
+     * @param output the output resource where decoded bytes are to be written.
+     * @throws IOException if an I/O error occurs reading from the input or writing to the output.
+     */
     @Override
-    public void decode(InputStream inputStream, OutputStream outputStream) {
-        try {
-            int b1;
-            while ((b1 = inputStream.read()) >= 0) {
-                int b2 = inputStream.read();
-                if ( b2 < 0 ) {
-                    throw new IoException("Invalid hexadecimal encoding - reached EOF before presence of second nibble.");
-                }
-
-                outputStream.write((byte)((HEXDIGITS_STR.indexOf(b1 >= 'a' ? b1-32 : b1) << 4) + HEXDIGITS_STR.indexOf(b2 >= 'a' ? b2-32 : b2)));
+    public void decode(InputStream input, OutputStream output) throws IOException {
+        int b1;
+        while ((b1 = input.read()) >= 0) {
+            int b2 = input.read();
+            if (b2 < 0) {
+                throw new IoException("Invalid hexadecimal encoding - reached EOF before presence of second nibble.");
             }
-        } catch (IOException ioEx) {
-            throw new IoException(ioEx);
+
+            output.write((byte) ((HEXDIGITS_STR.indexOf(b1 >= 'a' ? b1 - 32 : b1) << 4) + HEXDIGITS_STR.indexOf(b2 >= 'a' ? b2 - 32 : b2)));
         }
+        output.flush();
     }
 
     public static char hexDigit(int b) {
-        return Character.toUpperCase(Character.forDigit(b & 0xF, 16));
+        return HEXDIGITS[b & 0xF];
     }
 }
