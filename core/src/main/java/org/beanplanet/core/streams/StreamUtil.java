@@ -29,6 +29,7 @@ package org.beanplanet.core.streams;
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collector;
 
 /**
@@ -42,16 +43,16 @@ public class StreamUtil {
         }
 
         return Collector.of(PrimitiveBooleanAccumulator::new,
-                            (acc, t) -> acc.bs.set(acc.size++, t),
-                            (acc1, acc2) -> {
-                                acc2.bs.stream().forEach(i -> acc1.bs.set(i + acc1.size));
-                                acc1.size += acc2.size;
-                                return acc1;
-                            }, acc -> {
-                boolean[] res = new boolean[acc.size];
-                acc.bs.stream().forEach(i -> res[i] = true);
-                return res;
-            });
+                (acc, t) -> acc.bs.set(acc.size++, t),
+                (acc1, acc2) -> {
+                    acc2.bs.stream().forEach(i -> acc1.bs.set(i + acc1.size));
+                    acc1.size += acc2.size;
+                    return acc1;
+                }, acc -> {
+                    boolean[] res = new boolean[acc.size];
+                    acc.bs.stream().forEach(i -> res[i] = true);
+                    return res;
+                });
     }
 
     public static Collector<Byte, ?, byte[]> toByteArray() {
@@ -60,16 +61,19 @@ public class StreamUtil {
         }
 
         return Collector.of(PrimitiveByteAccumulator::new,
-                            (acc, t) -> acc.collection.add(t),
-                            (acc1, acc2) -> { acc1.collection.addAll(acc2.collection); return acc1; },
-                            acc -> {
-                byte[] res = new byte[acc.collection.size()];
-                int i = 0;
-                for (Byte source : acc.collection) {
-                    res[i++] = source;
-                }
-                return res;
-            });
+                (acc, t) -> acc.collection.add(t),
+                (acc1, acc2) -> {
+                    acc1.collection.addAll(acc2.collection);
+                    return acc1;
+                },
+                acc -> {
+                    byte[] res = new byte[acc.collection.size()];
+                    int i = 0;
+                    for (Byte source : acc.collection) {
+                        res[i++] = source;
+                    }
+                    return res;
+                });
     }
 
     public static Collector<Character, ?, char[]> toCharArray() {
@@ -78,16 +82,19 @@ public class StreamUtil {
         }
 
         return Collector.of(PrimitiveByteAccumulator::new,
-                            (acc, t) -> acc.collection.add(t),
-                            (acc1, acc2) -> { acc1.collection.addAll(acc2.collection); return acc1; },
-                            acc -> {
-                                char[] res = new char[acc.collection.size()];
-                                int i = 0;
-                                for (Character source : acc.collection) {
-                                    res[i++] = source;
-                                }
-                                return res;
-                            });
+                (acc, t) -> acc.collection.add(t),
+                (acc1, acc2) -> {
+                    acc1.collection.addAll(acc2.collection);
+                    return acc1;
+                },
+                acc -> {
+                    char[] res = new char[acc.collection.size()];
+                    int i = 0;
+                    for (Character source : acc.collection) {
+                        res[i++] = source;
+                    }
+                    return res;
+                });
     }
 
     public static Collector<Double, ?, double[]> toDoubleArray() {
@@ -96,16 +103,19 @@ public class StreamUtil {
         }
 
         return Collector.of(PrimitiveDoubleAccumulator::new,
-                            (acc, t) -> acc.collection.add(t),
-                            (acc1, acc2) -> { acc1.collection.addAll(acc2.collection); return acc1; },
-                            acc -> {
-                                double[] res = new double[acc.collection.size()];
-                                int i = 0;
-                                for (Double source : acc.collection) {
-                                    res[i++] = source;
-                                }
-                                return res;
-                            });
+                (acc, t) -> acc.collection.add(t),
+                (acc1, acc2) -> {
+                    acc1.collection.addAll(acc2.collection);
+                    return acc1;
+                },
+                acc -> {
+                    double[] res = new double[acc.collection.size()];
+                    int i = 0;
+                    for (Double source : acc.collection) {
+                        res[i++] = source;
+                    }
+                    return res;
+                });
     }
 
     public static Collector<Float, ?, float[]> toFloatArray() {
@@ -114,16 +124,19 @@ public class StreamUtil {
         }
 
         return Collector.of(PrimitiveFloatAccumulator::new,
-                            (acc, t) -> acc.collection.add(t),
-                            (acc1, acc2) -> { acc1.collection.addAll(acc2.collection); return acc1; },
-                            acc -> {
-                                float[] res = new float[acc.collection.size()];
-                                int i = 0;
-                                for (Float source : acc.collection) {
-                                    res[i++] = source;
-                                }
-                                return res;
-                            });
+                (acc, t) -> acc.collection.add(t),
+                (acc1, acc2) -> {
+                    acc1.collection.addAll(acc2.collection);
+                    return acc1;
+                },
+                acc -> {
+                    float[] res = new float[acc.collection.size()];
+                    int i = 0;
+                    for (Float source : acc.collection) {
+                        res[i++] = source;
+                    }
+                    return res;
+                });
     }
 
     public static Collector<Integer, ?, int[]> toIntArray() {
@@ -132,16 +145,19 @@ public class StreamUtil {
         }
 
         return Collector.of(PrimitiveIntegerAccumulator::new,
-                            (acc, t) -> acc.collection.add(t),
-                            (acc1, acc2) -> { acc1.collection.addAll(acc2.collection); return acc1; },
-                            acc -> {
-                                int[] res = new int[acc.collection.size()];
-                                int i = 0;
-                                for (Integer source : acc.collection) {
-                                    res[i++] = source;
-                                }
-                                return res;
-                            });
+                (acc, t) -> acc.collection.add(t),
+                (acc1, acc2) -> {
+                    acc1.collection.addAll(acc2.collection);
+                    return acc1;
+                },
+                acc -> {
+                    int[] res = new int[acc.collection.size()];
+                    int i = 0;
+                    for (Integer source : acc.collection) {
+                        res[i++] = source;
+                    }
+                    return res;
+                });
     }
 
     public static Collector<Long, ?, long[]> toLongArray() {
@@ -150,16 +166,19 @@ public class StreamUtil {
         }
 
         return Collector.of(PrimitiveLongAccumulator::new,
-                            (acc, t) -> acc.collection.add(t),
-                            (acc1, acc2) -> { acc1.collection.addAll(acc2.collection); return acc1; },
-                            acc -> {
-                                long[] res = new long[acc.collection.size()];
-                                int i = 0;
-                                for (Long source : acc.collection) {
-                                    res[i++] = source;
-                                }
-                                return res;
-                            });
+                (acc, t) -> acc.collection.add(t),
+                (acc1, acc2) -> {
+                    acc1.collection.addAll(acc2.collection);
+                    return acc1;
+                },
+                acc -> {
+                    long[] res = new long[acc.collection.size()];
+                    int i = 0;
+                    for (Long source : acc.collection) {
+                        res[i++] = source;
+                    }
+                    return res;
+                });
     }
 
     public static Collector<Short, ?, short[]> toShortArray() {
@@ -168,15 +187,30 @@ public class StreamUtil {
         }
 
         return Collector.of(PrimitiveShortAccumulator::new,
-                            (acc, t) -> acc.collection.add(t),
-                            (acc1, acc2) -> { acc1.collection.addAll(acc2.collection); return acc1; },
-                            acc -> {
-                                short[] res = new short[acc.collection.size()];
-                                int i = 0;
-                                for (Short source : acc.collection) {
-                                    res[i++] = source;
-                                }
-                                return res;
-                            });
+                (acc, t) -> acc.collection.add(t),
+                (acc1, acc2) -> {
+                    acc1.collection.addAll(acc2.collection);
+                    return acc1;
+                },
+                acc -> {
+                    short[] res = new short[acc.collection.size()];
+                    int i = 0;
+                    for (Short source : acc.collection) {
+                        res[i++] = source;
+                    }
+                    return res;
+                });
+    }
+
+    /**
+     * Creates a batch collector of items which collects and then dispatches items in batches of a given batch size.
+     *
+     * @param batchSize      the maximum number of elements to collect in a batch before dispatching through the given batch processor.
+     * @param batchProcessor a processor of batched items.
+     * @param <T>            the type if items collected and processed in batches.
+     * @return a new batch collector.
+     */
+    public static <T> BatchCollector<T> batchCollector(int batchSize, Consumer<List<T>> batchProcessor) {
+        return new BatchCollector<>(batchSize, batchProcessor);
     }
 }
