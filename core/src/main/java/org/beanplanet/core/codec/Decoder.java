@@ -8,6 +8,8 @@ import org.beanplanet.core.io.resource.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A decoder of binary data.
@@ -35,6 +37,16 @@ public interface Decoder {
             throw new IoException(e);
         }
     }
+
+    /**
+     * Decodes the base-64 encoded input string. This method assumes an encoding of "US-ASCII" of the input string.
+     *
+     * @param input the string to decode
+     * @return the base-64 decoded form of the input string
+     */
+     default byte[] decode(String input) throws IoException {
+         return decode(input.getBytes(StandardCharsets.US_ASCII));
+     }
 
     /**
      * Performs decoding of the input to the given output resources. An input stream is opened from the given input

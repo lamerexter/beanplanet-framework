@@ -1,12 +1,11 @@
 package org.beanplanet.core.crypto;
 
+import org.beanplanet.core.codec.Base64;
 import org.beanplanet.core.codec.Hex;
 import org.beanplanet.core.io.IoUtil;
 import org.beanplanet.core.io.resource.FileResource;
 import org.beanplanet.core.io.resource.Resource;
 import org.beanplanet.core.lang.Assert;
-import org.beanplanet.core.net.Base64Decoder;
-import org.beanplanet.core.net.Base64Encoder;
 import org.beanplanet.core.util.StringUtil;
 
 import javax.crypto.Cipher;
@@ -60,7 +59,7 @@ public class CryptoUtil {
 
     static {
         embeddedSecretKey = generateSymmetricKey(DEFAULT_SYMMETRIC_ALGORITHM,
-                                                 Base64Decoder.decode("74TqjEjfgrmqCfvpd2vU7A=="));
+                                                 Base64.decode("74TqjEjfgrmqCfvpd2vU7A=="));
 
         // Uppercase algorithms to default key sizes map
         defaultKeySizeMap.put("AES", new Integer(128));
@@ -444,7 +443,7 @@ public class CryptoUtil {
             if (includeHeadersAndFooter) {
                 sBuf.append("-----BEGIN ").append(key instanceof PublicKey ? "PUBLIC" : "PRIVATE").append(" KEY-----\n");
             }
-            sBuf.append(Base64Encoder.encode(keyEncoding)).append("\n");
+            sBuf.append(Base64.encode(keyEncoding)).append("\n");
             if (includeHeadersAndFooter) {
                 sBuf.append("-----END ").append(key instanceof PublicKey ? "PUBLIC" : "PRIVATE").append(" KEY-----\n");
             }
@@ -585,7 +584,7 @@ public class CryptoUtil {
                         - lines[lines.length - 1].length() - 1);
             }
         }
-        return generatePublicKey(algorithm, providerName, new X509EncodedKeySpec(Base64Decoder.decode(keyPEMSpec)));
+        return generatePublicKey(algorithm, providerName, new X509EncodedKeySpec(Base64.decode(keyPEMSpec)));
     }
 
     /**
@@ -852,7 +851,7 @@ public class CryptoUtil {
                         - lines[lines.length - 1].length() - 1);
             }
         }
-        return generatePrivateKey(algorithm, providerName, new PKCS8EncodedKeySpec(Base64Decoder.decode(keyPEMSpec)));
+        return generatePrivateKey(algorithm, providerName, new PKCS8EncodedKeySpec(Base64.decode(keyPEMSpec)));
     }
 
     /**
@@ -1354,7 +1353,7 @@ public class CryptoUtil {
                                                 + ", providerName="
                                                 + providerName
                                                 + ", encodedKeyBase64="
-                                                + Base64Encoder.encode(publicKeySpec.getEncoded())
+                                                + Base64.encode(publicKeySpec.getEncoded())
                                                 + "]: ",
                                         th);
         }
@@ -1424,7 +1423,7 @@ public class CryptoUtil {
                                                 + ", providerName="
                                                 + providerName
                                                 + ", encodedKeyBase64="
-                                                + Base64Encoder.encode(privateKeySpec.getEncoded())
+                                                + Base64.encode(privateKeySpec.getEncoded())
                                                 + "]: ",
                                         th);
         }
@@ -3902,8 +3901,8 @@ public class CryptoUtil {
         KeyPair keyPair = CryptoUtil.generateKeyPair();
         System.out.println("Encoding keys ...");
         byte[][] encodedKeys = generateEncodedPublicPrivateKeySpecs(keyPair);
-        String publicKeyBase64 = Base64Encoder.encode(encodedKeys[0]);
-        String privateKeyBase64 = Base64Encoder.encode(encodedKeys[1]);
+        String publicKeyBase64 = Base64.encode(encodedKeys[0]);
+        String privateKeyBase64 = Base64.encode(encodedKeys[1]);
         System.out.println("Public Key Base64 representation:\n_____STARTS BELOW____________________________________\n"
                                    + publicKeyBase64 + "\n_____ENDS ABOVE  ____________________________________");
         System.out.println("Private Key Base64 representation:\n_____STARTS BELOW____________________________________\n"
@@ -3914,15 +3913,15 @@ public class CryptoUtil {
         SecretKey key = generateSymmetricKey();
         System.out.println("Encoding secret key ...");
         byte[] keySpec = key.getEncoded();
-        String secretKeyBase64 = Base64Encoder.encode(keySpec);
+        String secretKeyBase64 = Base64.encode(keySpec);
         System.out.println("Secret Key Base64 representation:\n_____STARTS BELOW____________________________________\n"
                                    + secretKeyBase64 + "\n_____ENDS ABOVE  ____________________________________");
 
         String originalText = "Hello World!";
         byte encrypted[] = encrypt(originalText.getBytes());
 
-        System.out.println("Encrypted text (base64) = =" + Base64Encoder.encode(encrypted) + " [original base64="
-                                   + Base64Encoder.encode(originalText) + ", encrypted len=" + encrypted.length + "]");
+        System.out.println("Encrypted text (base64) = =" + Base64.encode(encrypted) + " [original base64="
+                                   + Base64.encode(originalText) + ", encrypted len=" + encrypted.length + "]");
 
         byte decrypted[] = decrypt(encrypted);
         System.out.println("Original =" + originalText + "\nDecrypted =" + (new String(decrypted)));
