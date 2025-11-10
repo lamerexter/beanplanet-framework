@@ -42,7 +42,7 @@
     <artifactId>beanplanet-spring-web</artifactId>
 
     <properties>
-        <spring.version>5.3.15</spring.version>
+        <spring.version>6.1.20</spring.version>
     </properties>
     <dependencies>
         <dependency>
