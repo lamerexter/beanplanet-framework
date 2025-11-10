@@ -19,13 +19,13 @@
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.beanplanet</groupId>
-      <artifactId>beanplanet</artifactId>
-      <version>2.0.1-SNAPSHOT</version>
+      <artifactId>beanplanet-parent</artifactId>
+      <version>0.9.1-SNAPSHOT</version>
       <relativePath>../pom.xml</relativePath>
    </parent>
    <artifactId>beanplanet-docs</artifactId>
    <name>BeanPlanet - Documentation</name>
-   <version>2.0.1-SNAPSHOT</version>
+   <version>0.9.1-SNAPSHOT</version>
 
    <properties>
       <apache-commons-imaging-version>1.0-alpha2</apache-commons-imaging-version>

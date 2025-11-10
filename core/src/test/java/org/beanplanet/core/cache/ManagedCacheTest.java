@@ -17,12 +17,12 @@
 package org.beanplanet.core.cache;
 
 import org.beanplanet.core.cache.ManagedCache.ManagedCacheEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,19 +32,19 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ManagedCacheTest {
     private ManagedCache<String, String> cache;
 
     @Mock
     private CacheListener<String, String> listener;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         cache = new ManagedCache<>(); // Mockito @InjectMocks gets confused with which constructor to call!
         cache.addCacheListener(listener);

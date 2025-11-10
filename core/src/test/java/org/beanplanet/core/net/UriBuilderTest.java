@@ -17,19 +17,17 @@
 package org.beanplanet.core.net;
 
 import org.beanplanet.core.util.MultiValueListMapImpl;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class UriBuilderTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    // JUnit 5 uses assertThrows instead of ExpectedException rule
 
     @Test
     public void noArgConstructor() {
@@ -81,15 +79,16 @@ public class UriBuilderTest {
 
     @Test
     public void toUriThrowsAnErrorForAnIncompleteUri() {
-        // Expect
-        exception.expect(NetworkException.class);
-        exception.expectMessage("incomplete or invalid URI");
-
         // When
         UriBuilder builder = new UriBuilder();
         builder.scheme("https");
 
         // Then
-        builder.toUri();
+        NetworkException exception = assertThrows(NetworkException.class, () -> {
+            builder.toUri();
+        });
+
+        // Verify the exception message contains the expected text
+        assertThat(exception.getMessage(), org.hamcrest.CoreMatchers.containsString("incomplete or invalid URI"));
     }
 }

@@ -1,0 +1,27 @@
+name: Build
+run-name: Build and install artifacts (Update by ${{ github.actor }}) 🚀
+on: [push]
+jobs:
+  build:
+    name: Build - JDK ${{ matrix.java }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ "17", "21" ]
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+#        run: mvn -B -e -Prelease -Dgpg.skip=true clean deploy
+        run: mvn -e clean install

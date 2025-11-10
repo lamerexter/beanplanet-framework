@@ -21,24 +21,35 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.beanplanet</groupId>
-        <artifactId>beanplanet</artifactId>
-        <version>2.0.1-SNAPSHOT</version>
+        <artifactId>beanplanet-parent</artifactId>
+        <version>0.9.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <name>Beanplanet - Core</name>
-    <description>Beanplanet Core Project</description>
+
     <artifactId>beanplanet-core</artifactId>
+
+    <name>Beanplanet - Core</name>
+    <description>Beanplanet core library providing basic essentials for modern intelligent development</description>
+
+    <properties>
+        <!-- Build properties, in alphabetical order -->
+        <bouncycastle.version>1.80</bouncycastle.version>
+    </properties>
+
     <dependencies>
+        <!-- Build dependencies, in alphabetical order groupId, artifactId -->
         <dependency>
             <groupId>org.beanplanet</groupId>
             <artifactId>beanplanet-testing-proxies</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.80</version>
+            <version>${bouncycastle.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
