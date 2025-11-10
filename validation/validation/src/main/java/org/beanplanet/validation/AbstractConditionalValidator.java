@@ -16,7 +16,7 @@
 
 package org.beanplanet.validation;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.beanplanet.core.util.PropertyBasedToStringBuilder;
 import org.beanplanet.messages.domain.Messages;
 
 import java.util.function.Predicate;
@@ -78,6 +78,6 @@ public abstract class AbstractConditionalValidator<T> implements ConditionalVali
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.reflectionToString(this);
+        return new PropertyBasedToStringBuilder(this).build();
     }
 }

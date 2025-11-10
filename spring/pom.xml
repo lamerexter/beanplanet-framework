@@ -55,6 +55,11 @@
         <url>http://github.com/simpligility/ossrh-demo/tree/master</url>
     </scm>
 
+
+    <properties>
+        <spring.version>6.2.11</spring.version>
+    </properties>
+
     <modules>
         <module>spring-core</module>
         <module>spring-web</module>

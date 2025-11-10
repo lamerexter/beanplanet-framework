@@ -31,11 +31,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${apache.commons.lang3.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.beanplanet</groupId>
             <artifactId>beanplanet-core</artifactId>
             <version>${project.version}</version>
@@ -59,7 +54,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>4.2.5.RELEASE</version>
+            <version>6.2.8</version>
         </dependency>
     </dependencies>
 </project>
