@@ -18,12 +18,10 @@ package org.beanplanet.core.util;
 
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -58,7 +56,12 @@ public class StringUtilTest {
 
     @Test
     public void asCsvString_null() {
-        assertThat(asCsvString(null), nullValue());
+        assertThat(asCsvString((Collection<?>)null), nullValue());
+    }
+
+    @Test
+    public void asCsvString_Stream_null() {
+        assertThat(asCsvString((Stream<?>)null), nullValue());
     }
 
     @Test
@@ -67,13 +70,28 @@ public class StringUtilTest {
     }
 
     @Test
+    public void asCsvString_Stream_empty() {
+        assertThat(asCsvString(Stream.empty()), equalTo(""));
+    }
+
+    @Test
     public void asCsvString_single() {
         assertThat(asCsvString(singletonList("a")), equalTo("a"));
     }
 
     @Test
+    public void asCsvString_Stream_single() {
+        assertThat(asCsvString(Stream.of("a")), equalTo("a"));
+    }
+
+    @Test
     public void asCsvString_multiple() {
         assertThat(asCsvString(asList("a", "b", "c")), equalTo("a,b,c"));
+    }
+
+    @Test
+    public void asCsvString_Stream_multiple() {
+        assertThat(asCsvString(Stream.of("a", "b", "c")), equalTo("a,b,c"));
     }
 
     @Test
