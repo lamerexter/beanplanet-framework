@@ -18,424 +18,515 @@ package org.beanplanet.core.util;
 
 import org.junit.Test;
 
+import java.io.OutputStreamWriter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.beanplanet.core.Predicates.falsePredicate;
-import static org.beanplanet.core.Predicates.truePredicate;
 import static org.beanplanet.core.util.StringUtil.*;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class StringUtilTest {
+
     @Test
-    public void toLowercase_null() {
-        assertThat(StringUtil.toLowercase(null), nullValue());
+    public void toLowercase_whenInputHasMixedCase_thenReturnsLowercaseValue() {
+        assertThat(StringUtil.toLowercase("BeanPLANET 21"), equalTo("beanplanet 21"));
     }
 
     @Test
-    public void toLowercase() {
-        assertThat(StringUtil.toLowercase("   "), equalTo("   "));
-        assertThat(StringUtil.toLowercase("AbC dEF"), equalTo("abc def"));
+    public void toUppercase_whenInputHasMixedCase_thenReturnsUppercaseValue() {
+        assertThat(StringUtil.toUppercase("BeanPLANET 21"), equalTo("BEANPLANET 21"));
     }
 
     @Test
-    public void toUppercase_null() {
-        assertThat(StringUtil.toUppercase(null), nullValue());
+    public void initCap_whenUsingDefaultOverload_thenLeavesRemainingCharactersUntouched() {
+        assertThat(initCap("hELLO"), equalTo("HELLO"));
     }
 
     @Test
-    public void toUppercase() {
-        assertThat(StringUtil.toUppercase("   "), equalTo("   "));
-        assertThat(StringUtil.toUppercase("AbC dEF"), equalTo("ABC DEF"));
+    public void initCap_whenStringIsNullEmptyOrSingleCharacter_thenReturnsExpectedValue() {
+        assertThat(initCap((String) null, true), nullValue());
+        assertThat(initCap("", true), equalTo(""));
+        assertThat(initCap("q", false), equalTo("Q"));
     }
 
     @Test
-    public void asCsvString_null() {
-        assertThat(asCsvString((Collection<?>)null), nullValue());
+    public void isNotBlank_whenInputIsWhitespaceOrText_thenReturnsInverseOfIsBlank() {
+        assertThat(isNotBlank("\t\n"), is(false));
+        assertThat(isNotBlank(" value "), is(true));
     }
 
     @Test
-    public void asCsvString_Stream_null() {
-        assertThat(asCsvString((Stream<?>)null), nullValue());
+    public void isEmptyOrNullAndNotEmptyVariants_whenInputIsNullBlankOrText_thenReturnExpectedValues() {
+        assertThat(isEmptyOrNull(null), is(true));
+        assertThat(isEmptyOrNull("  "), is(true));
+        assertThat(isEmptyOrNull(" value "), is(false));
+
+        assertThat(notEmpty(null), is(false));
+        assertThat(notEmpty("\n"), is(false));
+        assertThat(notEmpty("value"), is(true));
+
+        assertThat(notEmptyAndNotNull(null), is(false));
+        assertThat(notEmptyAndNotNull("   "), is(false));
+        assertThat(notEmptyAndNotNull("value"), is(true));
     }
 
     @Test
-    public void asCsvString_empty() {
-        assertThat(asCsvString(Collections.emptyList()), equalTo(""));
+    public void emptyString_whenCalled_thenReturnsEmptyString() {
+        assertThat(StringUtil.emptyString(), equalTo(""));
     }
 
     @Test
-    public void asCsvString_Stream_empty() {
-        assertThat(asCsvString(Stream.empty()), equalTo(""));
+    public void repeat_whenTimesAreNegativeZeroOrPositive_thenReturnsExpectedValue() {
+        assertThat(repeat(new StringBuilder("ab"), -3), equalTo(""));
+        assertThat(repeat(new StringBuilder("ab"), 0), equalTo(""));
+        assertThat(repeat(new StringBuilder("ab"), 3), equalTo("ababab"));
     }
 
     @Test
-    public void asCsvString_single() {
-        assertThat(asCsvString(singletonList("a")), equalTo("a"));
+    public void replaceAll_whenInputOrPatternsAreNull_thenReturnsExpectedValue() {
+        assertThat(replaceAll(null, "a", "b"), nullValue());
+        assertThat(replaceAll("abc", null, "b"), equalTo("abc"));
+        assertThat(replaceAll("abc", "a", null), equalTo("abc"));
     }
 
     @Test
-    public void asCsvString_Stream_single() {
-        assertThat(asCsvString(Stream.of("a")), equalTo("a"));
+    public void replaceAll_whenPatternOccursOrDoesNotOccur_thenReturnsExpectedValue() {
+        assertThat(replaceAll("abracadabra", "abra", "AB"), equalTo("ABcadAB"));
+        assertThat(replaceAll("beanplanet", "xyz", "AB"), equalTo("beanplanet"));
     }
 
     @Test
-    public void asCsvString_multiple() {
-        assertThat(asCsvString(asList("a", "b", "c")), equalTo("a,b,c"));
+    public void replaceAllRegex_whenRegexMatchesOrDoesNotMatch_thenReturnsExpectedValue() {
+        assertThat(replaceAllRegex("a1 b22 c333", "\\d+", "#"), equalTo("a# b# c#"));
+        assertThat(replaceAllRegex("plain", "\\d+", "#"), equalTo("plain"));
     }
 
     @Test
-    public void asCsvString_Stream_multiple() {
-        assertThat(asCsvString(Stream.of("a", "b", "c")), equalTo("a,b,c"));
+    public void truncate_whenInputIsNullWithinLimitOrExceedsLimit_thenReturnsExpectedValue() {
+        assertThat(truncate(null, 3, "..."), equalTo(""));
+        assertThat(truncate("cat", 3, "..."), equalTo("cat"));
+        assertThat(truncate("catalogue", 3, null), equalTo("cat"));
+        assertThat(truncate("catalogue", 3, "..."), equalTo("cat..."));
     }
 
     @Test
-    public void asCsvStream_null() {
-        assertThat(asCsvStream(null), nullValue());
-    }
-
-    @Test
-    public void asCsvStream_multiple() {
-        assertThat(asCsvStream("a,b,c").collect(Collectors.toList()), equalTo(asList("a", "b", "c")));
-    }
-
-    @Test
-    public void asCsvList_null() {
-        assertThat(asCsvList(null), nullValue());
-    }
-
-    @Test
-    public void asCsvList_empty() {
-        assertThat(asCsvList(""), equalTo(Collections.emptyList()));
-    }
-
-    @Test
-    public void asCsvList_single() {
-        assertThat(asCsvList("a"), equalTo(asList("a")));
-    }
-
-    @Test
-    public void asCsvList_multiple() {
-        assertThat(asCsvList("a,b,c"), equalTo(asList("a", "b", "c")));
-    }
-
-    @Test
-    public void asCsvSet_null() {
-        assertThat(asCsvSet(null), nullValue());
-    }
-
-    @Test
-    public void asCsvSet_empty() {
-        assertThat(asCsvSet(""), equalTo(Collections.emptySet()));
-    }
-
-    @Test
-    public void asCsvSet_single() {
-        assertThat(asCsvSet("a"), equalTo(new LinkedHashSet<>(asList("a"))));
-    }
-
-    @Test
-    public void asCsvSet_multiple() {
-        assertThat(asCsvSet("a,b,c,b,a"), equalTo(new LinkedHashSet(asList("a", "b", "c"))));
-    }
-
-    @Test
-    public void asDelimitedString_Stream_Predicate_Delimiter_Function() {
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), null, ",", null), equalTo("a,b,c"));
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), e -> !"b".equals(e), ",", null), equalTo("a,c"));
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), null, ",", e -> e + "_txn"), equalTo("a_txn,b_txn,c_txn"));
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), falsePredicate(), ",", e -> e + "_txn"), equalTo(""));
-    }
-
-    @Test
-    public void asDelimitedString_Stream_Predicate_Delimiter() {
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), truePredicate(), ","), equalTo("a,b,c"));
-    }
-
-    @Test
-    public void asDelimitedString_Stream_Delimiter_Function() {
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
-    }
-
-    @Test
-    public void asDelimitedString_Stream_Delimiter() {
-        assertThat(asDelimitedString(asList("a", "b", "c").stream(), ","), equalTo("a,b,c"));
-    }
-
-    @Test
-    public void asDelimitedString_Array_Predicate_Delimiter_Function() {
-        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, null, ",", null), equalTo("a,b,c"));
-        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, e -> !"b".equals(e), ",", null), equalTo("a,c"));
-        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, null, ",", e -> e + "_txn"), equalTo("a_txn,b_txn,c_txn"));
-        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, falsePredicate(), ",", e -> e + "_txn"), equalTo(""));
-    }
-
-    @Test
-    public void asDelimitedString_Array_Predicate_Delimiter() {
-        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, truePredicate(), ","), equalTo("a,b,c"));
-    }
-
-    @Test
-    public void asDelimitedString_Array_Delimiter_Function() {
-        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
-    }
-
-    @Test
-    public void asDelimitedString_Array_Delimiter() {
-        assertThat(asDelimitedString(new String[]{"a", "b", "c"}, ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
-    }
-
-    @Test
-    public void asDelimitedString_Collection_Predicate_Delimiter_Function() {
-        assertThat(asDelimitedString(asList("a", "b", "c"), null, ",", null), equalTo("a,b,c"));
-        assertThat(asDelimitedString(asList("a", "b", "c"), e -> !"b".equals(e), ",", null), equalTo("a,c"));
-        assertThat(asDelimitedString(asList("a", "b", "c"), null, ",", e -> e + "_txn"), equalTo("a_txn,b_txn,c_txn"));
-        assertThat(asDelimitedString(asList("a", "b", "c"), falsePredicate(), ",", e -> e + "_txn"), equalTo(""));
-    }
-
-    @Test
-    public void asDelimitedString_Collection_Predicate_Delimiter() {
-        assertThat(asDelimitedString(asList("a", "b", "c"), truePredicate(), ","), equalTo("a,b,c"));
-    }
-
-    @Test
-    public void asDelimitedString_Collection_Delimiter_Function() {
-        assertThat(asDelimitedString(asList("a", "b", "c"), ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
-    }
-
-    @Test
-    public void asDelimitedString_Collection_Delimiter() {
-        assertThat(asDelimitedString(asList("a", "b", "c"), ",", e -> "prefix_" + e), equalTo("prefix_a,prefix_b,prefix_c"));
-    }
-
-    @Test
-    public void asDelimitedString_Map_Predicate_Delimiter_Delimiter_Function_Function() {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("a", "a1");
-        map.put("b", "b1");
-        map.put("c", "c1");
-        map.put("d", "d1");
-        map.put("e", "e1");
-        assertThat(asDelimitedString(map,
-                (k, v) -> !("b".equals(k) || "d1".equals(v)),
-                "&", "=", k -> k + "_k", v -> v + "_v"), equalTo("a_k=a1_v&c_k=c1_v&e_k=e1_v"));
-        assertThat(asDelimitedString(map,
-                null,
-                "&", "=", k -> k + "_k", v -> v + "_v"), equalTo("a_k=a1_v&b_k=b1_v&c_k=c1_v&d_k=d1_v&e_k=e1_v"));
-        assertThat(asDelimitedString(map,
-                (k, v) -> !("b".equals(k) || "d1".equals(v)),
-                "&", "=", null, null), equalTo("a=a1&c=c1&e=e1"));
-        assertThat(asDelimitedString(map,
-                null,
-                "&", "=", null, null), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
-    }
-
-    @Test
-    public void asDelimitedString_Map_Predicate_Delimiter_Delimiter() {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("a", "a1");
-        map.put("b", "b1");
-        map.put("c", "c1");
-        map.put("d", "d1");
-        map.put("e", "e1");
-        assertThat(asDelimitedString(map,
-                (k, v) -> !("b".equals(k) || "d1".equals(v)),
-                "&", "="), equalTo("a=a1&c=c1&e=e1"));
-        assertThat(asDelimitedString(map,
-                null,
-                "&", "="), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
-    }
-
-    @Test
-    public void asDelimitedString_Map_Delimiter_Delimiter_Function_Function() {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("a", "a1");
-        map.put("b", "b1");
-        map.put("c", "c1");
-        map.put("d", "d1");
-        map.put("e", "e1");
-        assertThat(asDelimitedString(map,
-                "&", "=", k -> k + "_k", v -> v + "_v"), equalTo("a_k=a1_v&b_k=b1_v&c_k=c1_v&d_k=d1_v&e_k=e1_v"));
-        assertThat(asDelimitedString(map,
-                "&", "=", null, null), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
-    }
-
-    @Test
-    public void asDelimitedString_Map_Delimiter_Delimiter() {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("a", "a1");
-        map.put("b", "b1");
-        map.put("c", "c1");
-        map.put("d", "d1");
-        map.put("e", "e1");
-        assertThat(asDelimitedString(map, "&", "="), equalTo("a=a1&b=b1&c=c1&d=d1&e=e1"));
-    }
-
-    @Test
-    public void initCap_NullString() {
-        assertThat(StringUtil.initCap(null), nullValue());
-    }
-
-    @Test
-    public void initCap_EmptyString() {
-        assertThat(StringUtil.initCap(""), equalTo(""));
-    }
-
-    @Test
-    public void initCap_SingleCharacter() {
-        assertThat(StringUtil.initCap("e"), equalTo("E"));
-    }
-
-    @Test
-    public void initCap_SingleWord() {
-        assertThat(StringUtil.initCap("word1"), equalTo("Word1"));
-    }
-
-    @Test
-    public void initCap_SingleWord_ForceLowercase() {
-        assertThat(StringUtil.initCap("woRD1", true), equalTo("Word1"));
-    }
-
-    @Test
-    public void initCap_TwoWords() {
-        assertThat(StringUtil.initCap("word1 word2"), equalTo("Word1 word2"));
-    }
-
-    @Test
-    public void initCap_TwoWords_ForceLowercase() {
-        assertThat(StringUtil.initCap("worD1 wOrd2", true), equalTo("Word1 word2"));
-    }
-
-    @Test
-    public void repeat_null() {
-        assertThat(StringUtil.repeat(null, 1), nullValue());
-    }
-
-    @Test
-    public void repeat_ZeroTimes() {
-        assertThat(StringUtil.repeat("a", 0), equalTo(""));
-    }
-
-    @Test
-    public void repeat_Once() {
-        assertThat(StringUtil.repeat("a", 1), equalTo("a"));
-        assertThat(StringUtil.repeat("abc", 1), equalTo("abc"));
-    }
-
-    @Test
-    public void repeat_MultipleTimes() {
-        assertThat(StringUtil.repeat("a", 2), equalTo("aa"));
-        assertThat(StringUtil.repeat("a", 5), equalTo("aaaaa"));
-
-        assertThat(StringUtil.repeat("abc", 2), equalTo("abcabc"));
-        assertThat(StringUtil.repeat("abc", 5), equalTo("abcabcabcabcabc"));
-    }
-
-    @Test
-    public void nvlStr_null() {
-        assertThat(StringUtil.nvlStr(null), nullValue());
-    }
-
-    @Test
-    public void nvlStr_empty() {
-        assertThat(StringUtil.nvlStr(""), nullValue());
-        assertThat(StringUtil.nvlStr(" "), nullValue());
-        assertThat(StringUtil.nvlStr("\t\r\n"), nullValue());
-    }
-
-    @Test
-    public void isAlphanumeric() {
-        for (int n = 0; n < ALPHNUMERIC_CHARS.length(); n++) {
-            assertThat(StringUtil.isAlphanumeric(ALPHNUMERIC_CHARS.charAt(n)), is(true));
+    public void getDefaultCharacterEncoding_whenFileEncodingPropertyIsPresent_thenReturnsThatProperty() {
+        final String originalEncoding = System.getProperty("file.encoding");
+        try {
+            System.setProperty("file.encoding", "UTF-TEST");
+            assertThat(getDefaultCharacterEncoding(), equalTo("UTF-TEST"));
+        }
+        finally {
+            restoreSystemProperty("file.encoding", originalEncoding);
         }
     }
 
     @Test
-    public void isAsciiPrintableSpecial() {
-        for (int n = 0; n < ASCII_PRINTABLE_SPECIAL_CHARS.length(); n++) {
-            assertThat(StringUtil.isAsciiPrintableSpecial(ASCII_PRINTABLE_SPECIAL_CHARS.charAt(n)), is(true));
+    public void getDefaultCharacterEncoding_whenFileEncodingPropertyIsMissing_thenUsesWriterEncodingFallback() {
+        final String originalEncoding = System.getProperty("file.encoding");
+        final String expectedEncoding = new OutputStreamWriter(java.io.OutputStream.nullOutputStream()).getEncoding();
+        try {
+            System.clearProperty("file.encoding");
+            assertThat(getDefaultCharacterEncoding(), equalTo(expectedEncoding));
+        }
+        finally {
+            restoreSystemProperty("file.encoding", originalEncoding);
         }
     }
 
     @Test
-    public void randomChars_null() {
-        assertThat(StringUtil.randomChars(null, 1, 10), nullValue());
+    public void trim_whenOccurrenceIsNullEmptyOrPresentAtBothEnds_thenReturnsExpectedValue() {
+        assertThat(trim(null, "ab"), nullValue());
+        assertThat(trim("value", null), equalTo("value"));
+        assertThat(trim("value", ""), equalTo("value"));
+        assertThat(trim("ababvalueabab", "ab"), equalTo("value"));
+        assertThat(trim("value", "ab"), equalTo("value"));
     }
 
     @Test
-    public void randomAlphaNumericChars_fixedLength() {
-        final String randomStr = StringUtil.randomAlphaumericChars(10);
-        assertThat(randomStr, notNullValue());
-        assertThat(randomStr.length(), equalTo(10));
-        for (int n = 0; n < randomStr.length(); n++) {
-            assertThat(StringUtil.isAlphanumeric(randomStr.charAt(n)), is(true));
-        }
+    public void lTrim_whenCaseSensitiveFlagVaries_thenReturnsExpectedValue() {
+        assertThat(lTrim(null, "ab"), nullValue());
+        assertThat(lTrim("value", null), equalTo("value"));
+        assertThat(lTrim("AbabValue", "ab", true), equalTo("AbabValue"));
+        assertThat(lTrim("AbabValue", "ab", false), equalTo("Value"));
+        assertThat(lTrim("ababValue", "ab"), equalTo("Value"));
     }
 
     @Test
-    public void randomAlphaNumericAsciiSpecialPrintableChars_fixedLength() {
-        final String randomStr = StringUtil.randomAlphanumericAsciiPrintableSpecialChars(12);
-        assertThat(randomStr, notNullValue());
-        assertThat(randomStr.length(), equalTo(12));
-        for (int n = 0; n < randomStr.length(); n++) {
-            assertThat(StringUtil.isAlphanumericOrAsciiPrintableSpecial(randomStr.charAt(n)), is(true));
-        }
+    public void rTrim_whenCaseSensitiveFlagVaries_thenReturnsExpectedValue() {
+        assertThat(rTrim(null, "ab"), nullValue());
+        assertThat(rTrim("value", ""), equalTo("value"));
+        assertThat(rTrim("ValueABab", "ab", true), equalTo("ValueAB"));
+        assertThat(rTrim("ValueABab", "ab", false), equalTo("Value"));
+        assertThat(rTrim("Valueabab", "ab"), equalTo("Value"));
     }
 
     @Test
-    public void isBlank_null() {
-        assertThat(StringUtil.isBlank(null), is(true));
+    public void asCsvString_whenCollectionOrStreamContainsValues_thenReturnsCommaDelimitedString() {
+        assertThat(asCsvString(List.of("alpha", "beta")), equalTo("alpha,beta"));
+        assertThat(asCsvString(Stream.of("alpha", "beta")), equalTo("alpha,beta"));
     }
 
     @Test
-    public void isBlank_empty() {
-        assertThat(StringUtil.isBlank(""), is(true));
+    public void asDelimitedString_whenStreamOverloadsReceiveNull_thenReturnNull() {
+        assertThat(asDelimitedString((Stream<String>) null, (Predicate<String>) null, ",", null), nullValue());
+        assertThat(asDelimitedString((Stream<String>) null, (Predicate<String>) null, ","), nullValue());
+        assertThat(asDelimitedString((Stream<String>) null, ",", (Function<String, String>) null), nullValue());
+        assertThat(asDelimitedString((Stream<String>) null, ","), nullValue());
     }
 
     @Test
-    public void isBlank_allWhitespaceChars() {
-        assertThat(StringUtil.isBlank(" "), is(true));
-        assertThat(StringUtil.isBlank(" \t"), is(true));
-        assertThat(StringUtil.isBlank(" \r"), is(true));
-        assertThat(StringUtil.isBlank(" \n"), is(true));
-        assertThat(StringUtil.isBlank(" \t\r\n "), is(true));
+    public void asDelimitedString_whenStreamOverloadsReceiveValues_thenApplyFiltersAndTransformers() {
+        assertThat(asDelimitedString(Stream.of("a", "b", "c"), value -> !"b".equals(value), "|", String::toUpperCase), equalTo("A|C"));
+        assertThat(asDelimitedString(Stream.of("a", "b"), value -> true, "|"), equalTo("a|b"));
+        assertThat(asDelimitedString(Stream.of("a", "b"), "|", value -> value + value), equalTo("aa|bb"));
+        assertThat(asDelimitedString(Stream.of("a", "b"), "|"), equalTo("a|b"));
     }
 
     @Test
-    public void isBlank_nonWhitespaceChars() {
-        assertThat(StringUtil.isBlank(" H"), is(false));
-        assertThat(StringUtil.isBlank(" Hello World! "), is(false));
+    public void asDelimitedString_whenArrayOverloadsReceiveNull_thenReturnNull() {
+        assertThat(asDelimitedString((String[]) null, value -> true, ",", String::valueOf), nullValue());
+        assertThat(asDelimitedString((String[]) null, value -> true, ","), nullValue());
+        assertThat(asDelimitedString((String[]) null, ",", String::valueOf), nullValue());
+        assertThat(asDelimitedString((String[]) null, ","), nullValue());
     }
 
     @Test
-    public void isBlank_nullToString() {
-        assertThat(StringUtil.isBlank(new Object() {
-            public String toString() {
-                return null;
+    public void asDelimitedString_whenArrayOverloadsReceiveValues_thenApplyFiltersAndTransformers() {
+        final String[] values = {"a", "b", "c"};
+        assertThat(asDelimitedString(values, value -> !"b".equals(value), "|", String::toUpperCase), equalTo("A|C"));
+        assertThat(asDelimitedString(values, value -> !"b".equals(value), "|"), equalTo("a|c"));
+        assertThat(asDelimitedString(values, "|", value -> value + value), equalTo("aa|bb|cc"));
+        assertThat(asDelimitedString(values, "|"), equalTo("a|b|c"));
+    }
+
+    @Test
+    public void asDelimitedString_whenCollectionOverloadsReceiveNull_thenReturnNull() {
+        assertThat(asDelimitedString((Collection<String>) null, value -> true, ",", String::valueOf), nullValue());
+        assertThat(asDelimitedString((Collection<String>) null, value -> true, ","), nullValue());
+        assertThat(asDelimitedString((Collection<String>) null, ",", String::valueOf), nullValue());
+        assertThat(asDelimitedString((Collection<String>) null, ","), nullValue());
+    }
+
+    @Test
+    public void asDelimitedString_whenCollectionOverloadsReceiveValues_thenApplyFiltersAndTransformers() {
+        final List<String> values = List.of("a", "b", "c");
+        assertThat(asDelimitedString(values, value -> !"b".equals(value), "|", String::toUpperCase), equalTo("A|C"));
+        assertThat(asDelimitedString(values, value -> !"b".equals(value), "|"), equalTo("a|c"));
+        assertThat(asDelimitedString(values, "|", value -> value + value), equalTo("aa|bb|cc"));
+        assertThat(asDelimitedString(values, "|"), equalTo("a|b|c"));
+    }
+
+    @Test
+    public void asDelimitedString_whenStreamableOverloadsReceiveNull_thenReturnNull() {
+        assertThat(asDelimitedString((Streamable<String>) null, ","), nullValue());
+        assertThat(asDelimitedString((Streamable<String>) null, value -> true, ",", String::valueOf), nullValue());
+    }
+
+    @Test
+    public void asDelimitedString_whenStreamableOverloadsReceiveValues_thenApplyFiltersAndTransformers() {
+        final Streamable<String> values = streamableOf("a", "b", "c");
+        assertThat(asDelimitedString(values, "|"), equalTo("a|b|c"));
+        assertThat(asDelimitedString(values, value -> !"b".equals(value), "|", String::toUpperCase), equalTo("A|C"));
+    }
+
+    @Test
+    public void asDelimitedString_whenIterableOverloadsReceiveNull_thenReturnNull() {
+        assertThat(asDelimitedString((Iterable<String>) null, ","), nullValue());
+        assertThat(asDelimitedString((Iterable<String>) null, value -> true, ",", String::valueOf), nullValue());
+    }
+
+    @Test
+    public void asDelimitedString_whenIterableOverloadsReceiveValues_thenApplyFiltersAndTransformers() {
+        final Iterable<String> values = List.of("a", "b", "c");
+        assertThat(asDelimitedString(values, "|"), equalTo("a|b|c"));
+        assertThat(asDelimitedString(values, value -> !"b".equals(value), "|", String::toUpperCase), equalTo("A|C"));
+    }
+
+    @Test
+    public void asDelimitedString_whenMapOverloadsReceiveNull_thenReturnNull() {
+        assertThat(asDelimitedString((Map<String, String>) null, (BiPredicate<String, String>) null, "&", "=", null, null), nullValue());
+        assertThat(asDelimitedString((Map<String, String>) null, (BiPredicate<String, String>) null, "&", "="), nullValue());
+        assertThat(asDelimitedString((Map<String, String>) null, "&", "=", null, null), nullValue());
+        assertThat(asDelimitedString((Map<String, String>) null, "&", "="), nullValue());
+    }
+
+    @Test
+    public void asDelimitedString_whenMapOverloadsReceiveValues_thenApplyFiltersAndTransformers() {
+        final Map<String, Integer> values = new LinkedHashMap<>();
+        values.put("a", 1);
+        values.put("b", 2);
+        values.put("c", 3);
+
+        assertThat(asDelimitedString(values, (key, value) -> value % 2 == 1, "&", "=", String::toUpperCase, value -> "v" + value), equalTo("A=v1&C=v3"));
+        assertThat(asDelimitedString(values, (key, value) -> value % 2 == 1, "&", "="), equalTo("a=1&c=3"));
+        assertThat(asDelimitedString(values, "&", "=", String::toUpperCase, value -> "v" + value), equalTo("A=v1&B=v2&C=v3"));
+        assertThat(asDelimitedString(values, "&", "="), equalTo("a=1&b=2&c=3"));
+    }
+
+    @Test
+    public void asDelimitedStringOfNotEmpty_whenValuesContainNullOrBlankEntries_thenFiltersThemOut() {
+        assertThat(asDelimitedStringOfNotEmpty(",", (Object[]) null), nullValue());
+        assertThat(asDelimitedStringOfNotEmpty(",", "alpha", null, " ", 7, "beta"), equalTo("alpha,7,beta"));
+    }
+
+    @Test
+    public void ensureHasPrefix_whenInputOrPrefixIsNullOrAlreadyPresent_thenReturnsExpectedValue() {
+        assertThat(ensureHasPrefix(null, "pre"), nullValue());
+        assertThat(ensureHasPrefix("value", null), equalTo("value"));
+        assertThat(ensureHasPrefix("prefixValue", "prefix"), equalTo("prefixValue"));
+        assertThat(ensureHasPrefix("Value", "pre"), equalTo("preValue"));
+    }
+
+    @Test
+    public void ensureHasPrefix_whenCaseInsensitiveFlagIsTrue_thenMatchesIgnoringCase() {
+        assertThat(ensureHasPrefix("PrefixValue", "prefix", true), equalTo("PrefixValue"));
+        assertThat(ensureHasPrefix("Value", "prefix", true), equalTo("prefixValue"));
+    }
+
+    @Test
+    public void ensureHasSuffix_whenInputOrSuffixIsNullOrAlreadyPresent_thenReturnsExpectedValue() {
+        assertThat(ensureHasSuffix(null, "suf"), nullValue());
+        assertThat(ensureHasSuffix("value", null), equalTo("value"));
+        assertThat(ensureHasSuffix("valueSuffix", "Suffix"), equalTo("valueSuffix"));
+        assertThat(ensureHasSuffix("value", "Suffix"), equalTo("valueSuffix"));
+    }
+
+    @Test
+    public void ensureHasSuffix_whenCaseInsensitiveFlagIsTrue_thenMatchesIgnoringCaseAndHandlesLongSuffix() {
+        assertThat(ensureHasSuffix("valueSuffix", "suffix", true), equalTo("valueSuffix"));
+        assertThat(ensureHasSuffix("a", "suffix", true), equalTo("asuffix"));
+    }
+
+    @Test
+    public void asDsvStream_whenInputIsNull_thenReturnsNull() {
+        assertThat(asDsvStream(null, ",", true), nullValue());
+        assertThat(asDsvStream(null, ","), nullValue());
+    }
+
+    @Test
+    public void asDsvStream_whenDelimiterIsNullOrEmpty_thenThrowsIllegalArgumentException() {
+        expectIllegalArgument(() -> asDsvStream("a,b", null, true));
+        expectIllegalArgument(() -> asDsvStream("a,b", "", true));
+    }
+
+    @Test
+    public void asDsvStream_whenNoDelimiterExists_thenReturnsEmptyForBlankInputOnlyWhenTrimEnabled() {
+        assertThat(toList(asDsvStream("   ", ",", true)), equalTo(Collections.emptyList()));
+        assertThat(toList(asDsvStream("   ", ",", false)), equalTo(List.of("   ")));
+        assertThat(toList(asDsvStream("value", ",", true)), equalTo(List.of("value")));
+    }
+
+    @Test
+    public void asDsvStream_whenDelimiterExists_thenSplitsPreservesTrailingValuesAndOptionallyTrims() {
+        assertThat(toList(asDsvStream(" a | b || ", "|", true)), equalTo(List.of("a", "b", "", "")));
+        assertThat(toList(asDsvStream(" a | b || ", "|", false)), equalTo(List.of(" a ", " b ", "", " ")));
+        assertThat(toList(asDsvStream("a,b,c", ",")), equalTo(List.of("a", "b", "c")));
+    }
+
+    @Test
+    public void asDsvList_whenInputIsNullOrContainsValues_thenReturnsExpectedList() {
+        assertThat(asDsvList(null, "|"), nullValue());
+        assertThat(asDsvList(" a | b | c ", "|"), equalTo(List.of("a", "b", "c")));
+    }
+
+    @Test
+    public void csvParsingHelpers_whenInputContainsValues_thenReturnExpectedStructures() {
+        assertThat(toList(asCsvStream("a,b,c")), equalTo(List.of("a", "b", "c")));
+        assertThat(asCsvList("a,b,c"), equalTo(List.of("a", "b", "c")));
+        assertThat(asCsvSet("a,b,a,c"), equalTo(new LinkedHashSet<>(List.of("a", "b", "c"))));
+    }
+
+    @Test
+    public void nvlStr_whenInputIsNullBlankOrText_thenReturnsExpectedValue() {
+        assertThat(nvlStr(null), nullValue());
+        assertThat(nvlStr(" \t"), nullValue());
+        assertThat(nvlStr("value"), equalTo("value"));
+    }
+
+    @Test
+    public void alphaNumericClassificationMethods_whenCharactersMatchCurrentImplementation_thenReturnExpectedValues() {
+        assertThat(isUpperAlpha('A'), is(true));
+        assertThat(isUpperAlpha('7'), is(true));
+        assertThat(isUpperAlpha('!'), is(false));
+
+        assertThat(isLowerAlpha('z'), is(true));
+        assertThat(isLowerAlpha('7'), is(true));
+        assertThat(isLowerAlpha('!'), is(false));
+
+        assertThat(isNumeric('3'), is(true));
+        assertThat(isNumeric('A'), is(true));
+        assertThat(isNumeric('!'), is(false));
+
+        assertThat(StringUtil.isAlphanumeric('A'), is(true));
+        assertThat(StringUtil.isAlphanumeric('3'), is(true));
+        assertThat(StringUtil.isAlphanumeric('!'), is(false));
+    }
+
+    @Test
+    public void asciiPrintableClassificationMethods_whenCharactersMatchOrDoNotMatch_thenReturnExpectedValues() {
+        assertThat(StringUtil.isAsciiPrintableSpecial('!'), is(true));
+        assertThat(StringUtil.isAsciiPrintableSpecial('A'), is(false));
+        assertThat(isAlphanumericOrAsciiPrintableSpecial('!'), is(true));
+        assertThat(isAlphanumericOrAsciiPrintableSpecial('A'), is(true));
+        assertThat(isAlphanumericOrAsciiPrintableSpecial('\n'), is(false));
+    }
+
+    @Test
+    public void randomChars_whenLengthRangeAndCharacterSourceAreProvided_thenResultUsesOnlyAllowedCharacters() {
+        assertThat(randomChars(null, 1, 3), nullValue());
+        assertThat(randomChars("", 0, 0), equalTo(""));
+
+        for (int n = 0; n < 20; n++) {
+            final String random = randomChars("abc", 2, 4);
+            assertThat(random.length(), allOf(greaterThanOrEqualTo(2), lessThanOrEqualTo(4)));
+            for (int idx = 0; idx < random.length(); idx++) {
+                assertThat("abc".indexOf(random.charAt(idx)) >= 0, is(true));
             }
-        }), is(true));
+        }
     }
 
     @Test
-    public void firstNonBlank_null() {
-        assertThat(StringUtil.firstNonBlank((String[]) null), nullValue());
-        assertThat(StringUtil.firstNonBlank((Supplier<CharSequence>[]) null), nullValue());
+    public void randomAlphaNumericGenerators_whenCalled_thenRespectRequestedLengthsAndCharacterSets() {
+        for (int n = 0; n < 20; n++) {
+            final String ranged = randomAlphaumericChars(3, 5);
+            assertThat(ranged.length(), allOf(greaterThanOrEqualTo(3), lessThanOrEqualTo(5)));
+            for (int idx = 0; idx < ranged.length(); idx++) {
+                assertThat(StringUtil.isAlphanumeric(ranged.charAt(idx)), is(true));
+            }
+        }
+
+        final String fixed = randomAlphaumericChars(8);
+        assertThat(fixed.length(), equalTo(8));
+        for (int idx = 0; idx < fixed.length(); idx++) {
+            assertThat(StringUtil.isAlphanumeric(fixed.charAt(idx)), is(true));
+        }
     }
 
     @Test
-    public void firstNonBlank_first() {
-        assertThat(StringUtil.firstNonBlank("1st", "2nd"), equalTo("1st"));
-        assertThat(StringUtil.firstNonBlank(() -> "1st", () -> "2nd"), equalTo("1st"));
+    public void randomAsciiPrintableGenerators_whenCalled_thenRespectRequestedLengthsAndCharacterSets() {
+        for (int n = 0; n < 20; n++) {
+            final String ranged = randomAlphanumericAsciiPrintableSpecialChars(3, 5);
+            assertThat(ranged.length(), allOf(greaterThanOrEqualTo(3), lessThanOrEqualTo(5)));
+            for (int idx = 0; idx < ranged.length(); idx++) {
+                assertThat(isAlphanumericOrAsciiPrintableSpecial(ranged.charAt(idx)), is(true));
+            }
+        }
+
+        final String fixed = randomAlphanumericAsciiPrintableSpecialChars(8);
+        assertThat(fixed.length(), equalTo(8));
+        for (int idx = 0; idx < fixed.length(); idx++) {
+            assertThat(isAlphanumericOrAsciiPrintableSpecial(fixed.charAt(idx)), is(true));
+        }
     }
 
     @Test
-    public void firstNonBlank_second() {
-        assertThat(StringUtil.firstNonBlank(" ", "2nd"), equalTo("2nd"));
-        assertThat(StringUtil.firstNonBlank(() -> " ", () -> "2nd"), equalTo("2nd"));
+    public void lineConversionHelpers_whenInputIsNullEmptyOrMultiLine_thenReturnExpectedRepresentations() {
+        assertThat(toLinesStream(null), nullValue());
+        assertThat(toLinesList(null), nullValue());
+        assertThat(toLinesArray(null), nullValue());
+
+        assertThat(toList(toLinesStream("line1\nline2\r\nline3")), equalTo(List.of("line1", "line2", "line3")));
+        assertThat(toLinesList("line1\nline2\r\nline3"), equalTo(List.of("line1", "line2", "line3")));
+        assertArrayEquals(new String[]{"line1", "line2", "line3"}, toLinesArray("line1\nline2\r\nline3"));
+        assertThat(toList(toLinesStream("")), equalTo(Collections.emptyList()));
+    }
+
+    @Test
+    public void containsAnyOf_whenInputsAreNullMatchingOrDisjoint_thenReturnsExpectedValue() {
+        assertThat(containsAnyOf(null, "abc"), is(false));
+        assertThat(containsAnyOf("value", null), is(false));
+        assertThat(containsAnyOf("value", "xyz"), is(false));
+        assertThat(containsAnyOf("value", "uyz"), is(true));
+    }
+
+    @Test
+    public void asCsvAppendedTo_whenElementsAreNullOrPresent_thenReturnsExpectedBuilderContent() {
+        final StringBuilder nullCollectionBuffer = new StringBuilder("prefix");
+        assertThat(asCsvAppendedTo(nullCollectionBuffer, (Collection<String>) null, String::valueOf), sameInstance(nullCollectionBuffer));
+        assertThat(nullCollectionBuffer.toString(), equalTo("prefix"));
+
+        assertThat(asCsvAppendedTo(new StringBuilder(), List.of("a", "b"), String::toUpperCase).toString(), equalTo("A,B"));
+        assertThat(asCsvAppendedTo(new StringBuilder(), new String[]{"a", "b"}, String::toUpperCase).toString(), equalTo("A,B"));
+        assertThat(asCsvAppendedTo(new StringBuilder(), Stream.of("a", "b"), String::toUpperCase).toString(), equalTo("A,B"));
+    }
+
+    @Test
+    public void asDsvAppendedTo_whenElementsAreNullOrPresent_thenReturnsExpectedBuilderContent() {
+        final StringBuilder nullArrayBuffer = new StringBuilder("prefix");
+        assertThat(asDsvAppendedTo(nullArrayBuffer, "|", (String[]) null, String::valueOf), sameInstance(nullArrayBuffer));
+        assertThat(nullArrayBuffer.toString(), equalTo("prefix"));
+
+        assertThat(asDsvAppendedTo(new StringBuilder(), "|", List.of("a", "b"), String::toUpperCase).toString(), equalTo("A|B"));
+        assertThat(asDsvAppendedTo(new StringBuilder(), "|", new String[]{"a", "b"}, String::toUpperCase).toString(), equalTo("A|B"));
+        assertThat(asDsvAppendedTo(new StringBuilder("prefix"), "|", Stream.of("a", "b"), String::toUpperCase).toString(), equalTo("prefixA|B"));
+        assertThat(asDsvAppendedTo(new StringBuilder("prefix"), "|", (Stream<String>) null, String::toUpperCase).toString(), equalTo("prefix"));
+    }
+
+    @Test
+    public void firstNonBlank_whenAllValuesAreBlank_thenReturnsNull() {
+        assertThat(firstNonBlank(" ", "\t"), nullValue());
+        assertThat(firstNonBlank((CharSequence) " ", (CharSequence) "\n"), nullValue());
+        assertThat(firstNonBlank(() -> " ", () -> "\t"), nullValue());
+    }
+
+    @Test
+    public void firstNonBlank_whenCharSequenceValuesContainNonBlank_thenReturnsFirstMatchingSequence() {
+        final CharSequence expected = new StringBuilder("value");
+        assertThat(firstNonBlank(new StringBuilder(" "), expected), sameInstance(expected));
+    }
+
+    @Test
+    public void firstNonBlank_whenSuppliersContainNonBlankValue_thenReturnsFirstMatchWithoutCallingLaterSuppliers() {
+        final AtomicInteger invocations = new AtomicInteger();
+        final Supplier<CharSequence> first = () -> {
+            invocations.incrementAndGet();
+            return "value";
+        };
+        final Supplier<CharSequence> second = () -> {
+            invocations.incrementAndGet();
+            fail("Second supplier should not be invoked after the first non-blank value is found");
+            return "other";
+        };
+
+        assertThat(firstNonBlank(first, second), equalTo((CharSequence) "value"));
+        assertThat(invocations.get(), equalTo(1));
+    }
+
+    private static void expectIllegalArgument(Runnable runnable) {
+        try {
+            runnable.run();
+            fail("Expected IllegalArgumentException to be thrown");
+        }
+        catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(), containsString("Cannot split a string using a null or empty delimiter"));
+        }
+    }
+
+    private static void restoreSystemProperty(String propertyName, String originalValue) {
+        if (originalValue == null) {
+            System.clearProperty(propertyName);
+        }
+        else {
+            System.setProperty(propertyName, originalValue);
+        }
+    }
+
+    private static <T> List<T> toList(Stream<T> stream) {
+        return stream.collect(Collectors.toList());
+    }
+
+    @SafeVarargs
+    private static <T> Streamable<T> streamableOf(T... values) {
+        return () -> Arrays.stream(values);
     }
 }

@@ -16,15 +16,12 @@
 
 package org.beanplanet.core.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -86,15 +83,13 @@ public class StringUtil {
         if (str == null) {
             return null;
         }
-        if (str.length() == 0) {
-            return str;
-        }
-        if (str.length() == 1) {
-            return str.toUpperCase();
-        }
 
-        return str.substring(0, 1).toUpperCase()
-               + (forceLowercase ? str.substring(1).toLowerCase() : str.substring(1));
+        return switch (str.length()) {
+            case 0 -> str;
+            case 1 -> str.toUpperCase();
+            default -> str.substring(0, 1).toUpperCase()
+                       + (forceLowercase ? str.substring(1).toLowerCase() : str.substring(1));
+        };
     }
 
     /**
@@ -106,15 +101,8 @@ public class StringUtil {
     public static boolean isBlank(final Object obj) {
         if (obj == null) return true;
 
-        final String s = obj.toString();
-        if (s == null) return true;
-        for(int n = 0; n < s.length(); ++n) {
-            if (!Character.isWhitespace(s.charAt(n))) {
-                return false;
-            }
-        }
-
-        return true;
+        final var s = obj.toString();
+        return s == null || s.isBlank();
     }
 
     /**
@@ -129,7 +117,10 @@ public class StringUtil {
     }
 
     public static boolean isEmptyOrNull(Object obj) {
-        return obj == null || obj.toString().trim().isEmpty();
+        return Optional.ofNullable(obj)
+                       .map(Object::toString)
+                       .map(String::isBlank)
+                       .orElse(true);
     }
 
     public static boolean notEmpty(Object obj) {
@@ -146,7 +137,7 @@ public class StringUtil {
      *
      * @return the zero-length empty string.
      */
-    public static final String emptyString() {
+    public static String emptyString() {
         return "";
     }
 
@@ -158,17 +149,12 @@ public class StringUtil {
      * @return a string containing the given character sequence repeated the specified number of times or null
      * if the character sequence was null.
      */
-    public static final String repeat(CharSequence characterSequence, int times) {
+    public static String repeat(CharSequence characterSequence, int times) {
         if (characterSequence == null) {
             return null;
         }
 
-        StringBuilder s = new StringBuilder();
-        for (int n=0; n < times; n++) {
-            s.append(characterSequence);
-        }
-
-        return s.toString();
+        return characterSequence.toString().repeat(Math.max(0, times));
     }
 
     /**
@@ -188,19 +174,19 @@ public class StringUtil {
             return inString;
         }
 
-        StringBuilder sbuf = new StringBuilder(); // Output StringBuilder we'll
+        var sbuf = new StringBuilder(); // Output StringBuilder we'll
         // build up
         int pos = 0; // Our position in the old string
         int index = inString.indexOf(oldPattern); // The index of an occurrence
         // we've found, or -1
         int patLen = oldPattern.length();
         while (index >= 0) {
-            sbuf.append(inString.substring(pos, index));
+            sbuf.append(inString, pos, index);
             sbuf.append(newPattern);
             pos = index + patLen;
             index = inString.indexOf(oldPattern, pos);
         }
-        sbuf.append(inString.substring(pos)); // Remember to append any
+        sbuf.append(inString, pos, inString.length()); // Remember to append any
         // characters to the right of a
         // match
         return sbuf.toString();
@@ -215,10 +201,9 @@ public class StringUtil {
      * @return a string with all occurrences of <code>regexPattern</code> replaced with <code>newPattern</code>.
      */
     public static String replaceAllRegex(String inString, String regexPattern, String newStr) {
-        Pattern p = Pattern.compile(regexPattern);
-        Matcher m = p.matcher(inString);
-
-        return m.replaceAll(newStr);
+        return Pattern.compile(regexPattern)
+                      .matcher(inString)
+                      .replaceAll(newStr);
     }
 
     /**
@@ -235,14 +220,11 @@ public class StringUtil {
         if (s == null) {
             return "";
         }
-        if (trailer == null) {
-            trailer = "";
-        }
+        trailer = Objects.requireNonNullElse(trailer, "");
         if (s.length() <= charLimit) {
             return s;
         }
-        String ret = s.substring(0, charLimit) + trailer;
-        return ret;
+        return s.substring(0, charLimit) + trailer;
     }
 
     /**
@@ -252,17 +234,8 @@ public class StringUtil {
      */
     public static String getDefaultCharacterEncoding() {
         // Not available on all platforms
-        String charEnc = System.getProperty("file.encoding");
-        if (charEnc != null) {
-            return charEnc;
-        }
-
-        // JDK1.4 onwards
-        charEnc = new java.io.OutputStreamWriter(new java.io.ByteArrayOutputStream()).getEncoding();
-
-        // jdk1.5
-        // charEnc = Charset.defaultCharset().name();
-        return charEnc != null ? charEnc : "<unknown charset encoding>";
+        final var defaultEncoding = new java.io.OutputStreamWriter(java.io.OutputStream.nullOutputStream()).getEncoding();
+        return System.getProperty("file.encoding", Objects.requireNonNullElse(defaultEncoding, "<unknown charset encoding>"));
     }
 
     /**
@@ -279,14 +252,11 @@ public class StringUtil {
         if (str == null) {
             return null;
         }
-        if (occurrence == null || occurrence.length() == 0) {
+        if (occurrence == null || occurrence.isEmpty()) {
             return str;
         }
 
-        str = lTrim(str, occurrence);
-        str = rTrim(str, occurrence);
-
-        return str;
+        return rTrim(lTrim(str, occurrence), occurrence);
     }
 
     /**
@@ -318,14 +288,14 @@ public class StringUtil {
         if (str == null) {
             return null;
         }
-        if (occurrence == null || occurrence.length() == 0) {
+        if (occurrence == null || occurrence.isEmpty()) {
             return str;
         }
 
-        while (occurrence.length() <= str.length()
-               && (caseSensitive ? str.substring(0, occurrence.length()).equals(occurrence) : str.substring(0,
-                                                                                                            occurrence.length()).equalsIgnoreCase(occurrence))) {
-            str = str.substring(occurrence.length());
+        final var occurrenceLength = occurrence.length();
+        while (occurrenceLength <= str.length()
+               && str.regionMatches(!caseSensitive, 0, occurrence, 0, occurrenceLength)) {
+            str = str.substring(occurrenceLength);
         }
 
         return str;
@@ -360,21 +330,14 @@ public class StringUtil {
         if (str == null) {
             return null;
         }
-        if (occurrence == null || occurrence.length() == 0) {
+        if (occurrence == null || occurrence.isEmpty()) {
             return str;
         }
 
-        for (int lengthDiff = str.length() - occurrence.length(); lengthDiff >= 0
-                                                                  && (caseSensitive ? str.substring(lengthDiff,
-                                                                                                    lengthDiff + occurrence.length()
-        ).equals(
-                occurrence) : str.substring(lengthDiff,
-                                            lengthDiff + occurrence.length()
-        )
-                                                                              .equalsIgnoreCase(occurrence)); lengthDiff = str
-                                                                                                                                   .length()
-                                                                                                                           - occurrence
-                                                                                                                                   .length()) {
+        final var occurrenceLength = occurrence.length();
+        for (int lengthDiff = str.length() - occurrenceLength;
+             lengthDiff >= 0 && str.regionMatches(!caseSensitive, lengthDiff, occurrence, 0, occurrenceLength);
+             lengthDiff = str.length() - occurrenceLength) {
             str = str.substring(0, lengthDiff);
         }
 
@@ -421,10 +384,12 @@ public class StringUtil {
     public static <T> String asDelimitedString(Stream<T> stream, Predicate<T> filter, String delimiter, Function<T, String> transformer) {
         if (stream == null) return null;
 
-        return stream
-                .filter(filter != null ? filter : truePredicate())
-                .map(transformer != null ? transformer : toStringFunction())
-                .collect(Collectors.joining(delimiter));
+        final Predicate<T> effectiveFilter = filter != null ? filter : truePredicate();
+        final Function<T, String> effectiveTransformer = transformer != null ? transformer : toStringFunction();
+
+        return stream.filter(effectiveFilter)
+                     .map(effectiveTransformer)
+                     .collect(Collectors.joining(delimiter));
     }
 
     /**
@@ -481,7 +446,7 @@ public class StringUtil {
      *                    string, which may be null.
      * @return null if the given array is null, otherwise a string of the array elements, filtered and transformed.
      */
-    public static <T> String asDelimitedString(T arr[], Predicate<T> filter, String delimiter, Function<T, String> transformer) {
+    public static <T> String asDelimitedString(T[] arr, Predicate<T> filter, String delimiter, Function<T, String> transformer) {
         if (arr == null) return null;
 
         return asDelimitedString(Arrays.stream(arr), filter, delimiter, transformer);
@@ -497,7 +462,7 @@ public class StringUtil {
      * @param delimiter the delimiter to apply between adjacent elements from the array.
      * @return null if the given array is null, otherwise a string of the array elements, filtered and transformed.
      */
-    public static <T> String asDelimitedString(T arr[], Predicate<T> filter, String delimiter) {
+    public static <T> String asDelimitedString(T[] arr, Predicate<T> filter, String delimiter) {
         if (arr == null) return null;
 
         return asDelimitedString(Arrays.stream(arr), filter, delimiter);
@@ -514,7 +479,7 @@ public class StringUtil {
      *                    string, which may be null.
      * @return null if the given array is null, otherwise a string of the array elements, filtered and transformed.
      */
-    public static <T> String asDelimitedString(T arr[], String delimiter, Function<T, String> transformer) {
+    public static <T> String asDelimitedString(T[] arr, String delimiter, Function<T, String> transformer) {
         if (arr == null) return null;
 
         return asDelimitedString(Arrays.stream(arr), delimiter, transformer);
@@ -529,7 +494,7 @@ public class StringUtil {
      * @param delimiter the delimiter to apply between adjacent elements from the array.
      * @return null if the given array is null, otherwise a string of the array elements, filtered and transformed.
      */
-    public static <T> String asDelimitedString(T arr[], String delimiter) {
+    public static <T> String asDelimitedString(T[] arr, String delimiter) {
         if (arr == null) return null;
 
         return asDelimitedString(Arrays.stream(arr), delimiter);
@@ -685,13 +650,16 @@ public class StringUtil {
                                                   Function<V, String> valueTransformer) {
         if (map == null) return null;
 
+        final BiPredicate<K, V> effectiveFilter = filter != null ? filter : trueBiPredicate();
+        final Function<K, String> effectiveKeyTransformer = keyTransformer != null ? keyTransformer : toStringFunction();
+        final Function<V, String> effectiveValueTransformer = valueTransformer != null ? valueTransformer : toStringFunction();
+
         return asDelimitedString(map.entrySet().stream(),
-                                 e -> Optional.ofNullable(filter).orElse(trueBiPredicate()).test(e.getKey(), e.getValue()),
+                                 e -> effectiveFilter.test(e.getKey(), e.getValue()),
                                  entryDelimiter,
-                                 e -> Optional.ofNullable(keyTransformer).orElse(toStringFunction()).apply(e.getKey())+
-                                      kvDelimiter+
-                                      Optional.ofNullable(valueTransformer).orElse(toStringFunction()).apply(e.getValue())
-        );
+                                 e -> effectiveKeyTransformer.apply(e.getKey())
+                                      + kvDelimiter
+                                      + effectiveValueTransformer.apply(e.getValue()));
     }
 
     /**
@@ -754,7 +722,7 @@ public class StringUtil {
      * @param collection an array of objects whose element non-null and non-empty string values to be delimited, which may be null.
      * @return null if the given collection is null, otherwise a string of the collection's non-null and non-empty string element value, delimited by the given delimiter.
      */
-    public static <T> String asDelimitedStringOfNotEmpty(final String delimiter, Object ... collection) {
+    public static String asDelimitedStringOfNotEmpty(final String delimiter, Object... collection) {
         if (collection == null) return null;
 
         return asDelimitedString(Arrays.stream(collection), e -> e != null && !isEmptyOrNull(e.toString()), delimiter, null);
@@ -791,7 +759,7 @@ public class StringUtil {
             return str;
         }
 
-        if (caseSensitive ? str.toLowerCase().startsWith(prefix.toLowerCase()) : str.startsWith(prefix)) {
+        if (caseSensitive ? str.regionMatches(true, 0, prefix, 0, prefix.length()) : str.startsWith(prefix)) {
             return str;
         }
         else {
@@ -830,7 +798,9 @@ public class StringUtil {
             return str;
         }
 
-        if (caseSensitive ? str.toLowerCase().endsWith(suffix.toLowerCase()) : str.endsWith(suffix)) {
+        if (caseSensitive
+            ? str.regionMatches(true, str.length() - suffix.length(), suffix, 0, suffix.length())
+            : str.endsWith(suffix)) {
             return str;
         }
         else {
@@ -838,35 +808,20 @@ public class StringUtil {
         }
     }
 
-    public static Stream asDsvStream(String str, String delim, boolean trimWhitespace) {
+    public static Stream<String> asDsvStream(String str, String delim, boolean trimWhitespace) {
         if (str == null)
             return null;
 
-        if (delim == null || delim.length() == 0) {
+        if (delim == null || delim.isEmpty()) {
             throw new IllegalArgumentException("Cannot split a string using a null or empty delimiter [str=" + str + ", delimeter=" + delim + "]");
         }
 
-        int delimPos = str.indexOf(delim);
-        if (delimPos < 0) {
+        if (!str.contains(delim)) {
             return trimWhitespace && isBlank(str) ? Stream.empty() : Stream.of(str);
         }
 
-        LinkedList<String> splitParts = new LinkedList<>();
-
-        while (delimPos >= 0) {
-            if (delimPos == 0) {
-                splitParts.add("");
-            } else {
-                splitParts.add(trimWhitespace ? str.substring(0, delimPos).trim() : str.substring(0, delimPos));
-            }
-            str = str.substring(delimPos + delim.length());
-            delimPos = str.indexOf(delim);
-        }
-
-        // Add the trailing part that's left
-        splitParts.add(trimWhitespace ? str.trim() : str);
-
-        return splitParts.stream();
+        return Arrays.stream(str.split(Pattern.quote(delim), -1))
+                     .map(part -> trimWhitespace ? part.trim() : part);
     }
 
     public static Stream<String> asDsvStream(String str, String delim) {
@@ -874,7 +829,7 @@ public class StringUtil {
     }
 
     public static List<String> asDsvList(String str, String delim) {
-        Stream<String> dsvStream = asDsvStream(str, delim);
+        var dsvStream = asDsvStream(str, delim);
         return dsvStream == null ? null : dsvStream.collect(Collectors.toList());
     }
 
@@ -883,12 +838,12 @@ public class StringUtil {
     }
 
     public static List<String> asCsvList(String str) {
-        Stream<String> dsvStream = asDsvStream(str, ",");
+        var dsvStream = asDsvStream(str, ",");
         return dsvStream == null ? null : dsvStream.collect(Collectors.toList());
     }
 
     public static Set<String> asCsvSet(String str) {
-        Stream<String> dsvStream = asDsvStream(str, ",");
+        var dsvStream = asDsvStream(str, ",");
         return dsvStream == null ? null : dsvStream.collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -897,19 +852,19 @@ public class StringUtil {
     }
 
     public static boolean isUpperAlpha(final int ch) {
-        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
+        return ALPHNUMERIC_CHARS.indexOf(ch) >= 0;
     }
 
     public static boolean isLowerAlpha(final int ch) {
-        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
+        return ALPHNUMERIC_CHARS.indexOf(ch) >= 0;
     }
 
     public static boolean isNumeric(final int ch) {
-        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
+        return ALPHNUMERIC_CHARS.indexOf(ch) >= 0;
     }
 
     public static boolean isAlphanumeric(final int ch) {
-        return isUpperAlpha(ch) || isLowerAlpha(ch) || isNumeric(ch);
+        return ALPHNUMERIC_CHARS.indexOf(ch) >= 0;
     }
 
     public static boolean isAsciiPrintableSpecial(final int ch) {
@@ -923,10 +878,11 @@ public class StringUtil {
     public static String randomChars(final CharSequence charSequence, final int minimumLengthInclusive, final int maximumLengthInclusive) {
         if (charSequence == null) return null;
         final int inputSequenceLength = charSequence.length();
-        final int chosenLength = minimumLengthInclusive+((int)Math.round(Math.random() * Math.abs(maximumLengthInclusive-minimumLengthInclusive)));
-        StringBuilder s = new StringBuilder(chosenLength);
+        final var random = ThreadLocalRandom.current();
+        final int chosenLength = minimumLengthInclusive + ((int) Math.round(random.nextDouble() * Math.abs(maximumLengthInclusive - minimumLengthInclusive)));
+        var s = new StringBuilder(chosenLength);
         for (int n=0; n < chosenLength; n++) {
-            s.append(charSequence.charAt((int)Math.floor(Math.random()*inputSequenceLength)));
+            s.append(charSequence.charAt(random.nextInt(inputSequenceLength)));
         }
         return s.toString();
     }
@@ -955,11 +911,7 @@ public class StringUtil {
      * @return a stream of the lines of the string, or null if the string specified was null.
      */
     public static Stream<String> toLinesStream(final String str) {
-        if (str == null) {
-            return null;
-        }
-
-        return Arrays.stream(toLinesArray(str));
+        return str == null ? null : str.lines();
     }
 
     /**
@@ -970,11 +922,7 @@ public class StringUtil {
      * @return a list of the lines of the string, or null if the string specified was null.
      */
     public static List<String> toLinesList(final String str) {
-        if (str == null) {
-            return null;
-        }
-
-        return toLinesStream(str).collect(Collectors.toList());
+        return str == null ? null : str.lines().collect(Collectors.toList());
     }
 
     /**
@@ -985,24 +933,7 @@ public class StringUtil {
      * @return an array of lines that comprise the string, or null if the string specified was null
      */
     public static String[] toLinesArray(final String str) {
-        if (str == null) {
-            return null;
-        }
-
-        BufferedReader br = new BufferedReader(new StringReader(str));
-
-        ArrayList<String> linesList = new ArrayList<String>();
-
-        try {
-            String line = br.readLine();
-            while (line != null) {
-                linesList.add(line);
-                line = br.readLine();
-            }
-        } catch (IOException notGoingToHappenWithAnInMemoryStringReaderEx) {
-        }
-
-        return linesList.toArray(new String[linesList.size()]);
+        return str == null ? null : str.lines().toArray(String[]::new);
     }
 
     /**
@@ -1013,15 +944,9 @@ public class StringUtil {
      * @return true if the given string contains any of the specified characters, false otherwise.
      */
     public static boolean containsAnyOf(String str, String chars) {
-        if (str == null || chars == null) return false;
-
-        for (int s=0; s < str.length(); s++) {
-            for (int c=0; c < chars.length(); c++) {
-                if (str.charAt(s) == chars.charAt(c) ) return true;
-            }
-        }
-
-        return false;
+        return str != null
+               && chars != null
+               && str.chars().anyMatch(ch -> chars.indexOf(ch) >= 0);
     }
 
     /**
@@ -1118,8 +1043,8 @@ public class StringUtil {
                                                     final Stream<T> elements,
                                                     final Function<T, String> toStringConverter) {
         if (elements != null) {
-            final int[] idx = { 0 };
-            elements.forEach(e -> buf.append(idx[0]++ == 0 ? "" : delimiter).append(toStringConverter.apply(e)));
+            buf.append(elements.map(toStringConverter)
+                               .collect(Collectors.joining(delimiter.toString())));
         }
 
         return buf;
@@ -1136,13 +1061,13 @@ public class StringUtil {
      */
     @SafeVarargs
     public static CharSequence firstNonBlank(final Supplier<CharSequence> ... sequenceSuppliers) {
-        if (sequenceSuppliers == null) return null;
-        for (Supplier<CharSequence> sequenceSupplier : sequenceSuppliers) {
-            CharSequence supplied = sequenceSupplier.get();
-            if (isNotBlank(supplied)) return supplied;
-        }
-
-        return null;
+        return sequenceSuppliers == null
+               ? null
+               : Arrays.stream(sequenceSuppliers)
+                       .map(Supplier::get)
+                       .filter(StringUtil::isNotBlank)
+                       .findFirst()
+                       .orElse(null);
     }
 
     /**
@@ -1154,12 +1079,12 @@ public class StringUtil {
      * @see #isBlank(Object)
      */
     public static CharSequence firstNonBlank(final CharSequence ... sequences) {
-        if (sequences == null) return null;
-        for (CharSequence sequence : sequences) {
-            if (isNotBlank(sequence)) return sequence;
-        }
-
-        return null;
+        return sequences == null
+               ? null
+               : Arrays.stream(sequences)
+                       .filter(StringUtil::isNotBlank)
+                       .findFirst()
+                       .orElse(null);
     }
 
     /**
