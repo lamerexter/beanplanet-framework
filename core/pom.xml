@@ -33,7 +33,7 @@
 
     <properties>
         <!-- Build properties, in alphabetical order -->
-        <bouncycastle.version>1.80</bouncycastle.version>
+        <bouncycastle.version>1.84</bouncycastle.version>
     </properties>
 
     <dependencies>
