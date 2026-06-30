@@ -71,7 +71,7 @@
     <properties>
         <!-- Build properties, in alphabetical order -->
         <java.version>21</java.version>
-        <jackson.version>2.20.1</jackson.version>
+        <jackson.version>2.22.0</jackson.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Test properties, in alphabetical order -->
