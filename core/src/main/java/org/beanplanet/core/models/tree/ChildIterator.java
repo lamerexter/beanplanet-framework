@@ -46,7 +46,7 @@ public class ChildIterator<T> implements TreeIterator<T> {
     }
 
     private List<T> children() {
-        if (children == null) children = TreePath.at(tree, parent).childrenOf(parent);
+        if (children == null) children = TreePath.childrenOf(tree, parent);
         return children;
     }
 

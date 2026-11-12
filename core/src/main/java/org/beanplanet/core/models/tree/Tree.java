@@ -21,8 +21,11 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
+import java.util.Spliterator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Model of a tree. This model makes no assumption about how the tree node information is stored or where it comes from:
@@ -459,7 +462,7 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> ancestorStream(E from) {
-        return ancestorIterator(from).stream();
+        return ancestorOrSelfStream(from).skip(1);
     }
 
     /**
@@ -470,7 +473,7 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> ancestorOrSelfStream(E from) {
-        return ancestorOrSelfIterator(from).stream();
+        return from == null ? Stream.empty() : Stream.iterate(from, Objects::nonNull, node -> TreePath.parentWithin(this, node));
     }
 
     /**
@@ -480,7 +483,8 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> childStream(E from) {
-        return childIterator(from).stream();
+        return StreamSupport.stream(() -> TreePath.childrenOf(this, from).spliterator(),
+                                    Spliterator.ORDERED | Spliterator.SIZED | Spliterator.SUBSIZED, false);
     }
 
     /**
@@ -520,7 +524,7 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> followingSiblingStream(E from) {
-        return followingSiblingIterator(from).stream();
+        return StreamSupport.stream(() -> TreePath.siblings(this, from, true), Spliterator.ORDERED | Spliterator.SIZED, false);
     }
 
     /**
@@ -540,7 +544,7 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> precedingSiblingStream(E from) {
-        return precedingSiblingIterator(from).stream();
+        return StreamSupport.stream(() -> TreePath.siblings(this, from, false), Spliterator.ORDERED | Spliterator.SIZED, false);
     }
 
     /**

@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 
 /**
  * A position in a tree: the path of nodes from a top node down to the current node, each with the list of its siblings
@@ -45,17 +47,18 @@ import java.util.List;
  */
 final class TreePath<E> {
     private final Tree<E> tree;
-    private final List<E> nodes = new ArrayList<>();
+    private Object[] nodes = new Object[16];
     /** The children of the node above each node: the list each node is in (null for the top node). */
-    private final List<List<E>> siblings = new ArrayList<>();
+    private List<?>[] siblings = new List<?>[16];
+    /** The depth of the current node below the top. */
+    private int depth;
     private int[] indexes = new int[16];
     /** Whether the node at each depth is detached: not among its parent's children. */
     private boolean[] detached = new boolean[16];
 
     private TreePath(final Tree<E> tree, final E top) {
         this.tree = tree;
-        nodes.add(top);
-        siblings.add(null);
+        nodes[0] = top;
     }
 
     /**
@@ -134,19 +137,48 @@ final class TreePath<E> {
         return node == null || isRoot(tree, node) ? null : tree.getParent(node);
     }
 
+    /**
+     * The siblings after a node, in document order, or before it, nearest first: none for the tree's root or a node
+     * that is not among its parent's children.
+     */
+    static <E> Spliterator<E> siblings(final Tree<E> tree, final E node, final boolean following) {
+        final E parent = parentWithin(tree, node);
+        if (parent == null) return Spliterators.emptySpliterator();
+        final List<E> siblings = childrenOf(tree, parent);
+        final int index = indexOf(siblings, node);
+        if (index < 0) return Spliterators.emptySpliterator();
+        if (following) return siblings.subList(index + 1, siblings.size()).spliterator();
+        return new Spliterators.AbstractSpliterator<E>(index, Spliterator.ORDERED | Spliterator.SIZED) {
+            private int next = index - 1;
+
+            @Override
+            public boolean tryAdvance(final java.util.function.Consumer<? super E> action) {
+                if (next < 0) return false;
+                action.accept(siblings.get(next--));
+                return true;
+            }
+        };
+    }
+
     List<E> childrenOf(final E node) {
+        return childrenOf(tree, node);
+    }
+
+    /** A node's children: never null (empty for a leaf or no node). */
+    static <E> List<E> childrenOf(final Tree<E> tree, final E node) {
         if (node == null) return Collections.emptyList();
         final List<E> children = tree.getChildren(node);
         return children == null ? Collections.emptyList() : children;
     }
 
     E node() {
-        return nodes.get(nodes.size() - 1);
+        @SuppressWarnings("unchecked") final E node = (E) nodes[depth];
+        return node;
     }
 
     /** The depth of the current node below the top (0 at the top). */
     int depth() {
-        return nodes.size() - 1;
+        return depth;
     }
 
     /** The current node's index among its siblings, at the given depth (1 or more). */
@@ -156,36 +188,36 @@ final class TreePath<E> {
 
     /** The current path's indexes, from depth 1 to the current depth (a copy). */
     int[] indexes() {
-        return Arrays.copyOfRange(indexes, 0, nodes.size());
+        return Arrays.copyOfRange(indexes, 0, depth + 1);
     }
 
     private void push(final E node, final List<E> nodeSiblings, final int index) {
-        nodes.add(node);
-        siblings.add(nodeSiblings);
-        if (nodes.size() > indexes.length) {
-            indexes = Arrays.copyOf(indexes, indexes.length * 2);
-            detached = Arrays.copyOf(detached, detached.length * 2);
+        if (++depth == nodes.length) {
+            nodes = Arrays.copyOf(nodes, depth * 2);
+            siblings = Arrays.copyOf(siblings, depth * 2);
+            indexes = Arrays.copyOf(indexes, depth * 2);
+            detached = Arrays.copyOf(detached, depth * 2);
         }
-        indexes[nodes.size() - 1] = index;
-        detached[nodes.size() - 1] = false;
+        nodes[depth] = node;
+        siblings[depth] = nodeSiblings;
+        indexes[depth] = index;
+        detached[depth] = false;
     }
 
     private void popTo(final int depth) {
-        while (depth() > depth) {
-            nodes.remove(nodes.size() - 1);
-            siblings.remove(siblings.size() - 1);
+        while (this.depth > depth) {
+            nodes[this.depth] = null;
+            siblings[this.depth--] = null;
         }
     }
 
     private void moveTo(final int index) {
-        final int depth = depth();
-        final E sibling = siblings.get(depth).get(index);
-        nodes.set(depth, sibling);
+        nodes[depth] = siblings[depth].get(index);
         indexes[depth] = index;
     }
 
     private boolean hasNextSiblingAt(final int depth) {
-        return depth > 0 && indexes[depth] + 1 < siblings.get(depth).size();
+        return depth > 0 && indexes[depth] + 1 < siblings[depth].size();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -232,7 +264,8 @@ final class TreePath<E> {
     boolean afterSubtree() {
         for (int depth = depth(); depth > 0; depth--) {
             if (detached[depth]) {
-                if (!childrenOf(nodes.get(depth - 1)).isEmpty()) {
+                @SuppressWarnings("unchecked") final E parent = (E) nodes[depth - 1];
+                if (!childrenOf(parent).isEmpty()) {
                     popTo(depth - 1);
                     firstChild();
                     return true;

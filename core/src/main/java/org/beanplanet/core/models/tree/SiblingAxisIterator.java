@@ -44,7 +44,7 @@ class SiblingAxisIterator<T> extends CursorTreeIterator<T> {
     protected boolean first() {
         final T parent = TreePath.parentWithin(tree, from);
         if (parent == null) return false;
-        siblings = TreePath.at(tree, parent).childrenOf(parent);
+        siblings = TreePath.childrenOf(tree, parent);
         index = TreePath.indexOf(siblings, from);
         // A node that is not among its parent's children (as an XML attribute) has no siblings
         return index >= 0 && forward();

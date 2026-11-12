@@ -17,6 +17,11 @@
 package org.beanplanet.core.models.tree;
 
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * A lazy, bidirectional {@link TreeIterator} over a sequence of nodes, with the cursor semantics of
@@ -59,6 +64,40 @@ abstract class CursorTreeIterator<E> implements TreeIterator<E> {
 
     /** Moves to the previous node, returning false (and not moving) if there is none. */
     protected abstract boolean backward();
+
+    /**
+     * The nodes after the cursor, as a lazy ordered stream. A new iterator's stream steps the sequence directly, one
+     * {@link #forward()} per node (the stream then owns the iterator, as for any stream made from an iterator).
+     */
+    @Override
+    public Stream<E> stream() {
+        if (started) return TreeIterator.super.stream();
+        started = true;
+        return StreamSupport.stream(new Spliterators.AbstractSpliterator<E>(Long.MAX_VALUE, Spliterator.ORDERED) {
+            private boolean positioned;
+
+            @Override
+            public boolean tryAdvance(final Consumer<? super E> action) {
+                if (!positioned) {
+                    positioned = true;
+                    if (!first()) {
+                        empty = true;
+                        return false;
+                    }
+                } else if (empty || !stepForward()) {
+                    return false;
+                }
+                beforeCurrent = false;
+                action.accept(current());
+                return true;
+            }
+
+            @Override
+            public void forEachRemaining(final Consumer<? super E> action) {
+                while (tryAdvance(action)) { }
+            }
+        }, false);
+    }
 
     private boolean isEmpty() {
         if (!started) {
