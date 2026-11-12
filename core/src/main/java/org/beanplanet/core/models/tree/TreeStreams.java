@@ -20,7 +20,9 @@ import java.util.ListIterator;
 import java.util.stream.Stream;
 
 /**
- * Defines all the stream operations over a tree model.
+ * Defines all the stream operations over a tree model: XPath's axes, from a context node. Forward axes are in document
+ * order; the reverse axes ({@code ancestor}, {@code ancestor-or-self}, {@code preceding}, {@code preceding-sibling}) are
+ * nearest first. Every stream is lazy.
  */
 public interface TreeStreams<E> {
     /**
@@ -108,7 +110,8 @@ public interface TreeStreams<E> {
     /**
      * Returns a pre-order stream over all nodes in the subtree with the given subtree root node.
      *
-     * @return a pre-order stream over all nodes in the subtree rooted at the given node.
+     * @return a pre-order stream over the tree from the given node to the end of the tree (for the node's subtree
+     *         only, see {@link #descendantOrSelfStream(Object)}).
      */
     Stream<E> preorderStream(E from);
 
@@ -130,7 +133,7 @@ public interface TreeStreams<E> {
     /**
      * Returns a post-order stream over all nodes in the subtree with the given subtree root node.
      *
-     * @return a post-order stream over all nodes in the subtree rooted at the given node.
+     * @return a post-order stream over the tree from the start of the given node's subtree to the end of the tree.
      */
     Stream<E> postorderStream(E from);
 }

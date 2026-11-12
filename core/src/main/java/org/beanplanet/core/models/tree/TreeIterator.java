@@ -19,11 +19,19 @@ import org.beanplanet.core.util.IteratorUtil;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Definition of a tree specific iterator, extending the java collections iterator and providing tree iteration features
  * such as forward and reverse iteration and, where applicable, the ability to set values during iteration.
+ *
+ * <p>The cursor semantics are those of {@link java.util.ListIterator}: the cursor lies between two nodes;
+ * {@link #next()} returns the node after it and {@link #previous()} the node before it, so {@code next()} followed by
+ * {@code previous()} returns the same node twice. A new iterator's cursor is before its first node. Both directions are
+ * lazy: each call moves one node.</p>
  * 
  * @author Gary Watson
  */
@@ -48,8 +56,13 @@ public interface TreeIterator<E> extends Iterator<E> {
       return new ReverseOrderTreeIterator<>(this);
    }
 
+   /**
+    * A sequential stream of the nodes after the cursor, in this iterator's order (the axis or traversal's own order).
+    *
+    * @return a lazy, ordered stream of the remaining nodes.
+    */
    default Stream<E> stream() {
-      return IteratorUtil.asStream(this);
+      return StreamSupport.stream(Spliterators.spliteratorUnknownSize(this, Spliterator.ORDERED), false);
    }
 
    default List<E> toList() {

@@ -16,39 +16,14 @@
 
 package org.beanplanet.core.models.tree;
 
-import java.util.Iterator;
-
-public class PrecedingSiblingIterator<T> implements Iterator<T> {
-    private final Tree<T> tree;
-    private final T from;
-
-    private final T parent;
-    private int currentSiblingIdx;
-
+/**
+ * The preceding-sibling axis: the siblings before a node, nearest first (XPath's order for this reverse axis). Empty
+ * for the tree's root. The node is found among its siblings once, as the same object or else the first equal to it.
+ *
+ * @param <T> the type of the tree's nodes.
+ */
+public class PrecedingSiblingIterator<T> extends SiblingAxisIterator<T> {
     public PrecedingSiblingIterator(final Tree<T> tree, final T from) {
-            this.tree = tree;
-            this.from = from;
-        parent = tree.getParent(from);
-        if (parent == null) {
-            currentSiblingIdx = -1;
-        }
-        else {
-            currentSiblingIdx = 0;
-        }
-    }
-
-    public boolean hasNext() {
-        if (parent == null) {
-            return false;
-        }
-        return currentSiblingIdx >= 0 && currentSiblingIdx < tree.getIndexOfChild(parent, from);
-    }
-
-    public T next() {
-        return tree.getChild(parent, currentSiblingIdx++);
-    }
-
-    public void remove() {
-        throw new java.lang.UnsupportedOperationException("remove() on " + getClass().getName());
+        super(tree, from, false);
     }
 }

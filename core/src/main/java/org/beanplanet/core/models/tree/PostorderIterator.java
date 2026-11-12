@@ -16,23 +16,35 @@
 
 package org.beanplanet.core.models.tree;
 
-import java.util.NoSuchElementException;
+/**
+ * A postorder traversal of a tree, within its root: positioned at the start of a node's subtree in postorder (its first
+ * leaf, reached through first children; the root's, if no node is given), {@link #next()} returns the nodes from there
+ * to the end of the tree, the root last; {@link #previous()} returns those before it. To traverse just the subtree of a
+ * node, use {@link Tree#subtree(Object)}'s {@link Tree#postorderIterator()}.
+ *
+ * <p>Lazy in both directions: children are listed as the traversal reaches them, and each step moves one node, without
+ * looking any node up among its siblings. Starting at the root, no parents are consulted.</p>
+ *
+ * @param <E> the type of the tree's nodes.
+ */
+public class PostorderIterator<E> extends CursorTreeIterator<E> {
+    private final Tree<E> tree;
+    private final E fromNode;
+    private final boolean fromRoot;
+    private TreePath<E> path;
 
-public class PostorderIterator<E> implements TreeIterator<E> {
-    private Tree<E> tree;
-
-    private E fromNode;
-    private E nextNode;
-    private E previousNode;
-
-    public PostorderIterator(Tree<E> tree) {
+    public PostorderIterator(final Tree<E> tree) {
+        super(false);
         this.tree = tree;
         this.fromNode = tree.getRoot();
+        this.fromRoot = true;
     }
 
-    public PostorderIterator(Tree<E> tree, E fromNode) {
+    public PostorderIterator(final Tree<E> tree, final E fromNode) {
+        super(false);
         this.tree = tree;
         this.fromNode = fromNode;
+        this.fromRoot = false;
     }
 
     public Tree<E> getTree() {
@@ -43,112 +55,26 @@ public class PostorderIterator<E> implements TreeIterator<E> {
         return fromNode;
     }
 
-    public boolean hasNext() {
-        return peekNext() != null;
+    @Override
+    protected boolean first() {
+        if (fromNode == null) return false;
+        path = fromRoot ? TreePath.at(tree, fromNode) : TreePath.fromTop(tree, fromNode, false);
+        path.firstLeaf();
+        return true;
     }
 
-    public E next() {
-        E nextCandidateNode = peekNext();
-        if (nextCandidateNode == null) {
-            throw new NoSuchElementException("Call to next() when there are no more post-order nodes of this tree node. Did you first call hasNext()?");
-        }
-
-        previousNode = null; // Clear any last previous operation
-        this.nextNode = nextCandidateNode;
-        return this.nextNode;
+    @Override
+    protected E current() {
+        return path.node();
     }
 
-    private E peekNext() {
-        if (previousNode != null) return previousNode;
-
-        E nextCandidateNode = null;
-        if (nextNode == null) {
-            // First
-            nextCandidateNode = findLeftmostDecendentOrSelf(fromNode);
-        } else {
-            if ( !nextNode.equals(tree.getRoot()) ) {
-                nextCandidateNode = tree.getNextSibling(nextNode);
-                if (nextCandidateNode != null) {
-                    nextCandidateNode = findLeftmostDecendentOrSelf(nextCandidateNode);
-                } else {
-                    if (nextNode.equals(tree.getRoot())) {
-                        nextCandidateNode = null; // Do not ascend above known model root (if sub-tree)
-                    } else {
-                        nextCandidateNode = tree.getParent(nextNode);
-                    }
-                }
-            }
-        }
-
-        return nextCandidateNode;
+    @Override
+    protected boolean forward() {
+        return path.postorderNext();
     }
 
-    private E findLeftmostDecendentOrSelf(E candidateNode) {
-        if (candidateNode == null) return null;
-
-        while ( !tree.isLeaf(candidateNode) ) {
-            candidateNode = tree.getChild(candidateNode, 0);
-        }
-
-        return candidateNode;
-    }
-
-    private E peekPrevious() {
-        if (nextNode != null) return nextNode;
-
-        E previousCandidateNode = null;
-        E modelRootNode = tree.getRoot();
-        if (previousNode == null) {
-            // First
-//            if ( !modelRootNode.equals(fromNode) ) {
-                previousCandidateNode = fromNode;
-//            }
-        } else if ( tree.isLeaf(previousNode) ){
-            previousCandidateNode = previousNode;
-            E ancestorSibling = null;
-            while ( (previousCandidateNode = tree.getParent(previousCandidateNode)) != null
-                    && ancestorSibling == null) {
-                if ( previousCandidateNode.equals(modelRootNode) ) {
-                    return null;    // Do not ascend above known model root (if sub-tree)
-                }
-                ancestorSibling = tree.getPreviousSibling(previousCandidateNode);
-            }
-            previousCandidateNode = ancestorSibling;
-        } else {
-            previousCandidateNode = tree.getChild(previousNode, tree.getNumberOfChildren(previousNode)-1);
-        }
-
-        return previousCandidateNode;
-    }
-
-    private E findLastChildOfFinalDescendentOrSelf(E previousCandidate) {
-        while ( !tree.isLeaf(previousCandidate) ) {
-            previousCandidate = tree.getChild(previousCandidate, tree.getNumberOfChildren(previousCandidate)-1);
-        }
-
-        return previousCandidate;
-    }
-
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean hasPrevious() {
-        return peekPrevious() != null;
-    }
-
-    public E previous() {
-        E previousCandidateNode = peekPrevious();
-        if (previousCandidateNode == null) {
-            throw new NoSuchElementException("Call to previous() when there are no more post-order nodes of this tree node. Did you first call hasPrevious()?");
-        }
-
-        nextNode = null; // Clear any last next operation
-        previousNode = previousCandidateNode;
-        return previousNode;
-    }
-
-    public void set(E replacement) {
-        throw new UnsupportedOperationException();
+    @Override
+    protected boolean backward() {
+        return path.postorderPrevious();
     }
 }

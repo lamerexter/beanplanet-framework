@@ -90,7 +90,7 @@ public class FilesystemTree implements Tree<File> {
 
     @Override
     public int getIndexOfChild(File parent, File child) {
-        return getChildren(parent).indexOf(child);
+        return TreePath.indexOf(getChildren(parent), child);
     }
 
     @Override

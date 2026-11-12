@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -132,20 +133,28 @@ public class PostorderIteratorTest {
         );
         TreeNodeTree<String> tree = new TreeNodeTree<>(root);
 
-        // Then a full reverse traversal from root is as expected
+        // Then a full reverse traversal, once the iterator is at the end, is as expected (a new iterator's cursor is
+        // before its first node, as for a ListIterator)
+        PostorderIterator<TreeNode<String>> iterator = new PostorderIterator<>(tree);
+        while (iterator.hasNext()) iterator.next();
+        assertThat(iterator.reverse().stream()
+                           .map(TreeNode::getManagedObject)
+                           .collect(Collectors.toList()), equalTo(asList("root", "child2", "child22", "child221", "child21", "child1", "child11")));
+
+        // And a new iterator from root has nothing before it
         assertThat(new PostorderIterator<>(tree).reverse().stream()
                                                 .map(TreeNode::getManagedObject)
-                                                .collect(Collectors.toList()), equalTo(asList("root", "child2", "child22", "child221", "child21", "child1", "child11")));
+                                                .collect(Collectors.toList()), equalTo(emptyList()));
 
-        // And a full traversal from child21 is as expected, containing all nodes in reverse order
+        // And a reverse traversal from child221 is as expected, containing the nodes before it in reverse order
         assertThat(new PostorderIterator<>(tree, child221).reverse().stream()
                                                             .map(TreeNode::getManagedObject)
-                                                            .collect(Collectors.toList()), equalTo(asList("child221", "child21", "child1", "child11")));
+                                                            .collect(Collectors.toList()), equalTo(asList("child21", "child1", "child11")));
 
-        // And traversal on sub-tree is as expected (just the sub-tree)
+        // And traversal on sub-tree is as expected (just the sub-tree): child22's subtree starts at child221
         assertThat(new PostorderIterator<>(new TreeNodeTree<>(child2), child22).reverse().stream()
                                                                                   .map(TreeNode::getManagedObject)
-                                                                                  .collect(Collectors.toList()), equalTo(asList("child22", "child221", "child21")));
+                                                                                  .collect(Collectors.toList()), equalTo(asList("child21")));
     }
 
     @Test

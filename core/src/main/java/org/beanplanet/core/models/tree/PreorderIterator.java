@@ -16,26 +16,35 @@
 
 package org.beanplanet.core.models.tree;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+/**
+ * A preorder (document order) traversal of a tree, within its root: positioned at a node (the root, if none is given),
+ * {@link #next()} returns that node and then those after it, to the end of the tree; {@link #previous()} returns those
+ * before it, back to the root. To traverse just the subtree of a node, use
+ * {@link Tree#descendantOrSelfIterator(Object)}.
+ *
+ * <p>Lazy in both directions: children are listed as the traversal reaches them, and each step moves one node, without
+ * looking any node up among its siblings. Starting at the root, no parents are consulted.</p>
+ *
+ * @param <E> the type of the tree's nodes.
+ */
+class PreorderIterator<E> extends CursorTreeIterator<E> {
+    private final Tree<E> tree;
+    private final E fromNode;
+    private final boolean fromRoot;
+    private TreePath<E> path;
 
-class PreorderIterator<E> implements TreeIterator<E> {
-    private Tree<E> tree;
-
-    private E fromNode;
-    private E nextNode;
-    private E previousNode;
-
-    public PreorderIterator(Tree<E> tree) {
+    public PreorderIterator(final Tree<E> tree) {
+        super(false);
         this.tree = tree;
         this.fromNode = tree.getRoot();
+        this.fromRoot = true;
     }
 
-    public PreorderIterator(Tree<E> tree, E fromNode) {
+    public PreorderIterator(final Tree<E> tree, final E fromNode) {
+        super(false);
         this.tree = tree;
         this.fromNode = fromNode;
+        this.fromRoot = false;
     }
 
     public Tree<E> getTree() {
@@ -46,89 +55,25 @@ class PreorderIterator<E> implements TreeIterator<E> {
         return fromNode;
     }
 
-    public boolean hasNext() {
-        return peekNext() != null;
+    @Override
+    protected boolean first() {
+        if (fromNode == null) return false;
+        path = fromRoot ? TreePath.at(tree, fromNode) : TreePath.fromTop(tree, fromNode, false);
+        return true;
     }
 
-    public E next() {
-        E nextCandidateNode = peekNext();
-        if (nextCandidateNode == null) {
-            throw new NoSuchElementException("Call to next() when there are no more pre-order nodes of this tree node. Did you first call hasNext()?");
-        }
-
-        previousNode = null; // Clear any last previous operation
-        this.nextNode = nextCandidateNode;
-        return this.nextNode;
+    @Override
+    protected E current() {
+        return path.node();
     }
 
-    private E peekNext() {
-        if (previousNode != null) return previousNode;
-
-        E nextCandidateNode = null;
-        if (nextNode == null) {
-            // First
-            nextCandidateNode = fromNode;
-        } else if ( tree.isLeaf(nextNode) ) {
-            E modelRootNode = tree.getRoot();
-            E currentParent = nextNode;
-            while ( currentParent != null
-                    && !currentParent.equals(modelRootNode)  // Do not ascend above known model root (if sub-tree)
-                    && (nextCandidateNode = tree.getNextSibling(currentParent)) == null) {
-                currentParent = tree.getParent(currentParent);
-            }
-        } else {
-            nextCandidateNode = tree.getChild(nextNode, 0);
-        }
-
-        return nextCandidateNode;
+    @Override
+    protected boolean forward() {
+        return path.preorderNext();
     }
 
-    private E peekPrevious() {
-        if (nextNode != null) return nextNode;
-
-        E lastCandidateNode = null;
-        if (previousNode == null) {
-            // First
-            lastCandidateNode = fromNode;
-        } else {
-            lastCandidateNode = previousNode;
-        }
-
-        E modelRoot = tree.getRoot();
-        if ( Objects.equals(lastCandidateNode, modelRoot) ) return null; // Not above root of sub-tree
-
-        E previousCandidate = tree.getPreviousSibling(lastCandidateNode);
-        return (previousCandidate == null ? tree.getParent(lastCandidateNode) : findLastChildOfFinalDescendentOrSelf(previousCandidate));
-    }
-
-    private E findLastChildOfFinalDescendentOrSelf(E previousCandidate) {
-        while ( !tree.isLeaf(previousCandidate) ) {
-            previousCandidate = tree.getChild(previousCandidate, tree.getNumberOfChildren(previousCandidate)-1);
-        }
-
-        return previousCandidate;
-    }
-
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean hasPrevious() {
-        return peekPrevious() != null;
-    }
-
-    public E previous() {
-        E previousCandidateNode = peekPrevious();
-        if (previousCandidateNode == null) {
-            throw new NoSuchElementException("Call to previous() when there are no more pre-order nodes of this tree node. Did you first call hasPrevious()?");
-        }
-
-        nextNode = null; // Clear any last next operation
-        previousNode = previousCandidateNode;
-        return previousNode;
-    }
-
-    public void set(E replacement) {
-        throw new UnsupportedOperationException();
+    @Override
+    protected boolean backward() {
+        return path.preorderPrevious();
     }
 }

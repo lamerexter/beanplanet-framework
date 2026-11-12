@@ -16,43 +16,16 @@
 
 package org.beanplanet.core.models.tree;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.Objects;
-
-public class AncestorIterator<T> implements TreeIterator<T> {
-    final ListIterator<T> ancestorListIterator;
-
-    public AncestorIterator(final Tree<T> tree, T from) {
-        LinkedList<T> ancestorList = new LinkedList<T>();
-        if ( !Objects.equals(tree.getRoot(), from) ) {
-            from = tree.getParent(from);
-            while (from != null) {
-                ancestorList.add(0, from);
-                from = tree.getParent(from);
-                if (Objects.equals(tree.getRoot(), from)) break;
-            }
-        }
-
-        ancestorListIterator = ancestorList.listIterator(0);
-    }
-
-    @Override
-    public boolean hasNext() {
-        return ancestorListIterator.hasNext();
-    }
-    @Override
-    public T next() {
-        return ancestorListIterator.next();
-    }
-
-    @Override
-    public boolean hasPrevious() {
-        return ancestorListIterator.hasPrevious();
-    }
-
-    @Override
-    public T previous() {
-        return ancestorListIterator.previous();
+/**
+ * The ancestor axis: the node's parent, its parent's parent and so on, nearest first (XPath's order for this reverse
+ * axis), up to and including the tree's root, if the tree has one above the node, else the node's oldest ancestor.
+ * Empty for the root. Lazy: each parent is found when the iteration reaches it; {@link #previous()} walks back towards
+ * the node.
+ *
+ * @param <T> the type of the tree's nodes.
+ */
+public class AncestorIterator<T> extends AncestorAxisIterator<T> {
+    public AncestorIterator(final Tree<T> tree, final T from) {
+        super(tree, from, false);
     }
 }

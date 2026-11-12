@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -129,15 +130,15 @@ public class ParentAwarePreorderIteratorTest {
         );
         TreeNodeTree<String> tree = new TreeNodeTree<>(rootNode);
 
-//        // Then a full reverse traversal from root is empty
-//        assertThat(new ParentAwarePreorderIterator<>(tree).reverse().stream()
-//                                                   .map(TreeNode::getManagedObject)
-//                                                   .collect(Collectors.toList()), equalTo(emptyList()));
-//
-//        // And a full traversal from child221 is as expected, containing all nodes in reverse order
-//        assertThat(new ParentAwarePreorderIterator<>(tree, child221).reverse().stream()
-//                                                            .map(TreeNode::getManagedObject)
-//                                                            .collect(Collectors.toList()), equalTo(asList("child22", "child21", "child2", "child11", "child1", "root")));
+        // Then a full reverse traversal from root is empty
+        assertThat(new ParentAwarePreorderIterator<>(tree).reverse().stream()
+                                                   .map(TreeNode::getManagedObject)
+                                                   .collect(Collectors.toList()), equalTo(emptyList()));
+
+        // And a full traversal from child221 is as expected, containing all nodes in reverse order
+        assertThat(new ParentAwarePreorderIterator<>(tree, child221).reverse().stream()
+                                                            .map(TreeNode::getManagedObject)
+                                                            .collect(Collectors.toList()), equalTo(asList("child22", "child21", "child2", "child11", "child1", "root")));
 
         // And traversal on sub-tree is as expected (just the sub-tree)
         assertThat(new ParentAwarePreorderIterator<>(new TreeNodeTree<>(child2), child22).reverse().stream()

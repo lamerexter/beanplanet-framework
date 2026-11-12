@@ -112,13 +112,11 @@ public class TreeNode<E> implements Serializable, ShallowCopyable {
     }
 
     public int getIndexOfChild(TreeNode<E> child) {
-        if (children == null) return -1;
-
-        return children.indexOf(child);
+        return TreePath.indexOf(children, child);
     }
 
     public TreeNode<E> getChild(int childIndex) {
-        if ( children == null || childIndex > children.size() ) return null;
+        if ( children == null || childIndex < 0 || childIndex >= children.size() ) return null;
         return children.get(childIndex);
     }
 

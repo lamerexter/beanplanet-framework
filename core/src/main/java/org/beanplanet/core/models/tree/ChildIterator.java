@@ -16,80 +16,78 @@
 
 package org.beanplanet.core.models.tree;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The child axis: the children of a node, in document order, with the cursor semantics of
+ * {@link java.util.ListIterator}. The children are listed when the iterator is first used. {@link #remove()} and
+ * {@link #set(Object)} change the tree through {@link Tree#remove(Object, Object)} and
+ * {@link Tree#set(Object, Object, Object)}, for trees that support them.
+ *
+ * @param <T> the type of the tree's nodes.
+ */
 public class ChildIterator<T> implements TreeIterator<T> {
-    private Tree<T> tree;
-    private T parent;
+    private final Tree<T> tree;
+    private final T parent;
+    private List<T> children;
+    /** The index of the child after the cursor. */
+    private int cursor;
+    /** The index of the child last returned, or -1. */
+    private int lastReturned = -1;
 
-    private boolean initialised;
-    private int childIndex = -1;
-    private T previousChild, currentChild, nextChild;
-
-    public ChildIterator(Tree<T> tree) {
+    public ChildIterator(final Tree<T> tree) {
         this(tree, tree.getRoot());
     }
 
-    public ChildIterator(Tree<T> tree, T parent) {
+    public ChildIterator(final Tree<T> tree, final T parent) {
         this.tree = tree;
         this.parent = parent;
     }
 
-    @Override
-    public boolean hasNext() {
-        checkInitialised();
-        return nextChild != null;
+    private List<T> children() {
+        if (children == null) children = TreePath.at(tree, parent).childrenOf(parent);
+        return children;
     }
 
-    private void checkInitialised() {
-        if (initialised) return;
-
-        previousChild = currentChild = null;
-        nextChild = parent == null || tree.isLeaf(parent) ? null : tree.getChild(parent, 0);
-        initialised = true;
+    @Override
+    public boolean hasNext() {
+        return cursor < children().size();
     }
 
     @Override
     public T next() {
-        checkInitialised();
-        if (nextChild == null) {
-            throw new NoSuchElementException("Call to next() when there are no more children of this tree node. Did you first call hasNext()?");
-        }
-
-        previousChild = currentChild;
-        currentChild = nextChild;
-        nextChild = tree.getNextSibling(currentChild);
-        return currentChild;
+        if (!hasNext()) throw new NoSuchElementException("Call to next() when there are no more children of this tree node. Did you first call hasNext()?");
+        lastReturned = cursor++;
+        return children.get(lastReturned);
     }
 
     @Override
     public boolean hasPrevious() {
-        checkInitialised();
-        return previousChild != null;
+        children();
+        return cursor > 0;
     }
 
     @Override
     public T previous() {
-        checkInitialised();
-        if (previousChild == null) {
-            throw new NoSuchElementException("Call to previous() when there are no prior children of this tree node. Did you first call hasPrevious()?");
-        }
-
-        nextChild = currentChild;
-        currentChild = previousChild;
-        previousChild = tree.getPreviousSibling(currentChild);
-        return currentChild;
+        if (!hasPrevious()) throw new NoSuchElementException("Call to previous() when there are no prior children of this tree node. Did you first call hasPrevious()?");
+        lastReturned = --cursor;
+        return children.get(lastReturned);
     }
 
     @Override
     public void remove() {
-        checkInitialised();
-        tree.remove(parent, currentChild);
+        if (lastReturned < 0) throw new IllegalStateException("No child has been returned since the last change");
+        if (tree.remove(parent, children.get(lastReturned))) {
+            children = null;
+            if (lastReturned < cursor) cursor--;
+            lastReturned = -1;
+        }
     }
 
     @Override
-    public void set(T t) {
-        checkInitialised();
-        tree.set(parent, currentChild, t);
+    public void set(final T replacement) {
+        if (lastReturned < 0) throw new IllegalStateException("No child has been returned since the last change");
+        if (tree.set(parent, children.get(lastReturned), replacement)) children = null;
     }
 }

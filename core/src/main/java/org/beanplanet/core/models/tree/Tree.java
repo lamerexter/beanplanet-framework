@@ -16,7 +16,6 @@
 package org.beanplanet.core.models.tree;
 
 import org.beanplanet.core.lang.ShallowCopyable;
-import org.beanplanet.core.models.iterators.TwoStageIterator;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -25,10 +24,34 @@ import java.util.ListIterator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.beanplanet.core.util.IteratorUtil.asStream;
-
 /**
- * Model of a tree. This model makes no assumption about how the tree node information is stored or where it comes from.
+ * Model of a tree. This model makes no assumption about how the tree node information is stored or where it comes from:
+ * a tree is defined by the children of each node ({@link #getChildren(Object)}) and the parent of each node
+ * ({@link #getParent(Object)}), and optionally a root ({@link #getRoot()}).
+ *
+ * <h2>Axes</h2>
+ * The axes are XPath's, from a context node: {@code ancestor}, {@code ancestor-or-self}, {@code child},
+ * {@code descendant}, {@code descendant-or-self}, {@code following}, {@code following-sibling}, {@code preceding} and
+ * {@code preceding-sibling} (as iterators and streams), with {@code parent} ({@link #getParent(Object)}) and
+ * {@code self}. Forward axes are in document order (preorder); the reverse axes ({@code ancestor},
+ * {@code ancestor-or-self}, {@code preceding}, {@code preceding-sibling}) are nearest first, as XPath numbers them, so
+ * the first ancestor is the parent.
+ *
+ * <h2>The root as boundary</h2>
+ * If the tree has a root, no axis goes above or beside it: within the tree, the root has no ancestors, siblings,
+ * following or preceding nodes, so no axis returns the root's own parent or siblings ({@link #getParent(Object)} still
+ * gives a node's parent, as the model has it). With no root (null), the tree extends up to each node's oldest ancestor.
+ * The root is recognised as the root object itself, or else as a node equal to it (for trees that make new node objects
+ * each time, such as files), unless the root object itself is above that node.
+ *
+ * <h2>Laziness and identity</h2>
+ * Every axis and traversal is lazy, forwards and backwards: children are listed as the iteration reaches them, and each
+ * step moves one node. Nodes are compared by identity (the same object) first and by equality only failing that, when
+ * a node is looked up among its siblings, which the axes do at most once per level of the tree, when they start; so
+ * equal nodes (two equal siblings, say) are each visited once, in their place.
+ *
+ * <h2>Iterators</h2>
+ * Every iterator is a {@link TreeIterator}: bidirectional, with the cursor semantics of {@link ListIterator}.
  *
  * @author Gary Watson
  */
@@ -64,7 +87,7 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      * @return the substree of this tree, from the given node as root of the subtree.
      */
     default Tree<E> subtree(E from) {
-        throw new UnsupportedOperationException("Subtree is not supported!");
+        return new SubtreeView<>(this, from);
     }
 
     /**
@@ -80,10 +103,10 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     * @see #getRoot() for an instance specific alternative
     */
     default E getRoot(E fromNode) {
-        E modelRootNode = getRoot();
         while (fromNode != null) {
+            if (TreePath.isRoot(this, fromNode)) return fromNode;
             E parent = getParent(fromNode);
-            if (parent == null || fromNode.equals(modelRootNode)) return fromNode;
+            if (parent == null) return fromNode;
             fromNode = parent;
         }
 
@@ -101,30 +124,32 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     /**
      * Returns the previous sibling of the node specified.
      *
-     * @return the sibling preceding that of the given node, or null if there is none.
-     * @param fromNode the node whose previous sibling is to be returned, which may not be null.
+     * @return the sibling preceding that of the given node, or null if there is none (as for the tree's root).
+     * @param fromNode the node whose previous sibling is to be returned.
      */
     default E getPreviousSibling(E fromNode) {
-        if (fromNode == null) return null;
+        E parent = TreePath.parentWithin(this, fromNode);
+        if (parent == null) return null;
 
-        E parent = getParent(fromNode);
-        int childIndex = getIndexOfChild(parent, fromNode);
-        return childIndex > 0 ? getChild(parent, childIndex-1) : null;
+        List<E> siblings = getChildren(parent);
+        int childIndex = TreePath.indexOf(siblings, fromNode);
+        return childIndex > 0 ? siblings.get(childIndex-1) : null;
     }
 
 
     /**
      * Returns the next sibling of the node specified.
      *
-     * @return the sibling following that of the given node, or null if there is none.
-     * @param fromNode the node whose next sibling is to be returned, which may not be null.
+     * @return the sibling following that of the given node, or null if there is none (as for the tree's root).
+     * @param fromNode the node whose next sibling is to be returned.
      */
     default E getNextSibling(E fromNode) {
-        if (fromNode == null) return null;
+        E parent = TreePath.parentWithin(this, fromNode);
+        if (parent == null) return null;
 
-        E parent = getParent(fromNode);
-        int childIndex = getIndexOfChild(parent, fromNode);
-        return childIndex < getNumberOfChildren(parent)-1 ? getChild(parent, childIndex+1) : null;
+        List<E> siblings = getChildren(parent);
+        int childIndex = TreePath.indexOf(siblings, fromNode);
+        return childIndex >= 0 && childIndex < siblings.size()-1 ? siblings.get(childIndex+1) : null;
     }
 
     /**
@@ -133,16 +158,22 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     * @return the node at the specified index of the parent.
     * @param parent the parent whose child node is to be located.
     * @param childIndex the index of the child to obtain.
-    * @exception ArrayIndexOutOfBoundsException thrown if the index specified is out of range.
+    * @exception IndexOutOfBoundsException thrown if the index specified is out of range.
     */
-    E getChild(E parent, int childIndex);
+    default E getChild(E parent, int childIndex) {
+        return getChildren(parent).get(childIndex);
+    }
 
     /**
     * Returns the number of child nodes of the node specified.
     *
     * @return the number of children
     */
-    int getNumberOfChildren(E parent);
+    default int getNumberOfChildren(E parent) {
+        if (parent == null) return 0;
+        List<E> children = getChildren(parent);
+        return children == null ? 0 : children.size();
+    }
 
     /**
     * Returns the index of a child node, within the list of child nodes of a parent node.
@@ -150,9 +181,11 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     * @param parent the parent of the child whose index is to be found.
     * @param child the node whose index is to be found.
     * @return the index of the specified child, within the list of child nodes of a parent, or -1 if the node is not a
-    *         child of the given parent.
+    *         child of the given parent. The child is found as the same object, or else the first equal to it.
     */
-    int getIndexOfChild(E parent, E child);
+    default int getIndexOfChild(E parent, E child) {
+        return parent == null ? -1 : TreePath.indexOf(getChildren(parent), child);
+    }
 
     /**
     * Determines whether the specified node on the tree is a leaf node. A leaf node is a terminal node (a node with no
@@ -166,7 +199,8 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     }
 
     /**
-     * Returns an iterator over the ancestors of the specified from node.
+     * Returns an iterator over the ancestors of the specified from node, nearest first: its parent, its parent's parent
+     * and so on, up to the tree's root.
      *
      * @param from the node whose ancestor nodes iterator is to be returned.
      * @return an iterator over the ancestors of the specified from node; empty if the from node has no ancestors.
@@ -177,7 +211,8 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     }
 
     /**
-     * Returns an iterator over the ancestors or self of the specified from node.
+     * Returns an iterator over the specified from node and its ancestors, nearest first: the node, its parent and so
+     * on, up to the tree's root.
      *
      * @param from the node whose ancestor or self nodes iterator is to be returned.
      * @return an iterator over the ancestors or self of the specified from node.
@@ -201,69 +236,72 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     }
 
     /**
-     * Returns an iterator over the descendant nodes from the given node.
+     * Returns an iterator over the descendant nodes of the given node, in document order: the nodes below it, and
+     * nothing beyond them.
      *
      * @param from the node whose descendant nodes iterator is to be returned.
      * @return an iterator over the descendant nodes from the given node.
      */
     @Override
-    default Iterator<E> descendantIterator(E from) {
-        return new TwoStageIterator<>(childIterator(from), this::preorderIterator);
+    default TreeIterator<E> descendantIterator(E from) {
+        return new DescendantIterator<>(this, from, false);
     }
 
     /**
-     * Returns an iterator over the descendant or self nodes deom the given node. This is a convenience method as
-     * the descendant-or-self axis is equivalent to the pre-order axis.
+     * Returns an iterator over the given node and its descendants, in document order: the preorder traversal of the
+     * node's subtree.
      *
      * @param from the node whose descendant or self nodes iterator is to be returned.
-     * @return an iterator over the descendant or self nodes from the given node; empty if the parent has no children.
+     * @return an iterator over the descendant or self nodes from the given node.
      */
     @Override
     default TreeIterator<E> descendantOrSelfIterator(E from) {
-        return preorderIterator();
+        return new DescendantIterator<>(this, from, true);
     }
 
     /**
-     * Returns an iterator over the following nodes from the given node.
+     * Returns an iterator over the following nodes of the given node, in document order: the nodes after it in the
+     * tree, other than its descendants.
      *
      * @param from the node whose following nodes iterator is to be returned.
      * @return an iterator over the following nodes from the given node.
      */
     @Override
-    default Iterator<E> followingIterator(E from) {
-        return new TwoStageIterator<>(ancestorOrSelfIterator(from), a -> new TwoStageIterator<>(followingSiblingIterator(a), fs -> subtree(fs).preorderIterator()));
+    default TreeIterator<E> followingIterator(E from) {
+        return new FollowingIterator<>(this, from);
     }
 
     /**
-     * Returns an iterator over the following sibling nodes from the given node.
+     * Returns an iterator over the following sibling nodes of the given node, in document order.
      *
      * @param from the node whose following sibling nodes iterator is to be returned.
      * @return an iterator over the following sibling nodes from the given node.
      */
     @Override
-    default Iterator<E> followingSiblingIterator(E from) {
+    default TreeIterator<E> followingSiblingIterator(E from) {
         return new FollowingSiblingIterator<>(this, from);
     }
 
     /**
-     * Returns an iterator over the preceding nodes from the given node.
+     * Returns an iterator over the preceding nodes of the given node, nearest first: the nodes before it in the tree,
+     * other than its ancestors, in reverse document order.
      *
      * @param from the node whose preceding nodes iterator is to be returned.
      * @return an iterator over the preceding nodes from the given node.
      */
     @Override
-    default Iterator<E> precedingIterator(E from) {
-        return new TwoStageIterator<>(ancestorOrSelfIterator(from), a -> new TwoStageIterator<>(precedingSiblingIterator(a), ps -> subtree(ps).preorderIterator()));
+    default TreeIterator<E> precedingIterator(E from) {
+        return new PrecedingIterator<>(this, from);
     }
 
     /**
-     * Returns an iterator over the preceding sibling nodes from the given node.
+     * Returns an iterator over the preceding sibling nodes of the given node, nearest first.
      *
      * @param from the node whose preceding sibling nodes iterator is to be returned.
      * @return an iterator over the preceding sibling nodes from the given node.
      */
     @Override
-    default Iterator<E> precedingSiblingIterator(E from) {
+    default TreeIterator<E> precedingSiblingIterator(E from) {
         return new PrecedingSiblingIterator<>(this, from);
     }
 
@@ -337,10 +375,12 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     }
 
     /**
-     * Returns a preorder iterator over all nodes in the tree, starting with the given subtree node.
+     * Returns a preorder iterator over the tree, positioned at the given node: forwards, the node and the nodes after it
+     * in document order, to the end of the tree; backwards, the nodes before it, back to the root. For the node's
+     * subtree only, use {@link #descendantOrSelfIterator(Object)}.
      *
      * @param from the node from which preorder iteration will start.
-     * @return a preorder iterator over all nodes in the subtree, starting at the given node.
+     * @return a preorder iterator over the tree, positioned at the given node.
      */
     @Override
     default TreeIterator<E> preorderIterator(E from) {
@@ -383,10 +423,12 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     }
 
     /**
-     * Returns a postorder iterator over all nodes in the tree, starting with the given subtree node.
+     * Returns a postorder iterator over the tree, positioned at the start of the given node's subtree in postorder (its
+     * first leaf): forwards, the nodes from there to the end of the tree, the root last; backwards, the nodes before it.
+     * For the node's subtree only, use {@link #subtree(Object)}'s {@link #postorderIterator()}.
      *
      * @param from the node from which the postorder iteration will start.
-     * @return a postorder iterator over all nodes in the subtree, starting at the given node.
+     * @return a postorder iterator over the tree, positioned at the start of the given node's subtree.
      */
     @Override
     default TreeIterator<E> postorderIterator(E from) {
@@ -410,9 +452,10 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     }
 
     /**
-     * Creates an ancestor stream over the elements of the tree, from the given node.
+     * Creates an ancestor stream over the elements of the tree, from the given node, nearest first, up to the tree's
+     * root.
      * @param from the node from which the ancestor stream is to be returned.
-     * @return a stream over the ancestor nodes from the given context node..
+     * @return a stream over the ancestor nodes from the given context node.
      */
     @Override
     default Stream<E> ancestorStream(E from) {
@@ -420,10 +463,10 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     }
 
     /**
-     * Returns an iterator over the ancestors or self of the specified from node.
+     * Returns a stream over the specified from node and its ancestors, nearest first, up to the tree's root.
      *
-     * @param from the node whose ancestor or self nodes iterator is to be returned.
-     * @return an iterator over the ancestors or self of the specified from node.
+     * @param from the node whose ancestor or self nodes stream is to be returned.
+     * @return a stream over the ancestors or self of the specified from node.
      */
     @Override
     default Stream<E> ancestorOrSelfStream(E from) {
@@ -447,7 +490,7 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> descendantStream(E from) {
-        return asStream(descendantIterator(from));
+        return descendantIterator(from).stream();
     }
 
     /**
@@ -467,7 +510,7 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> followingStream(E from) {
-        return asStream(followingIterator(from));
+        return followingIterator(from).stream();
     }
 
     /**
@@ -477,7 +520,7 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> followingSiblingStream(E from) {
-        return asStream(followingSiblingIterator(from));
+        return followingSiblingIterator(from).stream();
     }
 
     /**
@@ -487,7 +530,7 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> precedingStream(E from) {
-        return asStream(precedingIterator(from));
+        return precedingIterator(from).stream();
     }
 
     /**
@@ -497,13 +540,14 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
      */
     @Override
     default Stream<E> precedingSiblingStream(E from) {
-        return asStream(precedingSiblingIterator(from));
+        return precedingSiblingIterator(from).stream();
     }
 
     /**
-     * Returns a pre-order stream over all nodes in the subtree with the given sub-stree root node.
+     * Returns a pre-order stream over the tree from the given node: the node and those after it in document order, to
+     * the end of the tree. For the node's subtree only, use {@link #descendantOrSelfStream(Object)}.
      *
-     * @return a pre-order stream over all nodes in the subtree rooted at the given node.
+     * @return a pre-order stream over the tree, from the given node.
      */
     @Override
     default Stream<E> preorderStream(E from) {
@@ -545,9 +589,11 @@ public interface Tree<E> extends TreeIterators<E>, TreeStreams<E>, Serializable,
     }
 
     /**
-     * Returns a post-order stream over all nodes in the subtree with the given subtree root node.
+     * Returns a post-order stream over the tree from the start of the given node's subtree in postorder (its first
+     * leaf) to the end of the tree. For the node's subtree only, use {@link #subtree(Object)}'s
+     * {@link #postorderStream()}.
      *
-     * @return a post-order stream over all nodes in the subtree rooted at the given node.
+     * @return a post-order stream over the tree, from the start of the given node's subtree.
      */
     @Override
     default Stream<E> postorderStream(E from) {

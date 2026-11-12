@@ -13,49 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.beanplanet.core.models.tree;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.Objects;
-
-public class AncestorOrSelfIterator<T> implements TreeIterator<T> {
-    final ListIterator<T> ancestorListIterator;
-
+/**
+ * The ancestor-or-self axis: the node itself, then its parent, its parent's parent and so on, nearest first (XPath's
+ * order for this reverse axis), up to and including the tree's root, if the tree has one above the node, else the
+ * node's oldest ancestor. Lazy: each parent is found when the iteration reaches it; {@link #previous()} walks back
+ * towards the node.
+ *
+ * @param <T> the type of the tree's nodes.
+ */
+public class AncestorOrSelfIterator<T> extends AncestorAxisIterator<T> {
     public AncestorOrSelfIterator(final Tree<T> tree, final T from) {
-        LinkedList<T> ancestorList = new LinkedList<T>();
-        final T modelRootNode = tree.getRoot();
-        T ancestorOrSelf = from;
-        while (ancestorOrSelf != null && !Objects.equals(modelRootNode, ancestorOrSelf)) {
-            ancestorList.add(0, ancestorOrSelf);
-            ancestorOrSelf = tree.getParent(ancestorOrSelf);
-        }
-
-        // Add model root ancestor, if necessary
-        if (ancestorOrSelf != null) {
-            ancestorList.add(0, ancestorOrSelf);
-        }
-
-        ancestorListIterator = ancestorList.listIterator(0);
-    }
-
-    @Override
-    public boolean hasNext() {
-        return ancestorListIterator.hasNext();
-    }
-    @Override
-    public T next() {
-        return ancestorListIterator.next();
-    }
-
-    @Override
-    public boolean hasPrevious() {
-        return ancestorListIterator.hasPrevious();
-    }
-
-    @Override
-    public T previous() {
-        return ancestorListIterator.previous();
+        super(tree, from, true);
     }
 }

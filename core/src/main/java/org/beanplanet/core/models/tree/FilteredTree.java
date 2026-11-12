@@ -58,7 +58,7 @@ public class FilteredTree<T> implements Tree<T> {
     @Override
     public T getParent(T child) {
         T parent = delegate.getParent(child);
-        return filter.test(parent) ? delegate.getRoot() : null;
+        return parent != null && filter.test(parent) ? parent : null;
     }
 
     /**
@@ -95,7 +95,7 @@ public class FilteredTree<T> implements Tree<T> {
      */
     @Override
     public int getIndexOfChild(T parent, T child) {
-        return getChildren(parent).indexOf(child);
+        return TreePath.indexOf(getChildren(parent), child);
     }
 
     /**
