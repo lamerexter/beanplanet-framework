@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 /**
@@ -30,7 +32,7 @@ public final class ObjectToStringTypeConverter {
      *
      * @param value the value to be stringified.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static String toString(Object value) {
         return (value == null ? null : value.toString());
     }

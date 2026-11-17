@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.util.Arrays;
@@ -31,7 +33,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<T>}</code>.
      * @return an <code>{@link Iterable}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T> Iterable<T> arrayOfReferenceTypeToIterableConversion(T[] values) {
         return values == null ? null : Arrays.asList(values);
     }
@@ -42,7 +44,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<Byte>}</code>.
      * @return an <code>{@link Iterable<Byte>}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Iterable<Byte> arrayOfPrimitiveByteTypeToIterableConversion(byte[] values) {
         return values == null ? null : () -> new Iterator<>() {
             private int currIdx = 0;
@@ -65,7 +67,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<Boolean>}</code>.
      * @return an <code>{@link Iterable<Boolean>}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Iterable<Boolean> arrayOfPrimitiveByteTypeToIterableConversion(boolean[] values) {
         return values == null ? null : () -> new Iterator<>() {
             private int currIdx = 0;
@@ -88,7 +90,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<Character>}</code>.
      * @return an <code>{@link Iterable<Character>}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Iterable<Character> arrayOfPrimitiveByteTypeToIterableConversion(char[] values) {
         return values == null ? null : () -> new Iterator<>() {
             private int currIdx = 0;
@@ -111,7 +113,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<Double>}</code>.
      * @return an <code>{@link Iterable<Double>}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Iterable<Double> arrayOfPrimitiveBooleanTypeToIterableConversion(double[] values) {
         return values == null ? null : () -> new Iterator<>() {
             private int currIdx = 0;
@@ -134,7 +136,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<Float>}</code>.
      * @return an <code>{@link Iterable<Float>}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Iterable<Float> arrayOfPrimitiveFloatTypeToIterableConversion(float[] values) {
         return values == null ? null : () -> new Iterator<>() {
             private int currIdx = 0;
@@ -157,7 +159,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<Integer>}</code>.
      * @return an <code>{@link Iterable<Integer>}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Iterable<Integer> arrayOfPrimitiveIntTypeToIterableConversion(int[] values) {
         return values == null ? null : () -> new Iterator<>() {
             private int currIdx = 0;
@@ -180,7 +182,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<Long>}</code>.
      * @return an <code>{@link Iterable<Long>}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Iterable<Long> arrayOfPrimitiveLongTypeToIterableConversion(long[] values) {
         return values == null ? null : () -> new Iterator<>() {
             private int currIdx = 0;
@@ -203,7 +205,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<Short>}</code>.
      * @return an <code>{@link Iterable<Short>}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Iterable<Short> arrayOfPrimitiveShortTypeToIterableConversion(short[] values) {
         return values == null ? null : () -> new Iterator<>() {
             private int currIdx = 0;
@@ -226,7 +228,7 @@ public final class ToIterableTypeConverter {
      * @param values an array containing the list values to be converted to a new <code>{@link Iterable<Enum<T>>}</code>.
      * @return an <code>{@link Iterable<Enum<T>>}</code> over the elements of the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T extends Enum<T>> Iterable<Enum<T>> arrayOfPrimitiveByteTypeToIterableConversion(Enum<T>[] values) {
         return values == null ? null : () -> new Iterator<>() {
             private int currIdx = 0;

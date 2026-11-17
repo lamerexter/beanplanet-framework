@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.util.ArrayList;
@@ -32,7 +34,7 @@ public final class CollectionToCollectionTypeConverter {
      *
      * @param value a set containing the list values preserved in order of appearance in the list, or null if the list was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static <T> Set<T> listToSetConversion(List<T> value) {
         return value == null ? null : new LinkedHashSet<>(value);
     }
@@ -43,7 +45,7 @@ public final class CollectionToCollectionTypeConverter {
      *
      * @param value a list containing the values in order of appearance in the set, or null if the set was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T> List<T> setToListConversion(Set<T> value) {
         return value == null ? null : new ArrayList<>(value);
     }

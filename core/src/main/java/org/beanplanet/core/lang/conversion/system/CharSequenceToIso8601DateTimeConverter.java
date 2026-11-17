@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.time.*;
@@ -28,37 +30,37 @@ import java.util.Date;
  */
 @TypeConverter
 public final class CharSequenceToIso8601DateTimeConverter {
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static Date stringToDate(final CharSequence value) {
         return value == null ? null : Date.from(stringToInstant(value));
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static Instant stringToInstant(final CharSequence value) {
         return value == null ? null : Instant.parse(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static LocalDate stringToLocalDate(final CharSequence value) {
         return value == null ? null : LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static LocalDateTime stringToLocalDateTime(final CharSequence value) {
         return value == null ? null : LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static OffsetDateTime stringToOffsetDateTime(final CharSequence value) {
         return value == null ? null : OffsetDateTime.parse(value, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static OffsetTime stringToOffsetTime(final CharSequence value) {
         return value == null ? null : OffsetTime.parse(value, DateTimeFormatter.ISO_OFFSET_TIME);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static ZonedDateTime stringToZonedDateTime(final CharSequence value) {
         return value == null ? null : ZonedDateTime.parse(value, DateTimeFormatter.ISO_ZONED_DATE_TIME);
     }

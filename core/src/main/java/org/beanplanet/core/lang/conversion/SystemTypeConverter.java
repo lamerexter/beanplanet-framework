@@ -100,6 +100,30 @@ public class SystemTypeConverter extends AbstractTypeConverterRegistry implement
                    ).convert(value, targetType);
     }
 
+    /**
+     * As {@link #convert(Object, Class)}, unless the conversion is narrowing and narrowing is not allowed (a value of
+     * the type itself, or null, is never converted).
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T convert(Object value, Class<T> targetType, boolean allowNarrowing) throws UnsupportedTypeConversionException {
+        checkLoaded();
+        if (value == null)
+            return null;
+        if (targetType.isAssignableFrom(value.getClass()))
+            return (T) value;
+        return lookup(value.getClass(), targetType)
+                   .orElseThrow(() -> new UnsupportedTypeConversionException(format("Type converter from type \"%s\" to type \"%s\" not found",
+                                                                                    value.getClass().getName(), targetType.getName())))
+                   .convert(value, targetType, allowNarrowing);
+    }
+
+    @Override
+    public java.util.Optional<ConversionKind> kindOf(final Class<?> fromType, final Class<?> toType) {
+        checkLoaded();
+        return super.kindOf(fromType, toType);
+    }
+
     public static void main(String... args) {
         SystemTypeConverter.getInstance().convert(1L, String.class);
     }

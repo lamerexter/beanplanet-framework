@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.util.Arrays;
@@ -31,7 +33,7 @@ public final class ArrayBoxingTypeConverters {
      * @param value the array to be converted.
      * @return an array of {@link Boolean} containing the same elements as source array, or null if the array provided was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Boolean[] primitiveBooleanArrayToBooleanWrapperArray(boolean[] value) {
         if (value == null) return null;
 
@@ -49,7 +51,7 @@ public final class ArrayBoxingTypeConverters {
      * @param value the array to be converted.
      * @return an array of {@link Byte} containing the same elements as source array, or null if the array provided was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Byte[] primitiveByteArrayToByteWrapperArray(byte[] value) {
         if (value == null) return null;
 
@@ -67,7 +69,7 @@ public final class ArrayBoxingTypeConverters {
      * @param value the array to be converted.
      * @return an array of {@link Character} containing the same elements as source array, or null if the array provided was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Character[] primitiveCharArrayToCharacterWrapperArray(char[] value) {
         if (value == null) return null;
 
@@ -85,7 +87,7 @@ public final class ArrayBoxingTypeConverters {
      * @param value the array to be converted.
      * @return an array of {@link Double} containing the same elements as source array, or null if the array provided was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Double[] primitiveDoubleArrayToDoubleWrapperArray(double[] value) {
         return value == null ? null : Arrays.stream(value).boxed().toArray(Double[]::new);
     }
@@ -96,7 +98,7 @@ public final class ArrayBoxingTypeConverters {
      * @param value the array to be converted.
      * @return an array of {@link Float} containing the same elements as source array, or null if the array provided was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Float[] primitiveFloatArrayToFloatWrapperArray(float[] value) {
         if (value == null) return null;
 
@@ -114,7 +116,7 @@ public final class ArrayBoxingTypeConverters {
      * @param value the array to be converted.
      * @return an array of {@link Integer} containing the same numbers, or null if the array provided was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Integer[] primitiveIntArrayToIntegerWrapperArray(int[] value) {
         return value == null ? null : Arrays.stream(value).boxed().toArray(Integer[]::new);
     }
@@ -125,7 +127,7 @@ public final class ArrayBoxingTypeConverters {
      * @param value the array to be converted.
      * @return an array of {@link Long} containing the same numbers, or null if the array provided was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Long[] primitiveLongArrayToLongWrapperArray(long[] value) {
         return value == null ? null : Arrays.stream(value).boxed().toArray(Long[]::new);
     }
@@ -136,7 +138,7 @@ public final class ArrayBoxingTypeConverters {
      * @param value the array to be converted.
      * @return an array of {@link Short} containing the same elements as source array, or null if the array provided was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Short[] primitiveFloatArrayToFloatWrapperArray(short[] value) {
         if (value == null) return null;
 

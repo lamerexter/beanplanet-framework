@@ -25,6 +25,33 @@ package org.beanplanet.core.lang.conversion;
  */
 public interface TypeConverter {
    /**
+    * What this converter's conversions do to a value: widening, narrowing or unspecified (the default).
+    *
+    * @return the kind of conversion.
+    */
+   default ConversionKind getKind() {
+      return ConversionKind.UNSPECIFIED;
+   }
+
+   /**
+    * Converts the value, unless the conversion is narrowing and narrowing is not allowed.
+    *
+    * @param value the value to convert.
+    * @param targetType the type to convert it to.
+    * @param allowNarrowing whether a narrowing conversion ({@link ConversionKind#NARROWING}) may be made.
+    * @return the converted value.
+    * @throws UnsupportedTypeConversionException if there is no conversion, or only a narrowing one when narrowing is
+    *         not allowed.
+    */
+   default <T> T convert(Object value, Class<T> targetType, boolean allowNarrowing) throws UnsupportedTypeConversionException {
+      if (!allowNarrowing && getKind() == ConversionKind.NARROWING) {
+         throw new UnsupportedTypeConversionException("A narrowing conversion of " + (value == null ? "null" : value.getClass().getName())
+                                                      + " to " + targetType.getName() + " is not allowed: convert explicitly");
+      }
+      return convert(value, targetType);
+   }
+
+   /**
     * Convert a given value to the specified target type.
     * 
     * @param value the value to be converted, which may be null.

@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.DateTimeConversionUtil;
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
@@ -26,37 +28,37 @@ import java.util.Date;
  */
 @TypeConverter
 public final class OffsetDateTimeConverter {
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static Date toDate(final OffsetDateTime value) {
         return DateTimeConversionUtil.toDate(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Instant toInstant(final OffsetDateTime value) {
         return DateTimeConversionUtil.toInstant(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static LocalDate toLocalDate(final OffsetDateTime value) {
         return DateTimeConversionUtil.toLocalDate(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static LocalDateTime toLocalDateTime(final OffsetDateTime value) {
         return DateTimeConversionUtil.toLocalDateTime(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static long toLongPrimitive(final OffsetDateTime value) {
         return DateTimeConversionUtil.toLong(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static Long toLongPrimitiveWrapper(final OffsetDateTime value) {
         return DateTimeConversionUtil.toLong(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static ZonedDateTime toZonedDateTime(final OffsetDateTime value) {
         return DateTimeConversionUtil.toZonedDateTime(value);
     }

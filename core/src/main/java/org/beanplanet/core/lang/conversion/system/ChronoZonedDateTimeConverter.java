@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.time.Instant;
@@ -25,7 +27,7 @@ import java.time.chrono.ChronoZonedDateTime;
  */
 @TypeConverter
 public final class ChronoZonedDateTimeConverter {
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Instant chronoDateTimeToInstant(final ChronoZonedDateTime<?> value) {
         return value == null ? null : value.toInstant();
     }

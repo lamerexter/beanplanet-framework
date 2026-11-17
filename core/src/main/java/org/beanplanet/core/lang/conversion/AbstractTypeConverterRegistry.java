@@ -102,6 +102,27 @@ public abstract class AbstractTypeConverterRegistry implements TypeConverterRegi
       return Optional.ofNullable(matchingConverter);
    }
 
+   /**
+    * The kind of conversion between the types by a converter bound to them (to the type, from the type or one of its
+    * supertypes), or from the type to any type; converters for any type to any type (dynamic) are not counted.
+    */
+   @Override
+   public Optional<ConversionKind> kindOf(final Class<?> fromType, final Class<?> toType) {
+      final Map<Class<?>, CompositeTypeConverter> sourceConvertersForTarget = converters.get(toType);
+      if (sourceConvertersForTarget != null) {
+         CompositeTypeConverter converter = sourceConvertersForTarget.get(fromType);
+         if (converter == null) {
+            converter = sourceConvertersForTarget.entrySet().stream()
+                                                 .filter(e -> e.getKey() != Object.class || toType != Object.class)
+                                                 .filter(e -> e.getKey().isAssignableFrom(fromType))
+                                                 .map(Map.Entry::getValue)
+                                                 .findFirst().orElse(null);
+         }
+         if (converter != null && !(fromType == Object.class && toType == Object.class)) return Optional.of(converter.getKind());
+      }
+      return Optional.empty();
+   }
+
    public int size() {
       int size = 0;
       for (Map.Entry<Class<?>, ConcurrentHashMap<Class<?>, CompositeTypeConverter>> targetEntry : converters.entrySet()) {

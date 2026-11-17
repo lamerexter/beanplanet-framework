@@ -85,6 +85,34 @@ public class CompositeTypeConverter implements TypeConverter, Iterable<TypeConve
       return (converters == null ? 0 : converters.size());
     }
 
+    /** Widening if any of its converters is, else unspecified if any is, else narrowing. */
+    @Override
+    public ConversionKind getKind() {
+        final java.util.List<ConversionKind> kinds = new ArrayList<>();
+        if (converters != null) for (TypeConverter converter : converters) kinds.add(converter.getKind());
+        return ConversionKind.combined(kinds);
+    }
+
+    /** As {@link #convert(Object, Class)}, using only converters that are not narrowing, unless narrowing is allowed. */
+    @Override
+    public <T> T convert(Object value, Class<T> targetType, boolean allowNarrowing) throws UnsupportedTypeConversionException {
+        if (allowNarrowing) return convert(value, targetType);
+        UnsupportedTypeConversionException last = null;
+        if (converters != null) {
+            for (TypeConverter converter : converters) {
+                if (converter.getKind() == ConversionKind.NARROWING) continue;
+                try {
+                    return converter.convert(value, targetType, false);
+                } catch (UnsupportedTypeConversionException e) {
+                    last = e;
+                }
+            }
+        }
+        if (last != null) throw last;
+        throw new UnsupportedTypeConversionException("A narrowing conversion of " + (value == null ? "null" : value.getClass().getName())
+                                                     + " to " + targetType.getName() + " is not allowed: convert explicitly");
+    }
+
     public <T> T convert(Object value, Class<T> targetType) throws UnsupportedTypeConversionException {
         if ( converters != null ) {
          for (Iterator<TypeConverter> tcIterator = converters.iterator(); tcIterator.hasNext(); ) {

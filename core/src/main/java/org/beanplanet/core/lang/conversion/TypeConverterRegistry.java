@@ -22,6 +22,19 @@ public interface TypeConverterRegistry {
    void addConverter(Class<?> fromType, TypeConverter converter);
    void addConverter(TypeConverter converter);
    Optional<TypeConverter> lookup(Class<?> fromType, Class<?> toType);
+
+   /**
+    * The kind of conversion the registry's converters make from one type to another, as far as it can be known before
+    * converting a value: empty if there is no converter for the types (a converter that decides only when called,
+    * registered for any type, is not counted).
+    *
+    * @param fromType the type converted from.
+    * @param toType the type converted to.
+    * @return the kind of the conversion, if there is one.
+    */
+   default Optional<ConversionKind> kindOf(Class<?> fromType, Class<?> toType) {
+      return lookup(fromType, toType).map(TypeConverter::getKind);
+   }
    
    int size();
    void clear();

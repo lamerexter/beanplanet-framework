@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.lang.reflect.Array;
@@ -36,7 +38,7 @@ public final class StreamToArrayConverters {
      * @throws ArrayStoreException if one or more elements from the stream are not assignable to the given component type.
      */
     @SuppressWarnings("unchecked")
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T> T[] streamToArray(final Stream<T> value, final Class<T> targetType) {
         final Class<?> componentType = targetType.isArray() ? targetType.getComponentType() : targetType;
         return (value == null ? null : value.toArray(size -> (T[]) Array.newInstance(componentType, size)));
@@ -48,7 +50,7 @@ public final class StreamToArrayConverters {
      * @param value      the stream to be converted to an array of primitive boolean.
      * @return an array of primitive boolean, or null if the stream was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static boolean[] streamToPrimitiveBooleanArray(final Stream<Boolean> value) {
         if (value == null) return null;
 
@@ -66,7 +68,7 @@ public final class StreamToArrayConverters {
      * @param value      the stream to be converted to an array of primitive byte.
      * @return an array of primitive byte, or null if the stream was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static byte[] streamToPrimitiveByteArray(final Stream<Byte> value) {
         if (value == null) return null;
 
@@ -84,7 +86,7 @@ public final class StreamToArrayConverters {
      * @param value      the stream to be converted to an array of primitive char.
      * @return an array of primitive char, or null if the stream was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static char[] streamToPrimitiveCharArray(final Stream<Character> value) {
         if (value == null) return null;
 
@@ -102,7 +104,7 @@ public final class StreamToArrayConverters {
      * @param value      the stream to be converted to an array of primitive float.
      * @return an array of primitive float, or null if the stream was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static float[] streamToPrimitiveFloatArray(final Stream<Float> value) {
         if (value == null) return null;
 
@@ -120,7 +122,7 @@ public final class StreamToArrayConverters {
      * @param value      the stream to be converted to an array of primitive double.
      * @return an array of primitive double, or null if the stream was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static double[] streamToPrimitiveDoubleArray(final Stream<Double> value) {
         return value == null ? null : value.mapToDouble(Double::doubleValue).toArray();
     }
@@ -131,7 +133,7 @@ public final class StreamToArrayConverters {
      * @param value      the stream to be converted to an array of primitive integer.
      * @return an array of primitive integer, or null if the stream was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static int[] streamToPrimitiveIntArray(final Stream<Integer> value) {
         return value == null ? null : value.mapToInt(Integer::intValue).toArray();
     }
@@ -142,7 +144,7 @@ public final class StreamToArrayConverters {
      * @param value      the stream to be converted to an array of primitive long.
      * @return an array of primitive long, or null if the stream was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static long[] streamToPrimitiveLongArray(final Stream<Long> value) {
         return value == null ? null : value.mapToLong(Long::longValue).toArray();
     }
@@ -153,7 +155,7 @@ public final class StreamToArrayConverters {
      * @param value      the stream to be converted to an array of primitive short.
      * @return an array of primitive short, or null if the stream was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static short[] streamToPrimitiveShortArray(final Stream<Short> value) {
         if (value == null) return null;
 

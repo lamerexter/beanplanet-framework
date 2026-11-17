@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.util.Arrays;
@@ -34,7 +36,7 @@ public final class SequenceToStreamConverters {
      *
      * @param value the array to be streamed.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T> Stream<T> arrayToStream(T[] value) {
         return (value == null ? null : Arrays.stream(value));
     }
@@ -44,7 +46,7 @@ public final class SequenceToStreamConverters {
      *
      * @param value the array to be streamed.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static Stream<Integer> arrayToStream(int[] value) {
         return (value == null ? null : Arrays.stream(value).boxed());
     }
@@ -54,7 +56,7 @@ public final class SequenceToStreamConverters {
      *
      * @param value the list to be streamed.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T> Stream<T> listToStream(List<T> value) {
         return (value == null ? null : value.stream());
     }
@@ -64,7 +66,7 @@ public final class SequenceToStreamConverters {
      *
      * @param value the set to be streamed.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T> Stream<T> setToStream(Set<T> value) {
         return (value == null ? null : value.stream());
     }
@@ -74,7 +76,7 @@ public final class SequenceToStreamConverters {
      *
      * @param value the map to be streamed.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <K, V> Stream<Map.Entry<K, V>> mapToStream(Map<K, V> value) {
         return (value == null ? null : value.entrySet().stream());
     }

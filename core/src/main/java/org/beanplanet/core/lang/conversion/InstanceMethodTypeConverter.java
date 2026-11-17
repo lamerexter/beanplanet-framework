@@ -76,6 +76,14 @@ public class InstanceMethodTypeConverter implements TypeConverter {
       return typeConverterMethod;
    }
 
+   /** The kind its method's {@code @TypeConverter} annotation declares. */
+   @Override
+   public ConversionKind getKind() {
+      final org.beanplanet.core.lang.conversion.annotations.TypeConverter annotation = typeConverterMethod == null ? null :
+            typeConverterMethod.getAnnotation(org.beanplanet.core.lang.conversion.annotations.TypeConverter.class);
+      return annotation == null ? ConversionKind.UNSPECIFIED : annotation.kind();
+   }
+
 
    /**
     * Sets the type converter method used in this converter.

@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.util.LinkedHashSet;
@@ -34,7 +36,7 @@ public final class StreamToCollectionConverters {
      * @param value the stream to be reduced to a list.
      */
     @SuppressWarnings("unchecked")
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T> List<T> streamToList(final Stream<T> value) {
         return (value == null ? null : value.collect(Collectors.toList()));
     }
@@ -45,7 +47,7 @@ public final class StreamToCollectionConverters {
      * @param value the stream to be reduced to an ordered set.
      */
     @SuppressWarnings("unchecked")
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static <T> LinkedHashSet<T> streamToLinkedHashSet(final Stream<T> value) {
         return (value == null ? null : value.collect(Collectors.toCollection(LinkedHashSet::new)));
     }
@@ -56,7 +58,7 @@ public final class StreamToCollectionConverters {
      * @param value the stream to be reduced to an ordered set.
      */
     @SuppressWarnings("unchecked")
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static <T> Set<T> streamToSet(final Stream<T> value) {
         return streamToLinkedHashSet(value);
     }

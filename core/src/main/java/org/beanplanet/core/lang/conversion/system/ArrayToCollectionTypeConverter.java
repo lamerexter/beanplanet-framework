@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public final class ArrayToCollectionTypeConverter {
      * @param values an array containing the list values to be added to a new <code>{@link LinkedHashSet}</code>.
      * @return a <code>{@link LinkedHashSet}</code> containing the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static <T> Set<T> arrayOfReferenceTypeToLinkedHashSetConversion(T[] values) {
         return values == null ? null : new LinkedHashSet<>(asList(values));
     }
@@ -46,7 +48,7 @@ public final class ArrayToCollectionTypeConverter {
      * @param values an array containing the list values to be added to a new <code>{@link List}</code>.
      * @return a <code>{@link List}</code> containing the array values preserved in order of appearance, or null if the array was null.
      */
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T> List<T> arrayOfReferenceTypeToListConversion(T[] values) {
         return values == null ? null : new ArrayList<>(asList(values));
     }

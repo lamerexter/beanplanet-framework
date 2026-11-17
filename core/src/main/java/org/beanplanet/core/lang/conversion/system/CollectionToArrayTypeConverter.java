@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
 import java.lang.reflect.Array;
@@ -31,7 +33,7 @@ public final class CollectionToArrayTypeConverter {
      * @param value a set containing the list values preserved in order of appearance in the list, or null if the list was null.
      */
     @SuppressWarnings("unchecked")
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.WIDENING)
     public static <T> T[] collectionToArray(Collection<T> value, Class<T> arraytype) {
         return (value == null ? null : value.stream().toArray(size -> (T[])Array.newInstance(arraytype.getComponentType(), size)));
     }

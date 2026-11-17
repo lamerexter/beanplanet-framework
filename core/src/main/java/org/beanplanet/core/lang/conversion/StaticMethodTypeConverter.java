@@ -73,6 +73,14 @@ public class StaticMethodTypeConverter implements TypeConverter {
       return typeConverterMethod;
    }
 
+   /** The kind its method's {@code @TypeConverter} annotation declares. */
+   @Override
+   public ConversionKind getKind() {
+      final org.beanplanet.core.lang.conversion.annotations.TypeConverter annotation =
+            typeConverterMethod.getAnnotation(org.beanplanet.core.lang.conversion.annotations.TypeConverter.class);
+      return annotation == null ? ConversionKind.UNSPECIFIED : annotation.kind();
+   }
+
    @SuppressWarnings("unchecked")
    public <T> T convert(final Object value, final Class<T> targetType) throws UnsupportedTypeConversionException {
       Assert.notNull(typeConverterMethod, "The type converter method may not be null");

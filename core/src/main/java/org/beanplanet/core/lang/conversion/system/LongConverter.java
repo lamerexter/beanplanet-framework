@@ -15,6 +15,8 @@
  */
 package org.beanplanet.core.lang.conversion.system;
 
+import org.beanplanet.core.lang.conversion.ConversionKind;
+
 import org.beanplanet.core.lang.conversion.DateTimeConversionUtil;
 import org.beanplanet.core.lang.conversion.annotations.TypeConverter;
 
@@ -28,52 +30,52 @@ import java.util.Date;
  */
 @TypeConverter
 public final class LongConverter {
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static Date toDate(final long value) {
         return DateTimeConversionUtil.toDate(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static Date toDate(final Long value) {
         return DateTimeConversionUtil.toDate(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static Instant toInstant(final long value) {
         return DateTimeConversionUtil.toInstant(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static Instant toInstant(final Long value) {
         return DateTimeConversionUtil.toInstant(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static LocalDate toLocalDate(final long value) {
         return DateTimeConversionUtil.toLocalDate(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static LocalDate toLocalDate(final Long value) {
         return DateTimeConversionUtil.toLocalDate(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static ZonedDateTime toOffsetDateTime(final long value) {
         return DateTimeConversionUtil.toZonedDateTime(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static ZonedDateTime toOffsetDateTime(final Long value) {
         return DateTimeConversionUtil.toZonedDateTime(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static ZonedDateTime toZonedDateTime(final long value) {
         return DateTimeConversionUtil.toZonedDateTime(value);
     }
 
-    @TypeConverter
+    @TypeConverter(kind = ConversionKind.NARROWING)
     public static ZonedDateTime toZonedDateTime(final Long value) {
         return DateTimeConversionUtil.toZonedDateTime(value);
     }

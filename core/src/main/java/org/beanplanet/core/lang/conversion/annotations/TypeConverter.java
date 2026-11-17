@@ -34,5 +34,10 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TypeConverter {
-
+    /**
+     * What the conversion does to a value: {@link org.beanplanet.core.lang.conversion.ConversionKind#WIDENING} (without
+     * loss), {@link org.beanplanet.core.lang.conversion.ConversionKind#NARROWING} (it may lose information, assume
+     * something or fail), or unspecified (the default: never treated as narrowing).
+     */
+    org.beanplanet.core.lang.conversion.ConversionKind kind() default org.beanplanet.core.lang.conversion.ConversionKind.UNSPECIFIED;
 }
