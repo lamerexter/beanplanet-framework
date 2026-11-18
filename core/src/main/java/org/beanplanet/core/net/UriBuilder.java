@@ -77,12 +77,8 @@ public class UriBuilder {
             withPort(uri.getPort());
             path(uri.getPath());
 
-            if (!isBlank(uri.getQuery())) {
-                queryParameters(new MultiValueListMapImpl<>(
-                        Arrays.asList(uri.getQuery().split("&")).stream()
-                              .map(s -> s.split("="))
-                              .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())))
-                ));
+            if (!isBlank(uri.getRawQuery())) {
+                queryParameters(parseQuery(uri.getRawQuery()));
             }
 
             fragment(uri.getFragment());
@@ -161,6 +157,26 @@ public class UriBuilder {
     public UriBuilder path(String path) {
         this.path = path;
         return this;
+    }
+
+    /**
+     * Parses a raw (still encoded) query string into its parameters, in the order they appear: a name may repeat, a
+     * parameter may have no value ({@code ?flag}, given as the empty string) or an empty one ({@code ?a=}), and a value
+     * may itself contain {@code =}. Names and values are decoded once, after splitting, so an encoded {@code &} or
+     * {@code =} ({@code %26}, {@code %3D}) stays part of its value.
+     *
+     * @param rawQuery the query as it appears in the URI, without the leading {@code ?}; may be null or empty
+     * @return the parameters, possibly empty
+     */
+    public static MultiValueListMap<String, String> parseQuery(final String rawQuery) {
+        MultiValueListMap<String, String> parameters = new MultiValueListMapImpl<>(new java.util.LinkedHashMap<>());
+        if (isBlank(rawQuery)) return parameters;
+        for (String pair : rawQuery.split("&")) {
+            if (pair.isEmpty()) continue;
+            String[] nameAndValue = pair.split("=", 2);
+            parameters.addValue(decode(nameAndValue[0]), nameAndValue.length > 1 ? decode(nameAndValue[1]) : "");
+        }
+        return parameters;
     }
 
     public MultiValueListMap<String, String> queryParameters() {

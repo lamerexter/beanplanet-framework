@@ -91,4 +91,57 @@ public class UriBuilderTest {
         // Verify the exception message contains the expected text
         assertThat(exception.getMessage(), org.hamcrest.CoreMatchers.containsString("incomplete or invalid URI"));
     }
+
+    @Test
+    public void queryParameterWithoutAValueOrWithAnEmptyOneIsTheEmptyString() {
+        // When
+        UriBuilder builder = new UriBuilder(URI.create("https://theHost/thePath?flag&a=&b=2"));
+
+        // Then
+        assertThat(builder.queryParameters().get("flag"), equalTo(java.util.List.of("")));
+        assertThat(builder.queryParameters().get("a"), equalTo(java.util.List.of("")));
+        assertThat(builder.queryParameters().get("b"), equalTo(java.util.List.of("2")));
+        assertThat(builder.hasQueryParameter("flag"), equalTo(true));
+    }
+
+    @Test
+    public void queryValueContainingEqualsIsKeptWhole() {
+        // When
+        UriBuilder builder = new UriBuilder(URI.create("https://theHost/thePath?sig=ab%3D%3D&q=a=b&raw=x==="));
+
+        // Then
+        assertThat(builder.queryParameters().get("sig"), equalTo(java.util.List.of("ab==")));
+        assertThat(builder.queryParameters().get("q"), equalTo(java.util.List.of("a=b")));
+        assertThat(builder.queryParameters().get("raw"), equalTo(java.util.List.of("x===")));
+    }
+
+    @Test
+    public void encodedAmpersandAndPlusStayPartOfTheirValueAndAreDecodedOnce() {
+        // When
+        UriBuilder builder = new UriBuilder(URI.create("https://theHost/thePath?name=Smith%20%26%20Jones&sum=1%2B1&space=a+b&pct=100%25"));
+
+        // Then
+        assertThat(builder.queryParameters().get("name"), equalTo(java.util.List.of("Smith & Jones")));
+        assertThat(builder.queryParameters().get("sum"), equalTo(java.util.List.of("1+1")));
+        assertThat(builder.queryParameters().get("space"), equalTo(java.util.List.of("a b")));
+        assertThat(builder.queryParameters().get("pct"), equalTo(java.util.List.of("100%")));
+        assertThat(builder.queryParameters().size(), equalTo(4));
+    }
+
+    @Test
+    public void repeatedNamesKeepEveryValueInOrderAndEmptySegmentsAreIgnored() {
+        // When
+        UriBuilder builder = new UriBuilder(URI.create("https://theHost/thePath?tag=b&&tag=a&x=1&tag=c&"));
+
+        // Then
+        assertThat(builder.queryParameters().get("tag"), equalTo(java.util.List.of("b", "a", "c")));
+        assertThat(new java.util.ArrayList<>(builder.queryParameters().keySet()), equalTo(java.util.List.of("tag", "x")));
+    }
+
+    @Test
+    public void parseQueryOfNothingIsEmpty() {
+        assertThat(UriBuilder.parseQuery(null).isEmpty(), equalTo(true));
+        assertThat(UriBuilder.parseQuery("").isEmpty(), equalTo(true));
+        assertThat(UriBuilder.parseQuery("&&").isEmpty(), equalTo(true));
+    }
 }
