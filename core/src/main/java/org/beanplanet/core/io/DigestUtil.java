@@ -25,9 +25,9 @@ import org.beanplanet.core.io.resource.StringResource;
 import org.beanplanet.core.lang.Assert;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.HexFormat;
 
 /**
  * I/O Stream utility class.
@@ -301,20 +301,14 @@ public class DigestUtil {
     }
 
     /**
-     * Converts a hash of bytes to hexadecimal string notation.
+     * Converts a hash of bytes to hexadecimal string notation: two lower-case digits for every byte, leading zero bytes
+     * included, so a digest's text is always twice its length in bytes (64 characters for SHA-256).
      *
      * @param hash the hash byte codes to convert.
      * @return the hexadecimal (base 16) string representation of the hash codes.
      */
     public static String hashToHexadecimalString(byte hash[]) {
-        String encodedStr = new BigInteger(1, hash).toString(16);
-
-      /* this is important, toString leaves out initial 0 */
-        if (encodedStr.length() % 2 > 0) {
-            encodedStr = "0" + encodedStr;
-        }
-
-        return encodedStr;
+        return HexFormat.of().formatHex(hash);
     }
 
     /**
