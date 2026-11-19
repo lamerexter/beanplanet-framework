@@ -16,9 +16,8 @@
 
 package org.beanplanet.core.beans;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A cache of JavaBean related meta data, used by <code>JavaBean</code>.
@@ -26,7 +25,20 @@ import java.util.Map;
  * @author Gary Watson
  */
 class JavabeanMetadataCache {
-    protected Map<String, JavabeanMetadata> metaDataCache = Collections.synchronizedMap(new HashMap<String, JavabeanMetadata>());
+    /** The key of metadata inspected up to and including Object (no stop class). */
+    private static final Object NO_STOP_CLASS = new Object();
+
+    /**
+     * Each class's metadata, by stop class: kept with the class itself, so two classes of the same name (loaded by
+     * different class loaders, as each compiled script's are) never share metadata, and a class's metadata goes when
+     * the class is unloaded.
+     */
+    private final ClassValue<Map<Object, JavabeanMetadata>> metaDataCache = new ClassValue<>() {
+        @Override
+        protected Map<Object, JavabeanMetadata> computeValue(final Class<?> type) {
+            return new ConcurrentHashMap<>();
+        }
+    };
 
     private static JavabeanMetadataCache systemCache = new JavabeanMetadataCache();
 
@@ -42,14 +54,6 @@ class JavabeanMetadataCache {
 
     public static void setSystemCache(JavabeanMetadataCache systemCache) {
         JavabeanMetadataCache.systemCache = systemCache;
-    }
-
-    public Map<String, JavabeanMetadata> getMetaDataCache() {
-        return metaDataCache;
-    }
-
-    public void setMetaDataCache(Map<String, JavabeanMetadata> metaDataCache) {
-        this.metaDataCache = metaDataCache;
     }
 
     /**
@@ -85,27 +89,6 @@ class JavabeanMetadataCache {
      * @exception BeanException thrown if an error occurs inspecting the design patterns of the bean.
      */
     public JavabeanMetadata getBeanMetaData(Class<?> startClass, Class<?> stopClass) throws BeanException {
-        String metaDataKey = getBeanMetaDataKey(startClass, stopClass);
-        JavabeanMetadata metaData = metaDataCache.computeIfAbsent(metaDataKey, k -> new JavabeanMetadata(startClass, stopClass));
-
-        return metaData;
-    }
-
-    /**
-     * Computes a hash key for a <code>BeanMetaData</code> object, based on specified design start and stop classes.
-     *
-     * @param startClass the class whose property design patterns are to be discovered
-     * @param stopClass the base class upto which, but not including, the design patterns on the bean will be discovered
-     *        and modelled. Can be null to indicate no stop class; in which case all properties upto and including
-     *        <code>Object</code> will be inspected.
-     * @return a hash key for the specified start/stop classes.
-     */
-    public String getBeanMetaDataKey(Class<?> startClass, Class<?> stopClass) {
-        StringBuilder s = new StringBuilder();
-        s.append(startClass.getName());
-        if (stopClass != null) {
-            s.append("_").append(stopClass.getName());
-        }
-        return s.toString();
+        return metaDataCache.get(startClass).computeIfAbsent(stopClass == null ? NO_STOP_CLASS : stopClass, k -> new JavabeanMetadata(startClass, stopClass));
     }
 }
